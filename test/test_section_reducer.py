@@ -1,5 +1,6 @@
-import pytest
 import os
+
+import pytest
 
 SERVICE_CONFIG_NAME = "service_manifest.yml"
 TEMP_SERVICE_CONFIG_PATH = os.path.join("/tmp", SERVICE_CONFIG_NAME)
@@ -19,8 +20,8 @@ def teardown_module():
 class TestSectionReducer:
     @staticmethod
     def test_reduce():
-        from assemblyline_v4_service.common.section_reducer import reduce
         from assemblyline_v4_service.common.result import Result, ResultSection
+        from assemblyline_v4_service.common.section_reducer import reduce
         res = Result()
         result_section = ResultSection("blah")
         res.add_section(result_section)
@@ -36,8 +37,8 @@ class TestSectionReducer:
                                   "https://google.com?query=coco"]},
                                {"network.dynamic.uri": ["https://google.com?query=${ALPHA}"]},), ])
     def test_section_traverser(tags, correct_tags):
-        from assemblyline_v4_service.common.section_reducer import _section_traverser
         from assemblyline_v4_service.common.result import ResultSection
+        from assemblyline_v4_service.common.section_reducer import _section_traverser
         section = ResultSection("blah")
         subsection = ResultSection("subblah")
         for t_type, t_values in tags.items():

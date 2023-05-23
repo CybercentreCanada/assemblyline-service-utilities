@@ -33,13 +33,12 @@ For more info and updates: http://www.decalage.info/balbuzard
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import regex as re
 from os import path
 from xml.etree import ElementTree
 
-from fuzzywuzzy import process
-
+import regex as re
 from assemblyline_v4_service.common.balbuzard.balbuzard import Pattern, Pattern_re
+from fuzzywuzzy import process
 
 
 def get_xml_strings():

@@ -1,11 +1,10 @@
 import json
 import os
-import pytest
-import shutil
 import re
-
+import shutil
 from pathlib import Path
 
+import pytest
 from assemblyline.common import forge
 from assemblyline.common.dict_utils import flatten
 from assemblyline.common.uid import get_random_id

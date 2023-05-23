@@ -7,12 +7,25 @@ SERVICE_CONFIG_NAME = "service_manifest.yml"
 TEMP_SERVICE_CONFIG_PATH = os.path.join("/tmp", SERVICE_CONFIG_NAME)
 
 
-from assemblyline_v4_service.common.dynamic_service_helper import (HOLLOWSHUNTER_TITLE, Artifact, Attribute,
-                                                                   NetworkConnection, NetworkDNS, NetworkHTTP, ObjectID,
-                                                                   OntologyResults, Process, Sandbox, Signature,
-                                                                   convert_sysmon_network, convert_sysmon_processes,
-                                                                   extract_iocs_from_text_blob, set_optional_argument,
-                                                                   set_required_argument, update_object_items)
+from assemblyline_v4_service.common.dynamic_service_helper import (
+    HOLLOWSHUNTER_TITLE,
+    Artifact,
+    Attribute,
+    NetworkConnection,
+    NetworkDNS,
+    NetworkHTTP,
+    ObjectID,
+    OntologyResults,
+    Process,
+    Sandbox,
+    Signature,
+    convert_sysmon_network,
+    convert_sysmon_processes,
+    extract_iocs_from_text_blob,
+    set_optional_argument,
+    set_required_argument,
+    update_object_items,
+)
 
 
 def setup_module():

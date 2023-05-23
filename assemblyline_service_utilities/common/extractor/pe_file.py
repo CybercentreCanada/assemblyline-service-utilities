@@ -1,8 +1,7 @@
-import regex as re
-
 from typing import List, Tuple
 
 import pefile
+import regex as re
 
 EXEDOS_RE = rb'(?s)This program cannot be run in DOS mode'
 EXEHEADER_RE = rb'(?s)MZ.{32,1024}PE\000\000'

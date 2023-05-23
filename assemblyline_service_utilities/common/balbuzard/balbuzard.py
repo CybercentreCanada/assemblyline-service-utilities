@@ -121,12 +121,12 @@ import glob
 import optparse
 import os
 import os.path
-import regex as re
 import string
 import sys
 import time
 import zipfile
 
+import regex as re
 
 #import csv
 

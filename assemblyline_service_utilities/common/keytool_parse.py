@@ -1,7 +1,8 @@
 from re import split
-from subprocess import Popen, PIPE
-from assemblyline.common.str_utils import safe_str
+from subprocess import PIPE, Popen
 from typing import List
+
+from assemblyline.common.str_utils import safe_str
 
 
 class Certificate():

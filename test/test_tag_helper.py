@@ -1,6 +1,6 @@
 import os
-import pytest
 
+import pytest
 
 SERVICE_CONFIG_NAME = "service_manifest.yml"
 TEMP_SERVICE_CONFIG_PATH = os.path.join("/tmp", SERVICE_CONFIG_NAME)
@@ -38,7 +38,7 @@ def test_add_tag(value, expected_tags, tags_were_added):
 
 
 def test_get_regex_for_tag():
-    from assemblyline.odm.base import DOMAIN_ONLY_REGEX, URI_PATH, FULL_URI, IP_REGEX
+    from assemblyline.odm.base import DOMAIN_ONLY_REGEX, FULL_URI, IP_REGEX, URI_PATH
     from assemblyline_v4_service.common.tag_helper import _get_regex_for_tag
     assert _get_regex_for_tag("network.dynamic.domain") == DOMAIN_ONLY_REGEX
     assert _get_regex_for_tag("network.dynamic.ip") == IP_REGEX

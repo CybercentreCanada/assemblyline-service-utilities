@@ -3,10 +3,10 @@ Base 64 encoded text
 """
 
 import binascii
-import regex as re
 import warnings
-
 from typing import Dict, List, Tuple
+
+import regex as re
 
 HTML_ESCAPE_RE = rb'&#(?:x[a-fA-F0-9]{1,4}|\d{1,4});'
 BASE64_RE = rb'(?:[A-Za-z0-9+/]{4,}(?:<\x00  \x00)?(?:&#13;|&#xD;)?(?:&#10;|&#xA)?\r?\n?){5,}' \

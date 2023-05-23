@@ -4,8 +4,13 @@ import pytest
 class TestTagReducer:
     @staticmethod
     def test_constants():
-        from assemblyline_v4_service.common.tag_reducer import NUMBER_REGEX, ALPHA_REGEX, ALPHANUM_REGEX, \
-            BASE64_REGEX, DO_NOT_REDUCE
+        from assemblyline_v4_service.common.tag_reducer import (
+            ALPHA_REGEX,
+            ALPHANUM_REGEX,
+            BASE64_REGEX,
+            DO_NOT_REDUCE,
+            NUMBER_REGEX,
+        )
         from regex import compile
         assert NUMBER_REGEX == compile("[0-9]*")
         assert ALPHA_REGEX == compile("[a-zA-Z]*")

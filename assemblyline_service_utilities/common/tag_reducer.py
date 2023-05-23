@@ -1,9 +1,9 @@
-import regex as re
 import os.path
-
 from copy import deepcopy
 from typing import List
-from urllib.parse import urlparse, parse_qs, urlunparse, urlencode, unquote
+from urllib.parse import parse_qs, unquote, urlencode, urlparse, urlunparse
+
+import regex as re
 
 NUMBER_REGEX = re.compile("[0-9]*")
 ALPHA_REGEX = re.compile("[a-zA-Z]*")
