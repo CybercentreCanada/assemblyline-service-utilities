@@ -40,7 +40,13 @@ setup(
         ]
     ),
     install_requires=[
-
+        'assemblyline',
+        'assemblyline-v4-service',
+        'cart',
+        'fuzzywuzzy',
+        'pefile',
+        'pillow',
+        'regex',
     ],
     extra_requires={
     },
