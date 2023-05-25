@@ -28,8 +28,8 @@ def teardown_module():
     ]
 )
 def test_add_tag(value, expected_tags, tags_were_added):
+    from assemblyline_service_utilities.common.tag_helper import add_tag
     from assemblyline_v4_service.common.result import ResultSection
-    from assemblyline_v4_service.common.tag_helper import add_tag
     res_sec = ResultSection("blah")
     tag = "blah"
     safelist = {"match": {"domain": ["blah.ca"]}}
@@ -39,7 +39,7 @@ def test_add_tag(value, expected_tags, tags_were_added):
 
 def test_get_regex_for_tag():
     from assemblyline.odm.base import DOMAIN_ONLY_REGEX, FULL_URI, IP_REGEX, URI_PATH
-    from assemblyline_v4_service.common.tag_helper import _get_regex_for_tag
+    from assemblyline_service_utilities.common.tag_helper import _get_regex_for_tag
     assert _get_regex_for_tag("network.dynamic.domain") == DOMAIN_ONLY_REGEX
     assert _get_regex_for_tag("network.dynamic.ip") == IP_REGEX
     assert _get_regex_for_tag("network.dynamic.uri") == FULL_URI
@@ -81,8 +81,8 @@ def test_get_regex_for_tag():
     ]
 )
 def test_validate_tag(tag, value, expected_tags, added_tag):
+    from assemblyline_service_utilities.common.tag_helper import add_tag
     from assemblyline_v4_service.common.result import ResultSection
-    from assemblyline_v4_service.common.tag_helper import add_tag
     res_sec = ResultSection("blah")
     safelist = {"match": {"domain": ["blah.ca"]}}
     assert add_tag(res_sec, tag, value, safelist) == added_tag

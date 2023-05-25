@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TextIO
 
 import regex
+from assemblyline_service_utilities.common.utils import PASSWORD_WORDS
 from assemblyline_v4_service.common.helper import get_service_manifest
-from assemblyline_v4_service.common.utils import PASSWORD_WORDS
 
 # TODO: Would prefer this mapping to be dynamic from trusted sources (ie. import from library), but will copy-paste for now
 OCR_INDICATORS_MAPPING: dict[str, list[str]] = {

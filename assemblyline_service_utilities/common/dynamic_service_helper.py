@@ -19,6 +19,8 @@ from assemblyline.odm.models.ontology.results import NetworkConnection as Networ
 from assemblyline.odm.models.ontology.results import Process as ProcessModel
 from assemblyline.odm.models.ontology.results import Sandbox as SandboxModel
 from assemblyline.odm.models.ontology.results import Signature as SignatureModel
+from assemblyline_service_utilities.common.safelist_helper import URL_REGEX, is_tag_safelisted
+from assemblyline_service_utilities.common.tag_helper import add_tag
 
 # from assemblyline_v4_service.common.balbuzard.patterns import PatternMatch
 from assemblyline_v4_service.common.base import ServiceBase
@@ -30,8 +32,6 @@ from assemblyline_v4_service.common.result import (
     ResultTableSection,
     TableRow,
 )
-from assemblyline_v4_service.common.safelist_helper import URL_REGEX, is_tag_safelisted
-from assemblyline_v4_service.common.tag_helper import add_tag
 from assemblyline_v4_service.common.task import MaxExtractedExceeded
 
 al_log.init_logging("service.service_base.dynamic_service_helper")

@@ -1,5 +1,5 @@
+from assemblyline_service_utilities.common.tag_reducer import REDUCE_MAP
 from assemblyline_v4_service.common.result import Result, ResultSection
-from assemblyline_v4_service.common.tag_reducer import REDUCE_MAP
 
 
 def reduce(al_result: Result) -> Result:

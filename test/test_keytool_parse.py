@@ -16,7 +16,7 @@ class TestKeytoolParse:
         The certificates used come from running the commands in section 'Generate Certificates for an SSL Server'
         in the keytool docs: https://docs.oracle.com/javase/8/docs/technotes/tools/windows/keytool.html
         """
-        from assemblyline_v4_service.common.keytool_parse import certificate_chain_from_printcert
+        from assemblyline_service_utilities.common.keytool_parse import certificate_chain_from_printcert
         certs = certificate_chain_from_printcert(printcert)
         assert len(certs) == len(correct_certs)
         for cert, correct in zip(certs, correct_certs):

@@ -4,7 +4,7 @@ import pytest
 class TestTagReducer:
     @staticmethod
     def test_constants():
-        from assemblyline_v4_service.common.tag_reducer import (
+        from assemblyline_service_utilities.common.tag_reducer import (
             ALPHA_REGEX,
             ALPHANUM_REGEX,
             BASE64_REGEX,
@@ -31,7 +31,7 @@ class TestTagReducer:
         ]
     )
     def test_get_placeholder(val, correct_placeholder):
-        from assemblyline_v4_service.common.tag_reducer import _get_placeholder
+        from assemblyline_service_utilities.common.tag_reducer import _get_placeholder
         assert _get_placeholder(val) == correct_placeholder
 
     @staticmethod
@@ -46,7 +46,7 @@ class TestTagReducer:
            "fragment": "fragment"},
           "scheme://domain/path;params#fragment"), ])
     def test_turn_back_into_uri(uri_parts, correct_uri):
-        from assemblyline_v4_service.common.tag_reducer import _turn_back_into_uri
+        from assemblyline_service_utilities.common.tag_reducer import _turn_back_into_uri
         assert _turn_back_into_uri(uri_parts) == correct_uri
 
     @staticmethod
@@ -101,5 +101,5 @@ class TestTagReducer:
            "https://hello.com/path?query=THISISATESTTHISISATEST1&rnd=567", ],
           ["https://hello.com/path?query=THISISATESTTHISISATEST1&rnd=${NUMBER}"],), ])
     def test_reduce_uri_tags(uris, correct_tags):
-        from assemblyline_v4_service.common.tag_reducer import reduce_uri_tags
+        from assemblyline_service_utilities.common.tag_reducer import reduce_uri_tags
         assert set(reduce_uri_tags(uris)) == set(correct_tags)

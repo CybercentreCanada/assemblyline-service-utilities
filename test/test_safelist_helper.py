@@ -20,7 +20,7 @@ import pytest
     ]
 )
 def test_is_safelisted(value, tags, safelist, substring, expected_output):
-    from assemblyline_v4_service.common.safelist_helper import is_tag_safelisted
+    from assemblyline_service_utilities.common.safelist_helper import is_tag_safelisted
     assert is_tag_safelisted(value, tags, safelist, substring) == expected_output
 
 
@@ -36,7 +36,7 @@ def test_is_safelisted(value, tags, safelist, substring, expected_output):
     ]
 )
 def test_contains_safelisted_value(val, expected_return):
-    from assemblyline_v4_service.common.safelist_helper import contains_safelisted_value
+    from assemblyline_service_utilities.common.safelist_helper import contains_safelisted_value
     safelist = {"regex": {"network.dynamic.domain": [".*\.adobe\.com$", "play\.google\.com$"],
                             "network.dynamic.ip": ["(?:127\.|10\.|192\.168|172\.1[6-9]\.|172\.2[0-9]\.|172\.3[01]\.).*"]}}
     assert contains_safelisted_value(val, safelist) == expected_return

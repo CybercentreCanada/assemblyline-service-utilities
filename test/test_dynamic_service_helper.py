@@ -7,7 +7,7 @@ SERVICE_CONFIG_NAME = "service_manifest.yml"
 TEMP_SERVICE_CONFIG_PATH = os.path.join("/tmp", SERVICE_CONFIG_NAME)
 
 
-from assemblyline_v4_service.common.dynamic_service_helper import (
+from assemblyline_service_utilities.common.dynamic_service_helper import (
     HOLLOWSHUNTER_TITLE,
     Artifact,
     Attribute,

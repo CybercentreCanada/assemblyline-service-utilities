@@ -4,8 +4,8 @@ from typing import Any, Dict, List, Optional, Union
 from assemblyline.common.net import is_valid_domain, is_valid_ip
 from assemblyline.common.str_utils import safe_str
 from assemblyline.odm.base import DOMAIN_ONLY_REGEX, DOMAIN_REGEX, FULL_URI, IP_REGEX, URI_PATH
+from assemblyline_service_utilities.common.safelist_helper import is_tag_safelisted
 from assemblyline_v4_service.common.result import ResultSection
-from assemblyline_v4_service.common.safelist_helper import is_tag_safelisted
 
 
 def add_tag(
