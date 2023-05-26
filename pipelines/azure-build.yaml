@@ -23,17 +23,28 @@ jobs:
       versionSpec: 3.9
 
   - script: |
-      set -x
-      python -m pip install -U tox
-      python -m tox
-    displayName: Test
+      set -xv  # Echo commands before they are run
+      export VERSION=${BUILD_SOURCEBRANCH#"refs/tags/v"}
+      echo $VERSION > assemblyline_incident_manager/VERSION
+      sudo env "PATH=$PATH" python -m pip install --no-cache-dir -U wheel pip
+      python setup.py bdist_wheel
+    displayName: Build
 
   - script: |
-      set -x
-      python -m pip install -U build
-      python -m build
-      ls dist
-    displayName: Build
+      set -x  # Echo commands before they are run
+      sudo apt-get update
+      sudo apt-get install -y build-essential libffi-dev libfuzzy-dev python3-dev
+      [ -f $(pwd)/requirements.txt ] && sudo env "PATH=$PATH" python -m pip install -U --no-cache-dir -r $(pwd)/requirements.txt
+      [ -f $(pwd)/test/requirements.txt ] && sudo env "PATH=$PATH" python -m pip install -U --no-cache-dir -r $(pwd)/test/requirements.txt
+      sudo rm -rf /tmp/* /var/lib/apt/lists/* ~/.cache/pip
+    displayName: Setup Environment
+  - script: |
+      set -x  # Echo commands before they are run
+      export VERSION=${BUILD_SOURCEBRANCH#"refs/tags/v"}
+      sudo env "PATH=$PATH" python -m pip install -f dist/ "assemblyline-service-utilities[test]==${VERSION}"
+      sudo env "PATH=$PATH" python -m pip install -r test/requirements.txt
+      python -m pytest -p no:cacheprovider --durations=10 -rsx -xsvvv --disable-warnings
+    displayName: Test
 
   - script: |
       set -xv  # Echo commands before they are run
