@@ -46,8 +46,8 @@ __version__ = '0.13'
 
 # --- IMPORTS ------------------------------------------------------------------
 
-from assemblyline_v4_service.common.balbuzard.balbuzard import Balbuzard
-from assemblyline_v4_service.common.balbuzard.patterns import PatternMatch
+from assemblyline_service_utilities.common.balbuzard.balbuzard import Balbuzard
+from assemblyline_service_utilities.common.balbuzard.patterns import PatternMatch
 
 #--- CLASSES ------------------------------------------------------------------
 
