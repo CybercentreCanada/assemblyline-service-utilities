@@ -37,7 +37,7 @@ from os import path
 from xml.etree import ElementTree
 
 import regex as re
-from assemblyline_v4_service.common.balbuzard.balbuzard import Pattern, Pattern_re
+from assemblyline_service_utilities.common.balbuzard.balbuzard import Pattern, Pattern_re
 from fuzzywuzzy import process
 
 
