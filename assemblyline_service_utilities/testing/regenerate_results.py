@@ -1,7 +1,7 @@
 import os
 
 from assemblyline.common.importing import load_module_by_path
-from assemblyline_v4_service.testing.helper import TestHelper
+from assemblyline_service_utilities.testing.helper import TestHelper
 
 required_env = [
     'SERVICE_MANIFEST_PATH',

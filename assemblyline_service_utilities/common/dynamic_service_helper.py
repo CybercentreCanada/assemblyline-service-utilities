@@ -21,8 +21,6 @@ from assemblyline.odm.models.ontology.results import Sandbox as SandboxModel
 from assemblyline.odm.models.ontology.results import Signature as SignatureModel
 from assemblyline_service_utilities.common.safelist_helper import URL_REGEX, is_tag_safelisted
 from assemblyline_service_utilities.common.tag_helper import add_tag
-
-# from assemblyline_v4_service.common.balbuzard.patterns import PatternMatch
 from assemblyline_v4_service.common.base import ServiceBase
 from assemblyline_v4_service.common.request import ServiceRequest
 from assemblyline_v4_service.common.result import (
