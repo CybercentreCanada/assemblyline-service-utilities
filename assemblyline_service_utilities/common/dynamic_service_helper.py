@@ -3441,7 +3441,7 @@ def convert_sysmon_network(
                 "type": "A",
                 "request": None,
                 "answers": [],
-                "time": None,
+                "first_seen": None,
                 "guid": None,
                 "pid": None,
                 "image": None,
@@ -3453,11 +3453,11 @@ def convert_sysmon_network(
                     continue
                 if name == "UtcTime":
                     if convert_timestamp_to_epoch:
-                        dns_query["time"] = datetime.strptime(text, "%Y-%m-%d %H:%M:%S.%f").timestamp()
+                        dns_query["first_seen"] = datetime.strptime(text, "%Y-%m-%d %H:%M:%S.%f").timestamp()
                     else:
                         if "." in text:
                             text = text[:text.index(".")]
-                        dns_query["time"] = str(datetime.strptime(text, LOCAL_FMT))
+                        dns_query["first_seen"] = str(datetime.strptime(text, LOCAL_FMT))
                 elif name == "ProcessGuid":
                     dns_query["guid"] = text
                 elif name == "ProcessId":
