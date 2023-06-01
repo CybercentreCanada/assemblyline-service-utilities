@@ -12,7 +12,15 @@ from uuid import UUID, uuid4
 from assemblyline.common import log as al_log
 from assemblyline.common.attack_map import attack_map, group_map, revoke_map, software_map
 from assemblyline.common.digests import get_sha256_for_file
-from assemblyline.common.isotime import LOCAL_FMT, MAX_TIME, MIN_TIME, epoch_to_local, format_time, local_to_epoch
+from assemblyline.common.isotime import (
+    LOCAL_FMT_WITH_MS,
+    MAX_TIME,
+    MIN_TIME,
+    ensure_time_format,
+    epoch_to_local_with_ms,
+    format_time,
+    local_to_epoch,
+)
 from assemblyline.common.uid import get_random_id
 from assemblyline.odm.base import DOMAIN_REGEX, FULL_URI, IP_REGEX, IPV4_REGEX, URI_PATH
 from assemblyline.odm.models.ontology.results import NetworkConnection as NetworkConnectionModel
@@ -92,8 +100,8 @@ POBJECTID_KEYS = [
     "service_name",
 ]
 
-MAX_TIME = format_time(MAX_TIME, LOCAL_FMT)
-MIN_TIME = format_time(MIN_TIME, LOCAL_FMT)
+MAX_TIME = format_time(MAX_TIME, LOCAL_FMT_WITH_MS)
+MIN_TIME = format_time(MIN_TIME, LOCAL_FMT_WITH_MS)
 
 SERVICE_NAME = None
 
@@ -295,9 +303,7 @@ class ObjectID:
         elif time_observed and not isinstance(time_observed, str):
             raise TypeError("time_observed must be a str")
         else:
-            if "." in time_observed:
-                time_observed = time_observed[:time_observed.index(".")]
-            self.time_observed = str(datetime.strptime(time_observed, LOCAL_FMT))
+            self.time_observed = ensure_time_format(time_observed, LOCAL_FMT_WITH_MS)
 
 
 class Process:
@@ -1406,7 +1412,7 @@ class OntologyResults:
             raise ValueError("time_observed must be a str")
         # Ensure that time_observed is of a certain format
         elif "time_observed" in kwargs and kwargs["time_observed"] is not None and isinstance(kwargs["time_observed"], str):
-            kwargs["time_observed"] = str(datetime.strptime(kwargs["time_observed"], LOCAL_FMT))
+            kwargs["time_observed"] = ensure_time_format(kwargs["time_observed"], LOCAL_FMT_WITH_MS)
         update_object_items(objectid, kwargs)
         return objectid
 
@@ -2641,9 +2647,9 @@ class OntologyResults:
                 time_obs = x["objectid"]["time_observed"]
                 if isinstance(time_obs, str):
                     if time_obs == MIN_TIME:
-                        time_obs = epoch_to_local(0)
+                        time_obs = epoch_to_local_with_ms(0)
                     time_obs = datetime.strptime(
-                        time_obs, LOCAL_FMT
+                        time_obs, LOCAL_FMT_WITH_MS
                     ).timestamp()
                 return time_obs
 
@@ -2661,9 +2667,9 @@ class OntologyResults:
                 time_obs = x.objectid.time_observed
                 if isinstance(time_obs, str):
                     if time_obs == MIN_TIME:
-                        time_obs = epoch_to_local(0)
+                        time_obs = epoch_to_local_with_ms(0)
                     time_obs = datetime.strptime(
-                        time_obs, LOCAL_FMT
+                        time_obs, LOCAL_FMT_WITH_MS
                     ).timestamp()
                 return time_obs
 
@@ -3129,7 +3135,7 @@ class OntologyResults:
                 None,
             )
             if start_time == MIN_TIME:
-                start_time = epoch_to_local(0)
+                start_time = epoch_to_local_with_ms(0)
             if item.start_time == MIN_TIME:
                 item.set_start_time(start_time)
             if item.end_time == MAX_TIME:
@@ -3160,7 +3166,7 @@ class OntologyResults:
                 None,
             )
             if start_time == MIN_TIME:
-                start_time = epoch_to_local(0)
+                start_time = epoch_to_local_with_ms(0)
             if item.time_observed == MIN_TIME:
                 item.set_time_observed(start_time)
             elif item.time_observed == MAX_TIME:
@@ -3282,18 +3288,14 @@ def convert_sysmon_processes(
 
             # Process Create and Terminate
             if name == "utctime" and event_id in [1, 5]:
-                if "." in text:
-                    text = text[:text.index(".")]
-                t = str(datetime.strptime(text, LOCAL_FMT))
+                t = ensure_time_format(text, LOCAL_FMT_WITH_MS)
                 if event_id == 1:
                     process["start_time"] = t
                 else:
                     process["start_time"] = MIN_TIME
                     process["end_time"] = t
             elif name == "utctime":
-                if "." in text:
-                    text = text[:text.index(".")]
-                t = str(datetime.strptime(text, LOCAL_FMT))
+                t = ensure_time_format(text, LOCAL_FMT_WITH_MS)
                 process["time_observed"] = t
             elif name in ["sourceprocessguid", "parentprocessguid"]:
                 process["pguid"] = text
@@ -3396,16 +3398,17 @@ def convert_sysmon_network(
                 text = data.get("#text")
                 if name == "UtcTime":
                     if convert_timestamp_to_epoch:
-                        network_conn["time"] = datetime.strptime(text, "%Y-%m-%d %H:%M:%S.%f").timestamp()
+                        network_conn["time"] = datetime.strptime(text, LOCAL_FMT_WITH_MS).timestamp()
                     else:
-                        if "." in text:
-                            text = text[:text.index(".")]
-                        network_conn["time"] = str(datetime.strptime(text, LOCAL_FMT))
+                        network_conn["time"] = ensure_time_format(text, LOCAL_FMT_WITH_MS)
                 elif name == "ProcessGuid":
                     network_conn["guid"] = text
                 elif name == "ProcessId":
                     network_conn["pid"] = int(text)
                 elif name == "Image":
+                    # Sysmon for Linux adds this to the image if the file is deleted.
+                    if text.endswith(" (deleted)"):
+                        text = text[:len(text)-len(" (deleted)")]
                     network_conn["image"] = text
                 elif name == "Protocol":
                     protocol = text.lower()
@@ -3460,11 +3463,9 @@ def convert_sysmon_network(
                     continue
                 if name == "UtcTime":
                     if convert_timestamp_to_epoch:
-                        dns_query["first_seen"] = datetime.strptime(text, "%Y-%m-%d %H:%M:%S.%f").timestamp()
+                        dns_query["first_seen"] = datetime.strptime(text, LOCAL_FMT_WITH_MS).timestamp()
                     else:
-                        if "." in text:
-                            text = text[:text.index(".")]
-                        dns_query["first_seen"] = str(datetime.strptime(text, LOCAL_FMT))
+                        dns_query["first_seen"] = ensure_time_format(text, LOCAL_FMT_WITH_MS)
                 elif name == "ProcessGuid":
                     dns_query["guid"] = text
                 elif name == "ProcessId":
@@ -3479,6 +3480,9 @@ def convert_sysmon_network(
                     for item in ip:
                         dns_query["answers"].append({"data": item, "type": "A"})
                 elif name == "Image":
+                    # Sysmon for Linux adds this to the image if the file is deleted.
+                    if text.endswith(" (deleted)"):
+                        text = text[:len(text)-len(" (deleted)")]
                     dns_query["image"] = text
             if any(dns_query[key] is None for key in dns_query.keys()):
                 continue
