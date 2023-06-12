@@ -9018,7 +9018,7 @@ class TestOntologyResults:
                                       'image': 'blah.exe',
                                       'pid': 123,
                                       'request': 'blah.com',
-                                      'time': 1627054921.001,
+                                      'first_seen': 1627054921.001,
                                       'type': 'A'
                                   }]}),
             ([{
@@ -9050,7 +9050,7 @@ class TestOntologyResults:
                                       'image': 'blah.exe',
                                       'pid': 123,
                                       'request': 'blah.com',
-                                      'time': 1627054921.001,
+                                      'first_seen': 1627054921.001,
                                       'type': 'A'
                                   }]}
              ),
@@ -9186,7 +9186,7 @@ class TestOntologyResults:
                             "image": "blah.exe",
                             "pid": 123,
                             "request": "blah.com",
-                            "time": "2021-07-23 15:42:01",
+                            "first_seen": "2021-07-23 15:42:01",
                             "type": "A",
                         }
                     ]
@@ -9235,7 +9235,7 @@ class TestOntologyResults:
                             "image": "blah.exe",
                             "pid": 123,
                             "request": "blah.com",
-                            "time": "2021-07-23 15:42:01",
+                            "first_seen": "2021-07-23 15:42:01",
                             "type": "A",
                         }
                     ]
