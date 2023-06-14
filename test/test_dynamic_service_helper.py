@@ -157,6 +157,9 @@ class TestModule:
         set_required_argument(dummy, "id", "blah", str)
         assert dummy.id == "blah"
 
+        set_required_argument(dummy, "int", 0, int)
+        assert dummy.int == 0
+
     @staticmethod
     def test_set_optional_argument(dummy_object_class):
         dummy = dummy_object_class()
@@ -2449,13 +2452,13 @@ class TestOntologyResults:
         nc = default_or.create_network_connection(
             objectid=objectid,
             destination_ip="1.1.1.1",
-            destination_port=123,
+            destination_port=0,
             transport_layer_protocol="tcp",
             direction="outbound",
         )
         assert nc.objectid == objectid
         assert nc.destination_ip == "1.1.1.1"
-        assert nc.destination_port == 123
+        assert nc.destination_port == 0
         assert nc.transport_layer_protocol == "tcp"
         assert nc.direction == "outbound"
 
@@ -8891,7 +8894,7 @@ class TestOntologyResults:
              [{"@Name": "UtcTime", "#text": "1970-01-01 12:40:30.123"},
               {"@Name": "ProcessGuid", "#text": "{12345678-1234-5678-1234-567812345678}"},
               {"@Name": "ProcessId", "#text": "123"},
-              {"@Name": "Image", "#text": "blah"}]}},
+              {"@Name": "Image", "#text": "blah (deleted)"}]}},
            {"System": {"EventID": 5},
             "EventData":
             {
