@@ -121,6 +121,10 @@ def set_required_argument(self: object, name: str, value: Any, value_type: Any) 
     :return: None
     """
     if not value:
+        # Handle 0
+        if value_type == int and isinstance(value, int):
+            setattr(self, name, value)
+            return
         raise ValueError(f"{name} must have a legitimate value")
     elif not isinstance(value, value_type):
         raise TypeError(f"{name} must be a {value_type}")
@@ -1586,7 +1590,7 @@ class OntologyResults:
         if not (
             kwargs.get("objectid")
             and kwargs.get("destination_ip")
-            and kwargs.get("destination_port")
+            and isinstance(kwargs.get("destination_port"), int)
             and kwargs.get("transport_layer_protocol")
             and kwargs.get("direction")
         ):
@@ -3302,6 +3306,9 @@ def convert_sysmon_processes(
             elif name in ["sourceimage"]:
                 process["pimage"] = text
             elif name in ["image", "targetimage"]:
+                # This is a Linux-specific behaviour in Sysmon
+                if text.endswith(" (deleted)"):
+                    text = text[:text.index(" (deleted)")]
                 if not is_tag_safelisted(text, ["dynamic.process.file_name"], safelist):
                     process["image"] = text
             elif name in ["parentcommandline"]:
