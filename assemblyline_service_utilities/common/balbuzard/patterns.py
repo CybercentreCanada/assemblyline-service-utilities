@@ -37,8 +37,9 @@ from os import path
 from xml.etree import ElementTree
 
 import regex as re
-from assemblyline_service_utilities.common.balbuzard.balbuzard import Pattern, Pattern_re
 from fuzzywuzzy import process
+
+from assemblyline_service_utilities.common.balbuzard.balbuzard import Pattern, Pattern_re
 
 
 def get_xml_strings():
@@ -211,7 +212,7 @@ class PatternMatch(object):
                 rb'HKLM|hkey_performance_data|hkey_users|HKPD|internet settings|\\sam|\\software|\\system|' \
                 rb'\\userinit)' \
                 rb'\\[-_A-Z0-9.\\ ]{1,200}\b'
-    PAT_URL = rb'(?i)(?:ftp|http|https)://' \
+    PAT_URL = rb'(?i)(?:ftp|http|https)://(?:[A-Z0-9.-_:]*@)?' \
               rb'[A-Z0-9.-]{1,}\.(?:XN--[A-Z0-9]{4,18}|[a-z]{2,12}|[0-9]{1,3})' \
               rb'(?::[0-9]{1,5})?' \
               rb'(?:/[A-Z0-9/\-\.&%\$#=~\?_+]{3,200}){0,1}'
