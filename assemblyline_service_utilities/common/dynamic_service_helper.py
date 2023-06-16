@@ -3480,8 +3480,17 @@ def convert_sysmon_network(
                         dns_query["answers"].append({"data": item, "type": "A"})
                 elif name == "Image":
                     dns_query["image"] = text
+
             if any(dns_query[key] is None for key in dns_query.keys()):
                 continue
+            # If Sysmon was unable to get the QueryResults from the DNS event, populate the missing fields
+            elif dns_query["answers"] == []:
+                for query in network["dns"][:]:
+                    if query["request"] == dns_query["request"]:
+                        for key in dns_query.keys():
+                            if key not in query:
+                                query[key] = dns_query[key]
+                        break
             elif any(
                 query["request"] == dns_query["request"]
                 for query in network.get("dns", [])
@@ -3491,6 +3500,7 @@ def convert_sysmon_network(
                     if query["request"] == dns_query["request"]:
                         network["dns"].remove(query)
                         network["dns"].append(dns_query)
+                        break
             else:
                 if "dns" not in network:
                     network["dns"] = []
