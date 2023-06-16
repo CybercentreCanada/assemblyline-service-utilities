@@ -9244,6 +9244,38 @@ class TestOntologyResults:
                     ]
                 },
             ),
+            # Example where Sysmon registered the QueryResults but no IP was found
+            (
+                [
+                    {
+                        "System": {"EventID": "22"},
+                        "EventData": {
+                            "Data": [
+                                {"@Name": "UtcTime", "#text": "2021-07-23 15:42:01.001"},
+                                {"@Name": "ProcessGuid", "#text": "{blah}"},
+                                {"@Name": "ProcessId", "#text": "123"},
+                                {"@Name": "Image", "#text": "blah.exe"},
+                                {"@Name": "QueryName", "#text": "blah.com"},
+                                {"@Name": "QueryResults", "#text": "-"},
+                            ]
+                        },
+                    }
+                ],
+                {"dns": [{"request": "blah.com", "answers": [{"data": "10.10.10.10", "type": "A"}],}]},
+                {
+                    "dns": [
+                        {
+                            "answers": [{"data": "10.10.10.10", "type": "A"}],
+                            "guid": "{blah}",
+                            "image": "blah.exe",
+                            "pid": 123,
+                            "request": "blah.com",
+                            "first_seen": "2021-07-23 15:42:01",
+                            "type": "A",
+                        }
+                    ]
+                },
+            ),
         ],
     )
     def test_convert_sysmon_network_cape(sysmon, actual_network, correct_network):
