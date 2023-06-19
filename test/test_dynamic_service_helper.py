@@ -9270,7 +9270,7 @@ class TestOntologyResults:
                             "image": "blah.exe",
                             "pid": 123,
                             "request": "blah.com",
-                            "first_seen": "2021-07-23 15:42:01",
+                            "first_seen": "2021-07-23 15:42:01.001",
                             "type": "A",
                         }
                     ]
