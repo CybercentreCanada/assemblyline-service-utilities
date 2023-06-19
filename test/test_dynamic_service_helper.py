@@ -306,8 +306,8 @@ class TestObjectID:
     @staticmethod
     def test_set_time_observed():
         oid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
-        oid.set_time_observed("1970-01-01 00:00:01")
-        assert oid.time_observed == "1970-01-01 00:00:01"
+        oid.set_time_observed("1970-01-01 00:00:01.000")
+        assert oid.time_observed == "1970-01-01 00:00:01.000"
 
         with pytest.raises(ValueError):
             oid.set_time_observed(None)
@@ -318,8 +318,8 @@ class TestObjectID:
         with pytest.raises(TypeError):
             oid.set_time_observed(1.0)
 
-        oid.set_time_observed("1970-01-01 00:00:02")
-        assert oid.time_observed == "1970-01-01 00:00:02"
+        oid.set_time_observed("1970-01-01 00:00:02.000")
+        assert oid.time_observed == "1970-01-01 00:00:02.000"
 
 
 class TestProcess:
@@ -669,7 +669,7 @@ class TestProcess:
     def test_process_update_objectid():
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
         p = Process(
-            objectid=current_objectid, image="blah", start_time="1970-01-01 00:00:00"
+            objectid=current_objectid, image="blah", start_time="1970-01-01 00:00:00.000"
         )
         p.update_objectid()
         assert p.objectid.tag == "blah"
@@ -678,7 +678,7 @@ class TestProcess:
         assert p.objectid.guid is None
         assert p.objectid.treeid is None
         assert p.objectid.processtree is None
-        assert p.objectid.time_observed == "1970-01-01 00:00:00"
+        assert p.objectid.time_observed == "1970-01-01 00:00:00.000"
         assert p.objectid.session is None
 
         p.update_objectid(
@@ -686,7 +686,7 @@ class TestProcess:
             tag="blah",
             treeid="blah",
             processtree="blah",
-            time_observed="1970-01-01 00:00:02",
+            time_observed="1970-01-01 00:00:02.000",
             session="blah",
         )
 
@@ -696,14 +696,14 @@ class TestProcess:
         assert p.objectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert p.objectid.treeid == "blah"
         assert p.objectid.processtree == "blah"
-        assert p.objectid.time_observed == "1970-01-01 00:00:00"
+        assert p.objectid.time_observed == "1970-01-01 00:00:00.000"
         assert p.objectid.session == "blah"
 
     @staticmethod
     def test_process_update_pobjectid():
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
         p = Process(
-            objectid=current_objectid, image="blah", start_time="1970-01-01 00:00:00"
+            objectid=current_objectid, image="blah", start_time="1970-01-01 00:00:00.000"
         )
         p.update_pobjectid()
         assert p.pobjectid is None
@@ -713,7 +713,7 @@ class TestProcess:
             tag="blah",
             treeid="blah",
             processtree="blah",
-            time_observed="1970-01-01 00:00:00",
+            time_observed="1970-01-01 00:00:00.000",
             session="blah",
         )
         assert p.pobjectid is None
@@ -725,7 +725,7 @@ class TestProcess:
             service_name="blah",
             treeid="blah",
             processtree="blah",
-            time_observed="1970-01-01 00:00:02",
+            time_observed="1970-01-01 00:00:02.000",
             session="blah",
         )
         assert p.pobjectid.guid == "{12345678-1234-5678-1234-567812345678}"
@@ -734,7 +734,7 @@ class TestProcess:
         assert p.pobjectid.service_name == "blah"
         assert p.pobjectid.treeid == "blah"
         assert p.pobjectid.processtree == "blah"
-        assert p.pobjectid.time_observed == "1970-01-01 00:00:02"
+        assert p.pobjectid.time_observed == "1970-01-01 00:00:02.000"
         assert p.pobjectid.session == "blah"
 
     @staticmethod
@@ -1013,13 +1013,13 @@ class TestNetworkConnection:
             image="C:\\Windows\\System32\\cmd.exe",
             pimage="C:\\Windows\\System32\\cmd.exe",
             integrity_level="BLAH",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
         )
         assert nc.process.pid == 123
         assert nc.process.image == "C:\\Windows\\System32\\cmd.exe"
         assert nc.process.objectid.tag == "blah"
         assert nc.process.integrity_level == "blah"
-        assert nc.process.objectid.time_observed == "1970-01-01 00:00:00"
+        assert nc.process.objectid.time_observed == "1970-01-01 00:00:00.000"
 
         nc.update_process(image=None)
         assert nc.process.image == "C:\\Windows\\System32\\cmd.exe"
@@ -1040,7 +1040,7 @@ class TestNetworkConnection:
         nc.update_process(
             objectid=current_objectid,
             image="C:\\Windows\\System32\\cmd.exe",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
         )
         nc.update_process_objectid(
             guid="{12345678-1234-5678-1234-567812345678}",
@@ -1064,7 +1064,7 @@ class TestNetworkConnection:
         p1 = Process(
             objectid=current_objectid,
             image="blah",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
             pid=1,
         )
         nc.set_process(p1)
@@ -1494,38 +1494,38 @@ class TestMachineMetadata:
 class TestAnalysisMetadata:
     @staticmethod
     def test_analysis_metadata_init():
-        default_am = Sandbox.AnalysisMetadata(start_time="1970-01-01 00:00:00")
+        default_am = Sandbox.AnalysisMetadata(start_time="1970-01-01 00:00:00.000")
         assert default_am.task_id is None
-        assert default_am.start_time == "1970-01-01 00:00:00"
-        assert default_am.end_time == "9999-12-31 23:59:59"
+        assert default_am.start_time == "1970-01-01 00:00:00.000"
+        assert default_am.end_time == "9999-12-31 23:59:59.999999"
         assert default_am.routing is None
         assert default_am.machine_metadata is None
 
         set_am = Sandbox.AnalysisMetadata(
             task_id=123,
-            start_time="1970-01-01 00:00:00",
-            end_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
+            end_time="1970-01-01 00:00:00.000",
             routing="blah",
         )
         assert set_am.task_id == 123
-        assert set_am.start_time == "1970-01-01 00:00:00"
-        assert set_am.end_time == "1970-01-01 00:00:00"
+        assert set_am.start_time == "1970-01-01 00:00:00.000"
+        assert set_am.end_time == "1970-01-01 00:00:00.000"
         assert set_am.routing == "blah"
 
     @staticmethod
     def test_analysis_metadata_as_primitives():
-        default_am = Sandbox.AnalysisMetadata(start_time="1970-01-01 00:00:00")
+        default_am = Sandbox.AnalysisMetadata(start_time="1970-01-01 00:00:00.000")
         assert default_am.as_primitives() == {
             "task_id": None,
-            "start_time": "1970-01-01 00:00:00",
-            "end_time": "9999-12-31 23:59:59",
+            "start_time": "1970-01-01 00:00:00.000",
+            "end_time": "9999-12-31 23:59:59.999999",
             "routing": None,
             "machine_metadata": None,
         }
 
     @staticmethod
     def test_analysis_metadata_load_from_json():
-        default_am = Sandbox.AnalysisMetadata(start_time="1970-01-01 00:00:00")
+        default_am = Sandbox.AnalysisMetadata(start_time="1970-01-01 00:00:00.000")
         default_am.load_from_json(
             {
                 "task_id": "blah",
@@ -1561,13 +1561,13 @@ class TestSandbox:
         default_so = Sandbox(
             objectid=current_objectid,
             analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:00"
+                start_time="1970-01-01 00:00:00.000"
             ),
             sandbox_name="blah",
         )
         assert default_so.analysis_metadata.task_id is None
-        assert default_so.analysis_metadata.start_time == "1970-01-01 00:00:00"
-        assert default_so.analysis_metadata.end_time == "9999-12-31 23:59:59"
+        assert default_so.analysis_metadata.start_time == "1970-01-01 00:00:00.000"
+        assert default_so.analysis_metadata.end_time == "9999-12-31 23:59:59.999999"
         assert default_so.analysis_metadata.routing is None
         assert default_so.analysis_metadata.machine_metadata is None
         assert default_so.sandbox_name == "blah"
@@ -1579,7 +1579,7 @@ class TestSandbox:
         default_so = Sandbox(
             objectid=current_objectid,
             analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:00"
+                start_time="1970-01-01 00:00:00.000"
             ),
             sandbox_name="blah",
         )
@@ -1592,7 +1592,7 @@ class TestSandbox:
         default_so = Sandbox(
             objectid=current_objectid,
             analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:00"
+                start_time="1970-01-01 00:00:00.000"
             ),
             sandbox_name="blah",
         )
@@ -1606,15 +1606,15 @@ class TestSandbox:
         default_so = Sandbox(
             objectid=current_objectid,
             analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:00"
+                start_time="1970-01-01 00:00:00.000"
             ),
             sandbox_name="blah",
         )
         assert default_so.as_primitives() == {
             "analysis_metadata": {
                 "task_id": None,
-                "start_time": "1970-01-01 00:00:00",
-                "end_time": "9999-12-31 23:59:59",
+                "start_time": "1970-01-01 00:00:00.000",
+                "end_time": "9999-12-31 23:59:59.999999",
                 "routing": None,
                 "machine_metadata": None,
             },
@@ -1668,12 +1668,12 @@ class TestOntologyResults:
             OntologyResults.create_objectid(tag="blah", ontology_id="blah", service_name="CAPE", time_observed=1)
 
         objectid = OntologyResults.create_objectid(
-            tag="blah", ontology_id="blah", service_name="CAPE", time_observed="1970-01-01 00:00:00"
+            tag="blah", ontology_id="blah", service_name="CAPE", time_observed="1970-01-01 00:00:00.000"
         )
         assert objectid.tag == "blah"
         assert objectid.ontology_id == "blah"
         assert objectid.service_name == "CAPE"
-        assert objectid.time_observed == "1970-01-01 00:00:00"
+        assert objectid.time_observed == "1970-01-01 00:00:00.000"
 
     @staticmethod
     def test_create_session():
@@ -1685,7 +1685,7 @@ class TestOntologyResults:
         sandbox = Sandbox(
             objectid=ObjectID(ontology_id="blah", tag="blah", session="blah"),
             analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:01", end_time="1970-01-01 00:00:02"
+                start_time="1970-01-01 00:00:01.000", end_time="1970-01-01 00:00:02.000"
             ),
             sandbox_name="blah",
         )
@@ -1698,7 +1698,7 @@ class TestOntologyResults:
         sandbox = Sandbox(
             objectid=ObjectID(ontology_id="blah", tag="blah", session="blah"),
             analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:01", end_time="1970-01-01 00:00:02"
+                start_time="1970-01-01 00:00:01.000", end_time="1970-01-01 00:00:02.000"
             ),
             sandbox_name="blah",
         )
@@ -1710,7 +1710,7 @@ class TestOntologyResults:
         sandbox = OntologyResults.create_sandbox(
             objectid=ObjectID(ontology_id="blah", tag="blah", session="blah"),
             analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:01", end_time="1970-01-01 00:00:02"
+                start_time="1970-01-01 00:00:01.000", end_time="1970-01-01 00:00:02.000"
             ),
             sandbox_name="blah",
         )
@@ -1722,7 +1722,7 @@ class TestOntologyResults:
         sandbox = Sandbox(
             objectid=ObjectID(ontology_id="blah", tag="blah", session="blah"),
             analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:01", end_time="1970-01-01 00:00:02"
+                start_time="1970-01-01 00:00:01.000", end_time="1970-01-01 00:00:02.000"
             ),
             sandbox_name="blah",
         )
@@ -1736,7 +1736,7 @@ class TestOntologyResults:
         sandbox = Sandbox(
             objectid=ObjectID(ontology_id="blah", tag="blah", session="blah"),
             analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:01", end_time="1970-01-01 00:00:02"
+                start_time="1970-01-01 00:00:01.000", end_time="1970-01-01 00:00:02.000"
             ),
             sandbox_name="blah",
         )
@@ -1750,7 +1750,7 @@ class TestOntologyResults:
         p = default_or.create_process(
             objectid=current_objectid,
             image="C:\\Windows\\System32\\cmd.exe",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
         )
         default_or.set_processes([p])
         assert default_or.processes == [p]
@@ -1762,7 +1762,7 @@ class TestOntologyResults:
         p = default_or.create_process(
             objectid=current_objectid,
             image="C:\\Windows\\System32\\cmd.exe",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
         )
         assert p.image == "C:\\Windows\\System32\\cmd.exe"
         assert p.objectid.tag == "blah"
@@ -1776,7 +1776,7 @@ class TestOntologyResults:
         p = default_or.create_process(
             objectid=current_objectid,
             image="C:\\Windows\\System32\\cmd.exe",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
         )
         default_or.add_process(p)
         process_as_primitives = default_or.processes[0].as_primitives()
@@ -1788,7 +1788,7 @@ class TestOntologyResults:
                 "tag": "blah",
                 "treeid": None,
                 "processtree": None,
-                "time_observed": "1970-01-01 00:00:00",
+                "time_observed": "1970-01-01 00:00:00.000",
                 "ontology_id": "blah",
                 "session": None,
                 "service_name": "blah",
@@ -1800,8 +1800,8 @@ class TestOntologyResults:
             "pid": None,
             "image": "C:\\Windows\\System32\\cmd.exe",
             "command_line": None,
-            "start_time": "1970-01-01 00:00:00",
-            "end_time": "9999-12-31 23:59:59",
+            "start_time": "1970-01-01 00:00:00.000",
+            "end_time": "9999-12-31 23:59:59.999999",
             "integrity_level": None,
             "image_hash": None,
             "original_file_name": None,
@@ -1815,7 +1815,7 @@ class TestOntologyResults:
         p = default_or.create_process(
             objectid=current_objectid,
             image="C:\\Windows\\System32\\cmd.exe",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
         )
         default_or.add_process(p)
         assert default_or.processes[0].pid is None
@@ -1823,11 +1823,11 @@ class TestOntologyResults:
         default_or.update_process(guid=default_or.processes[0].objectid.guid, pid=1)
         assert default_or.processes[0].pid == 1
 
-        default_or.update_process(pid=1, start_time="1970-01-01 00:02:00")
-        assert default_or.processes[0].start_time == "1970-01-01 00:00:00"
+        default_or.update_process(pid=1, start_time="1970-01-01 00:02:00.000")
+        assert default_or.processes[0].start_time == "1970-01-01 00:00:00.000"
 
-        default_or.update_process(pid=1, end_time="1970-01-01 00:02:00")
-        assert default_or.processes[0].end_time == "1970-01-01 00:02:00"
+        default_or.update_process(pid=1, end_time="1970-01-01 00:02:00.000")
+        assert default_or.processes[0].end_time == "1970-01-01 00:02:00.000"
 
         default_or.update_process(pid=None)
         assert default_or.processes[0].pid == 1
@@ -1837,7 +1837,7 @@ class TestOntologyResults:
             pguid="{12345678-1234-5678-1234-567812345679}",
             pimage="C:\\Windows\\System32\\cmd.exe",
             pid=1,
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
         )
         assert default_or.processes[0].image == "C:\\Windows\\System32\\cmd.exe"
         assert default_or.processes[0].objectid.tag == "blah"
@@ -1852,7 +1852,7 @@ class TestOntologyResults:
         parent = default_or.create_process(
             objectid=parent_objectid,
             image="C:\\Windows\\System32\\cmd.exe",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
         )
         default_or.add_process(parent)
         default_or.update_process(
@@ -1887,7 +1887,7 @@ class TestOntologyResults:
         p = default_or.create_process(
             objectid=process_objectid,
             image="C:\\Windows\\System32\\cmd.exe",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
         )
         default_or.add_process(p)
         nc_objectid = ObjectID(
@@ -1914,7 +1914,7 @@ class TestOntologyResults:
         assert p.objectid.tag == "blah"
         assert p.objectid.treeid is None
         assert p.objectid.processtree is None
-        assert p.objectid.time_observed == "1970-01-01 00:00:00"
+        assert p.objectid.time_observed == "1970-01-01 00:00:00.000"
 
         assert nc.objectid.guid == nc_guid
         assert nc.objectid.tag == "blah"
@@ -1930,7 +1930,7 @@ class TestOntologyResults:
         assert p.objectid.tag == "blah"
         assert p.objectid.treeid is None
         assert p.objectid.processtree is None
-        assert p.objectid.time_observed == "1970-01-01 00:00:00"
+        assert p.objectid.time_observed == "1970-01-01 00:00:00.000"
 
         default_or.update_objectid(guid=nc_guid, tag="blah")
 
@@ -1951,8 +1951,8 @@ class TestOntologyResults:
         parent_process = default_or.create_process(
             objectid=parent_objectid,
             image="blah.exe",
-            start_time="1970-01-01 00:00:02",
-            end_time="1970-01-01 00:00:03",
+            start_time="1970-01-01 00:00:02.000",
+            end_time="1970-01-01 00:00:03.000",
             pid=1,
         )
         default_or.add_process(parent_process)
@@ -1964,7 +1964,7 @@ class TestOntologyResults:
         p1 = default_or.create_process(
             objectid=current_objectid,
             image="blah",
-            start_time="1970-01-01 00:00:04",
+            start_time="1970-01-01 00:00:04.000",
             pobjectid=parent_objectid,
         )
         default_or.set_parent_details(p1)
@@ -1976,7 +1976,7 @@ class TestOntologyResults:
                 "service_name": "blah",
                 "session": None,
                 "tag": "blah",
-                "time_observed": "1970-01-01 00:00:04",
+                "time_observed": "1970-01-01 00:00:04.000",
                 "treeid": None,
             },
             "pobjectid": {
@@ -1986,7 +1986,7 @@ class TestOntologyResults:
                 "service_name": "blah",
                 "session": None,
                 "tag": "blah",
-                "time_observed": "1970-01-01 00:00:02",
+                "time_observed": "1970-01-01 00:00:02.000",
                 "treeid": None,
             },
             "pimage": "blah.exe",
@@ -1995,8 +1995,8 @@ class TestOntologyResults:
             "pid": None,
             "image": "blah",
             "command_line": None,
-            "start_time": "1970-01-01 00:00:04",
-            "end_time": "9999-12-31 23:59:59",
+            "start_time": "1970-01-01 00:00:04.000",
+            "end_time": "9999-12-31 23:59:59.999999",
             "integrity_level": None,
             "image_hash": None,
             "original_file_name": None,
@@ -2011,7 +2011,7 @@ class TestOntologyResults:
             objectid=currenter_objectid,
             image="blah",
             ppid=1,
-            start_time="1970-01-01 00:00:03",
+            start_time="1970-01-01 00:00:03.000",
         )
         default_or.set_parent_details(p2)
         assert p2.as_primitives() == {
@@ -2022,7 +2022,7 @@ class TestOntologyResults:
                 "service_name": "blah",
                 "session": None,
                 "tag": "blah",
-                "time_observed": "1970-01-01 00:00:03",
+                "time_observed": "1970-01-01 00:00:03.000",
                 "treeid": None,
             },
             "pobjectid": {
@@ -2032,7 +2032,7 @@ class TestOntologyResults:
                 "service_name": "blah",
                 "session": None,
                 "tag": "blah",
-                "time_observed": "1970-01-01 00:00:02",
+                "time_observed": "1970-01-01 00:00:02.000",
                 "treeid": None,
             },
             "pimage": "blah.exe",
@@ -2041,8 +2041,8 @@ class TestOntologyResults:
             "pid": None,
             "image": "blah",
             "command_line": None,
-            "start_time": "1970-01-01 00:00:03",
-            "end_time": "9999-12-31 23:59:59",
+            "start_time": "1970-01-01 00:00:03.000",
+            "end_time": "9999-12-31 23:59:59.999999",
             "integrity_level": None,
             "image_hash": None,
             "original_file_name": None,
@@ -2064,8 +2064,8 @@ class TestOntologyResults:
         child_process1 = default_or.create_process(
             objectid=child_process1_objectid,
             image="blah.exe",
-            start_time="1970-01-01 00:00:02",
-            end_time="1970-01-01 00:00:03",
+            start_time="1970-01-01 00:00:02.000",
+            end_time="1970-01-01 00:00:03.000",
             pid=1,
             pobjectid=child_process1_pobjectid,
         )
@@ -2079,8 +2079,8 @@ class TestOntologyResults:
         child_process2 = default_or.create_process(
             objectid=child_process2_objectid,
             image="blah.exe",
-            start_time="1970-01-01 00:00:02",
-            end_time="1970-01-01 00:00:03",
+            start_time="1970-01-01 00:00:02.000",
+            end_time="1970-01-01 00:00:03.000",
             pid=3,
             ppid=2,
         )
@@ -2093,7 +2093,7 @@ class TestOntologyResults:
         parent = default_or.create_process(
             objectid=parent_objectid,
             pid=2,
-            start_time="1970-01-01 00:00:02",
+            start_time="1970-01-01 00:00:02.000",
             image="parent.exe",
         )
         default_or.set_child_details(parent)
@@ -2105,7 +2105,7 @@ class TestOntologyResults:
                 "service_name": "blah",
                 "session": None,
                 "tag": "blah",
-                "time_observed": "1970-01-01 00:00:02",
+                "time_observed": "1970-01-01 00:00:02.000",
                 "treeid": None,
             },
             "pobjectid": {
@@ -2115,7 +2115,7 @@ class TestOntologyResults:
                 "service_name": "blah",
                 "session": None,
                 "tag": "blah",
-                "time_observed": "1970-01-01 00:00:02",
+                "time_observed": "1970-01-01 00:00:02.000",
                 "treeid": None,
             },
             "pimage": "parent.exe",
@@ -2124,8 +2124,8 @@ class TestOntologyResults:
             "pid": 1,
             "image": "blah.exe",
             "command_line": None,
-            "start_time": "1970-01-01 00:00:02",
-            "end_time": "1970-01-01 00:00:03",
+            "start_time": "1970-01-01 00:00:02.000",
+            "end_time": "1970-01-01 00:00:03.000",
             "integrity_level": None,
             "image_hash": None,
             "original_file_name": None,
@@ -2138,7 +2138,7 @@ class TestOntologyResults:
                 "service_name": "blah",
                 "session": None,
                 "tag": "blah",
-                "time_observed": "1970-01-01 00:00:02",
+                "time_observed": "1970-01-01 00:00:02.000",
                 "treeid": None,
             },
             "pobjectid": {
@@ -2148,7 +2148,7 @@ class TestOntologyResults:
                 "service_name": "blah",
                 "session": None,
                 "tag": "blah",
-                "time_observed": "1970-01-01 00:00:02",
+                "time_observed": "1970-01-01 00:00:02.000",
                 "treeid": None,
             },
             "pimage": "parent.exe",
@@ -2157,8 +2157,8 @@ class TestOntologyResults:
             "pid": 3,
             "image": "blah.exe",
             "command_line": None,
-            "start_time": "1970-01-01 00:00:02",
-            "end_time": "1970-01-01 00:00:03",
+            "start_time": "1970-01-01 00:00:02.000",
+            "end_time": "1970-01-01 00:00:03.000",
             "integrity_level": None,
             "image_hash": None,
             "original_file_name": None,
@@ -2175,7 +2175,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:02",
+                        "start_time": "1970-01-01 00:00:02.000",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             ontology_id="blah",
@@ -2209,25 +2209,25 @@ class TestOntologyResults:
             ontology_id="blah",
             tag="blah",
         )
-        assert default_or.get_guid_by_pid_and_time(1, "1970-01-01 00:00:00") is None
+        assert default_or.get_guid_by_pid_and_time(1, "1970-01-01 00:00:00.000") is None
 
         p = default_or.create_process(
             objectid=current_objectid,
             image="blah",
             pid=1,
-            start_time="1970-01-01 00:00:00",
-            end_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:00.000",
+            end_time="1970-01-01 00:00:01.000",
         )
         default_or.add_process(p)
         assert (
-            default_or.get_guid_by_pid_and_time(1, "1970-01-01 00:00:01")
+            default_or.get_guid_by_pid_and_time(1, "1970-01-01 00:00:01.000")
             == "{12345678-1234-5678-1234-567812345678}"
         )
 
     @staticmethod
     def test_get_processes_by_ppid_and_time():
         default_or = OntologyResults(service_name="blah")
-        assert default_or.get_processes_by_ppid_and_time(1, "1970-01-01 00:00:00") == []
+        assert default_or.get_processes_by_ppid_and_time(1, "1970-01-01 00:00:00.000") == []
         current_objectid = ObjectID(
             guid="{12345678-1234-5678-1234-567812345678}",
             ontology_id="blah",
@@ -2237,20 +2237,20 @@ class TestOntologyResults:
             objectid=current_objectid,
             image="blah",
             pid=1,
-            start_time="1970-01-01 00:00:00",
-            end_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:00.000",
+            end_time="1970-01-01 00:00:01.000",
             guid="{12345678-1234-5678-1234-567812345678}",
             ppid=2,
         )
         default_or.add_process(p)
-        assert default_or.get_processes_by_ppid_and_time(2, "1970-01-01 00:00:01") == [
+        assert default_or.get_processes_by_ppid_and_time(2, "1970-01-01 00:00:01.000") == [
             p
         ]
 
     @staticmethod
     def test_get_pguid_by_pid_and_time():
         default_or = OntologyResults(service_name="blah")
-        assert default_or.get_pguid_by_pid_and_time(1, "1970-01-01 00:00:00") is None
+        assert default_or.get_pguid_by_pid_and_time(1, "1970-01-01 00:00:00.000") is None
         current_objectid = ObjectID(
             guid="{12345678-1234-5678-1234-567812345678}",
             ontology_id="blah",
@@ -2265,13 +2265,13 @@ class TestOntologyResults:
             objectid=current_objectid,
             image="blah",
             pid=1,
-            start_time="1970-01-01 00:00:00",
-            end_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:00.000",
+            end_time="1970-01-01 00:00:01.000",
             pobjectid=pobjectid,
         )
         default_or.add_process(child)
         assert (
-            default_or.get_pguid_by_pid_and_time(1, "1970-01-01 00:00:01")
+            default_or.get_pguid_by_pid_and_time(1, "1970-01-01 00:00:01.000")
             == "{12345678-1234-5678-1234-567812345679}"
         )
 
@@ -2289,8 +2289,8 @@ class TestOntologyResults:
             objectid=current_objectid,
             image="blah",
             pid=1,
-            start_time="1970-01-01 00:00:00",
-            end_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:00.000",
+            end_time="1970-01-01 00:00:01.000",
             guid=guid,
         )
         default_or.add_process(p)
@@ -2312,7 +2312,7 @@ class TestOntologyResults:
         p = default_or.create_process(
             objectid=current_objectid,
             image="blah",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
         )
         default_or.add_process(p)
         assert default_or.get_process_by_guid(guid) == p
@@ -2328,7 +2328,7 @@ class TestOntologyResults:
         p1 = default_or.create_process(
             objectid=objectid1,
             image="blah",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
             command_line="blah1",
         )
         objectid2 = ObjectID(
@@ -2338,7 +2338,7 @@ class TestOntologyResults:
         p2 = default_or.create_process(
             objectid=objectid2,
             image="blah",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
             command_line="blah2",
         )
         objectid3 = ObjectID(
@@ -2348,7 +2348,7 @@ class TestOntologyResults:
         p3 = default_or.create_process(
             objectid=objectid3,
             image="blah",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
             command_line="blah1",
         )
         default_or.add_process(p1)
@@ -2374,11 +2374,11 @@ class TestOntologyResults:
             objectid=objectid,
             image="blah",
             pid=1,
-            start_time="1970-01-01 00:00:01",
-            end_time="1970-01-01 00:00:02",
+            start_time="1970-01-01 00:00:01.000",
+            end_time="1970-01-01 00:00:02.000",
         )
         default_or.add_process(p)
-        assert default_or.get_process_by_pid_and_time(1, "1970-01-01 00:00:01") == p
+        assert default_or.get_process_by_pid_and_time(1, "1970-01-01 00:00:01.000") == p
 
     @staticmethod
     def test_get_processes_by_pguid():
@@ -2401,7 +2401,7 @@ class TestOntologyResults:
             objectid=objectid,
             pobjectid=pobjectid,
             image="blah",
-            start_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:01.000",
         )
         default_or.add_process(p)
         assert default_or.get_processes_by_pguid(guid) == [p]
@@ -2515,7 +2515,7 @@ class TestOntologyResults:
             destination_ip="1.1.1.1",
             destination_port=123,
             direction="outbound",
-            time_observed="1970-01-01 00:00:01",
+            time_observed="1970-01-01 00:00:01.000",
             transport_layer_protocol="tcp",
         )
         default_or.add_network_connection(nc2)
@@ -2557,7 +2557,7 @@ class TestOntologyResults:
             tag="blah",
         )
         nc.update_process(
-            pid=1, objectid=p1_objectid, image="blah", start_time="1970-01-01 00:00:01"
+            pid=1, objectid=p1_objectid, image="blah", start_time="1970-01-01 00:00:01.000"
         )
         default_or.add_network_connection(nc)
         assert default_or.get_network_connection_by_pid(1) == []
@@ -2570,12 +2570,12 @@ class TestOntologyResults:
             objectid=p2_objectid,
             image="blah",
             pid=2,
-            start_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:01.000",
             end_time="1970-01-01 00:00:05",
         )
         default_or.add_process(p)
         nc2_objectid = ObjectID(
-            ontology_id="blah", tag="blah", time_observed="1970-01-01 00:00:02"
+            ontology_id="blah", tag="blah", time_observed="1970-01-01 00:00:02.000"
         )
         nc2 = default_or.create_network_connection(
             objectid=nc2_objectid,
@@ -2585,7 +2585,7 @@ class TestOntologyResults:
             direction="outbound",
         )
         nc2.update_process(
-            objectid=p2_objectid, image="blah", pid=2, start_time="1970-01-01 00:00:02"
+            objectid=p2_objectid, image="blah", pid=2, start_time="1970-01-01 00:00:02.000"
         )
         default_or.add_network_connection(nc2)
         assert (
@@ -2931,7 +2931,7 @@ class TestOntologyResults:
             ppid=1,
             image="blah",
             command_line="blah",
-            start_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:01.000",
             guid="{12345678-1234-5678-1234-567812345678}",
             pguid="{12345678-1234-5678-1234-567812345679}",
         )
@@ -2939,7 +2939,7 @@ class TestOntologyResults:
         nc_objectid = ObjectID(
             ontology_id="blah",
             tag="blah",
-            time_observed="1970-01-01 00:00:01",
+            time_observed="1970-01-01 00:00:01.000",
         )
         nc = default_or.create_network_connection(
             objectid=nc_objectid,
@@ -2963,13 +2963,13 @@ class TestOntologyResults:
         p1 = default_or.create_process(
             objectid=p1_objectid,
             image="blah",
-            start_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:01.000",
         )
         p2_objectid = ObjectID(ontology_id="blah", tag="blah", treeid="blahblahblah")
         p2 = default_or.create_process(
             objectid=p2_objectid,
             image="blah",
-            start_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:01.000",
         )
         default_or.add_process(p1)
         default_or.add_process(p2)
@@ -2989,11 +2989,11 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3010,14 +3010,14 @@ class TestOntologyResults:
                     {
                         "pid": 2,
                         "image": "blah",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": {
                             "guid": "{12345678-1234-5678-1234-567812345678}",
                             "tag": "blah",
                             "treeid": "8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52",
                             "processtree": "blah|blah",
-                            "time_observed": "1970-01-01 00:00:01",
+                            "time_observed": "1970-01-01 00:00:01.000",
                             "ontology_id": "blah",
                             "service_name": "blah",
                             "session": None,
@@ -3051,11 +3051,11 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3071,11 +3071,11 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah2",
                         "command_line": "blah2",
-                        "start_time": "1970-01-01 00:00:02",
+                        "start_time": "1970-01-01 00:00:02.000",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345679}",
                             tag="blah2",
-                            time_observed="1970-01-01 00:00:02",
+                            time_observed="1970-01-01 00:00:02.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3092,14 +3092,14 @@ class TestOntologyResults:
                     {
                         "pid": 1,
                         "image": "blah",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": {
                             "guid": "{12345678-1234-5678-1234-567812345678}",
                             "tag": "blah",
                             "treeid": "8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52",
                             "processtree": "blah|blah",
-                            "time_observed": "1970-01-01 00:00:01",
+                            "time_observed": "1970-01-01 00:00:01.000",
                             "ontology_id": "blah",
                             "service_name": "blah",
                             "session": None,
@@ -3125,14 +3125,14 @@ class TestOntologyResults:
                             {
                                 "pid": 2,
                                 "image": "blah2",
-                                "start_time": "1970-01-01 00:00:02",
-                                "end_time": "9999-12-31 23:59:59",
+                                "start_time": "1970-01-01 00:00:02.000",
+                                "end_time": "9999-12-31 23:59:59.999999",
                                 "objectid": {
                                     "guid": "{12345678-1234-5678-1234-567812345679}",
                                     "tag": "blah2",
                                     "treeid": "28fb5ed121e549f67b678d225bb2fc9971ed02c18a087f8fa9b05bf18a23d9e1",
                                     "processtree": "blah|blah|blah2",
-                                    "time_observed": "1970-01-01 00:00:02",
+                                    "time_observed": "1970-01-01 00:00:02.000",
                                     "ontology_id": "blah",
                                     "service_name": "blah",
                                     "session": None,
@@ -3142,7 +3142,7 @@ class TestOntologyResults:
                                     "tag": "blah",
                                     "treeid": None,
                                     "processtree": None,
-                                    "time_observed": "1970-01-01 00:00:01",
+                                    "time_observed": "1970-01-01 00:00:01.000",
                                     "ontology_id": "blah",
                                     "service_name": "blah",
                                     "session": None,
@@ -3168,11 +3168,11 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345671}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3188,18 +3188,18 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah2",
                         "command_line": "blah2",
-                        "start_time": "1970-01-01 00:00:02",
+                        "start_time": "1970-01-01 00:00:02.000",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345672}",
                             tag="blah2",
-                            time_observed="1970-01-01 00:00:02",
+                            time_observed="1970-01-01 00:00:02.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
                         "pobjectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345671}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3209,18 +3209,18 @@ class TestOntologyResults:
                         "ppid": 3,
                         "image": "blah3",
                         "command_line": "blah3",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345673}",
                             tag="blah3",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
                         "pobjectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345673}",
                             tag="blah3",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3230,18 +3230,18 @@ class TestOntologyResults:
                         "ppid": 3,
                         "image": "blah4",
                         "command_line": "blah4",
-                        "start_time": "1970-01-01 00:00:02",
+                        "start_time": "1970-01-01 00:00:02.000",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345674}",
                             tag="blah4",
-                            time_observed="1970-01-01 00:00:02",
+                            time_observed="1970-01-01 00:00:02.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
                         "pobjectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345673}",
                             tag="blah3",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3252,14 +3252,14 @@ class TestOntologyResults:
                     {
                         "pid": 1,
                         "image": "blah",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": {
                             "guid": "{12345678-1234-5678-1234-567812345671}",
                             "tag": "blah",
                             "treeid": "8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52",
                             "processtree": "blah|blah",
-                            "time_observed": "1970-01-01 00:00:01",
+                            "time_observed": "1970-01-01 00:00:01.000",
                             "ontology_id": "blah",
                             "service_name": "blah",
                             "session": None,
@@ -3285,14 +3285,14 @@ class TestOntologyResults:
                             {
                                 "pid": 2,
                                 "image": "blah2",
-                                "start_time": "1970-01-01 00:00:02",
-                                "end_time": "9999-12-31 23:59:59",
+                                "start_time": "1970-01-01 00:00:02.000",
+                                "end_time": "9999-12-31 23:59:59.999999",
                                 "objectid": {
                                     "guid": "{12345678-1234-5678-1234-567812345672}",
                                     "tag": "blah2",
                                     "treeid": "28fb5ed121e549f67b678d225bb2fc9971ed02c18a087f8fa9b05bf18a23d9e1",
                                     "processtree": "blah|blah|blah2",
-                                    "time_observed": "1970-01-01 00:00:02",
+                                    "time_observed": "1970-01-01 00:00:02.000",
                                     "ontology_id": "blah",
                                     "service_name": "blah",
                                     "session": None,
@@ -3302,7 +3302,7 @@ class TestOntologyResults:
                                     "tag": "blah",
                                     "treeid": None,
                                     "processtree": None,
-                                    "time_observed": "1970-01-01 00:00:01",
+                                    "time_observed": "1970-01-01 00:00:01.000",
                                     "ontology_id": "blah",
                                     "service_name": "blah",
                                     "session": None,
@@ -3328,11 +3328,11 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3354,7 +3354,7 @@ class TestOntologyResults:
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah:blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3378,7 +3378,7 @@ class TestOntologyResults:
                             "tag": "blah:blah",
                             "treeid": "5f687d6145fb95eb502e4b6c1c83914aca058b35ce0aa6fe3d80f7e972e4f363",
                             "processtree": "blah:blah",
-                            "time_observed": "1970-01-01 00:00:01",
+                            "time_observed": "1970-01-01 00:00:01.000",
                             "ontology_id": "blah",
                             "service_name": "blah",
                             "session": None,
@@ -3402,11 +3402,11 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3421,7 +3421,7 @@ class TestOntologyResults:
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345679}",
                             tag="blah:blah",
-                            time_observed="1970-01-01 00:00:02",
+                            time_observed="1970-01-01 00:00:02.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3437,10 +3437,10 @@ class TestOntologyResults:
                                 tag="blah",
                                 ontology_id="blah",
                                 service_name="blah",
-                                time_observed="1970-01-01 00:00:01",
+                                time_observed="1970-01-01 00:00:01.000",
                             ),
                             "image": "blah",
-                            "start_time": "1970-01-01 00:00:01",
+                            "start_time": "1970-01-01 00:00:01.000",
                         },
                     },
                 ],
@@ -3449,14 +3449,14 @@ class TestOntologyResults:
                     {
                         "pid": 1,
                         "image": "blah",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": {
                             "guid": "{12345678-1234-5678-1234-567812345678}",
                             "tag": "blah",
                             "treeid": "8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52",
                             "processtree": "blah|blah",
-                            "time_observed": "1970-01-01 00:00:01",
+                            "time_observed": "1970-01-01 00:00:01.000",
                             "ontology_id": "blah",
                             "service_name": "blah",
                             "session": None,
@@ -3485,7 +3485,7 @@ class TestOntologyResults:
                                     "tag": "blah:blah",
                                     "treeid": "81a167be9a70e6d9c9b14f4dec79c052e463c3fda116583731c1065143e8f277",
                                     "processtree": "blah|blah|blah:blah",
-                                    "time_observed": "1970-01-01 00:00:02",
+                                    "time_observed": "1970-01-01 00:00:02.000",
                                     "ontology_id": "blah",
                                     "service_name": "blah",
                                     "session": None,
@@ -3501,8 +3501,8 @@ class TestOntologyResults:
                                     "ppid": 1,
                                     "image": "blah",
                                     "command_line": "blah",
-                                    "start_time": "1970-01-01 00:00:01",
-                                    "end_time": "9999-12-31 23:59:59",
+                                    "start_time": "1970-01-01 00:00:01.000",
+                                    "end_time": "9999-12-31 23:59:59.999999",
                                     "pimage": None,
                                     "pcommand_line": None,
                                     "integrity_level": None,
@@ -3514,7 +3514,7 @@ class TestOntologyResults:
                                         "tag": "blah",
                                         "treeid": None,
                                         "processtree": None,
-                                        "time_observed": "1970-01-01 00:00:01",
+                                        "time_observed": "1970-01-01 00:00:01.000",
                                         "processtree": None,
                                         "session": None,
                                         "service_name": "blah",
@@ -3568,12 +3568,12 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3602,18 +3602,18 @@ class TestOntologyResults:
                         "ppid": 2,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
                         "pobjectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345679}",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                             tag="blah",
@@ -3624,12 +3624,12 @@ class TestOntologyResults:
                         "ppid": 3,
                         "image": "blah2",
                         "command_line": "blah2",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345679}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3670,12 +3670,12 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3691,19 +3691,19 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah2",
                         "command_line": "blah2",
-                        "start_time": "1970-01-01 00:00:02",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:02.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345679}",
                             tag="blah2",
-                            time_observed="1970-01-01 00:00:02",
+                            time_observed="1970-01-01 00:00:02.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
                         "pobjectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3713,12 +3713,12 @@ class TestOntologyResults:
                         "ppid": 3,
                         "image": "blah3",
                         "command_line": "blah3",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345671}",
                             tag="blah3",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3728,19 +3728,19 @@ class TestOntologyResults:
                         "ppid": 3,
                         "image": "blah4",
                         "command_line": "blah4",
-                        "start_time": "1970-01-01 00:00:02",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:02.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345674}",
                             tag="blah4",
-                            time_observed="1970-01-01 00:00:02",
+                            time_observed="1970-01-01 00:00:02.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
                         "pobjectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345671}",
                             tag="blah3",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3781,12 +3781,12 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3807,7 +3807,7 @@ class TestOntologyResults:
                                 source=ObjectID(
                                     guid="{12345678-1234-5678-1234-567812345678}",
                                     tag="blah",
-                                    time_observed="1970-01-01 00:00:01",
+                                    time_observed="1970-01-01 00:00:01.000",
                                     ontology_id="blah",
                                     service_name="blah",
                                 ),
@@ -3837,12 +3837,12 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3863,7 +3863,7 @@ class TestOntologyResults:
                                 source=ObjectID(
                                     guid="{12345678-1234-5678-1234-567812345679}",
                                     tag="blah",
-                                    time_observed="1970-01-01 00:00:01",
+                                    time_observed="1970-01-01 00:00:01.000",
                                     ontology_id="blah",
                                     service_name="blah",
                                 ),
@@ -3893,12 +3893,12 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3919,7 +3919,7 @@ class TestOntologyResults:
                                 source=ObjectID(
                                     guid="{12345678-1234-5678-1234-567812345679}",
                                     tag="blah",
-                                    time_observed="1970-01-01 00:00:01",
+                                    time_observed="1970-01-01 00:00:01.000",
                                     ontology_id="blah",
                                     service_name="blah",
                                 ),
@@ -3950,12 +3950,12 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
-                        "end_time": "9999-12-31 23:59:59",
+                        "start_time": "1970-01-01 00:00:01.000",
+                        "end_time": "9999-12-31 23:59:59.999999",
                         "objectid": ObjectID(
                             guid="{12345678-1234-5678-1234-567812345678}",
                             tag="blah",
-                            time_observed="1970-01-01 00:00:01",
+                            time_observed="1970-01-01 00:00:01.000",
                             ontology_id="blah",
                             service_name="blah",
                         ),
@@ -3976,7 +3976,7 @@ class TestOntologyResults:
                                 source=ObjectID(
                                     guid="{12345678-1234-5678-1234-567812345679}",
                                     tag="blah",
-                                    time_observed="1970-01-01 00:00:01",
+                                    time_observed="1970-01-01 00:00:01.000",
                                     ontology_id="blah",
                                     service_name="blah",
                                 ),
@@ -4012,12 +4012,12 @@ class TestOntologyResults:
         nc.update_process(
             pid=2,
             image="blah2",
-            start_time="1970-01-01 00:00:02",
-            end_time="9999-12-31 23:59:59",
+            start_time="1970-01-01 00:00:02.000",
+            end_time="9999-12-31 23:59:59.999999",
             objectid=ObjectID(
                 guid="{12345678-1234-5678-1234-567812345679}",
                 tag="blah",
-                time_observed="1970-01-01 00:00:01",
+                time_observed="1970-01-01 00:00:01.000",
                 ontology_id="blah",
                 service_name="blah",
             ),
@@ -4701,8 +4701,8 @@ class TestOntologyResults:
         p = so.create_process(
             objectid=objectid,
             pid=1,
-            start_time="1970-01-01 00:00:00",
-            end_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:00.000",
+            end_time="1970-01-01 00:00:01.000",
             image="blah",
         )
         so.add_process(p)
@@ -4717,8 +4717,8 @@ class TestOntologyResults:
         p1 = so.create_process(
             objectid=p1_objectid,
             pid=1,
-            start_time="1970-01-01 00:00:00",
-            end_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:00.000",
+            end_time="1970-01-01 00:00:01.000",
             image="blah",
         )
         assert so._validate_process(p1)
@@ -4734,8 +4734,8 @@ class TestOntologyResults:
         p2 = so.create_process(
             objectid=p2_objectid,
             pid=2,
-            start_time="1970-01-01 00:00:00",
-            end_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:00.000",
+            end_time="1970-01-01 00:00:01.000",
             image="blah",
         )
         assert so._validate_process(p2)
@@ -4750,8 +4750,8 @@ class TestOntologyResults:
         p3 = so.create_process(
             objectid=p3_objectid,
             pid=2,
-            start_time="1970-01-01 00:00:00",
-            end_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:00.000",
+            end_time="1970-01-01 00:00:01.000",
             image="blah",
         )
         assert not so._validate_process(p3)
@@ -4765,8 +4765,8 @@ class TestOntologyResults:
         p4 = so.create_process(
             objectid=p4_objectid,
             pid=4,
-            start_time="1970-01-01 00:00:00",
-            end_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:00.000",
+            end_time="1970-01-01 00:00:01.000",
             guid="{12345678-1234-5678-1234-567812345678}",
             image="blah",
         )
@@ -4781,8 +4781,8 @@ class TestOntologyResults:
         p5 = so.create_process(
             objectid=p5_objectid,
             pid=3,
-            start_time="1970-01-01 00:00:01",
-            end_time="1970-01-01 00:00:02",
+            start_time="1970-01-01 00:00:01.000",
+            end_time="1970-01-01 00:00:02.000",
             image="blah",
         )
         assert so._validate_process(p5)
@@ -4797,8 +4797,8 @@ class TestOntologyResults:
             objectid=p1_objectid,
             image="blah",
             pid=1,
-            start_time="1970-01-01 00:00:01",
-            end_time="1970-01-01 00:00:02",
+            start_time="1970-01-01 00:00:01.000",
+            end_time="1970-01-01 00:00:02.000",
         )
         assert so._handle_pid_match(p1)
         so.add_process(p1)
@@ -4810,8 +4810,8 @@ class TestOntologyResults:
             objectid=p2_objectid,
             image="blah",
             pid=1,
-            start_time="1970-01-01 00:00:01",
-            end_time="1970-01-01 00:00:02",
+            start_time="1970-01-01 00:00:01.000",
+            end_time="1970-01-01 00:00:02.000",
         )
         assert not so._handle_pid_match(p2)
 
@@ -4821,8 +4821,8 @@ class TestOntologyResults:
             objectid=p3_objectid,
             image="blah",
             pid=1,
-            start_time="1970-01-01 00:00:02",
-            end_time="1970-01-01 00:00:03",
+            start_time="1970-01-01 00:00:02.000",
+            end_time="1970-01-01 00:00:03.000",
         )
         assert so._handle_pid_match(p3)
         so.add_process(p3)
@@ -4834,8 +4834,8 @@ class TestOntologyResults:
             objectid=p4_objectid,
             image="blah",
             pid=1,
-            start_time="1970-01-01 00:00:00",
-            end_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:00.000",
+            end_time="1970-01-01 00:00:01.000",
         )
         assert so._handle_pid_match(p4)
         so.add_process(p4)
@@ -4847,8 +4847,8 @@ class TestOntologyResults:
             objectid=p5_objectid,
             image="blah",
             pid=1,
-            start_time="1970-01-01 00:00:00",
-            end_time="1970-01-01 00:00:03",
+            start_time="1970-01-01 00:00:00.000",
+            end_time="1970-01-01 00:00:03.000",
         )
         assert not so._handle_pid_match(p5)
 
@@ -4859,7 +4859,7 @@ class TestOntologyResults:
         p = default_or.create_process(
             objectid=p_objectid,
             image="blah",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
         )
         default_or.add_process(p)
         assert default_or.get_processes() == [p]
@@ -4867,7 +4867,7 @@ class TestOntologyResults:
         p1 = default_or.create_process(
             objectid=p1_objectid,
             image="blah",
-            start_time="1970-01-01 00:00:00",
+            start_time="1970-01-01 00:00:00.000",
         )
         default_or._remove_process(p1)
         assert default_or.get_processes() == [p]
@@ -5472,26 +5472,26 @@ class TestOntologyResults:
             ),
             (
                 [
-                    {"objectid": {"time_observed": "1970-01-01 00:00:03"}},
-                    {"objectid": {"time_observed": "1970-01-01 00:00:02"}},
-                    {"objectid": {"time_observed": "1970-01-01 00:00:01"}},
+                    {"objectid": {"time_observed": "1970-01-01 00:00:03.000"}},
+                    {"objectid": {"time_observed": "1970-01-01 00:00:02.000"}},
+                    {"objectid": {"time_observed": "1970-01-01 00:00:01.000"}},
                 ],
                 [
-                    {"objectid": {"time_observed": "1970-01-01 00:00:01"}},
-                    {"objectid": {"time_observed": "1970-01-01 00:00:02"}},
-                    {"objectid": {"time_observed": "1970-01-01 00:00:03"}},
+                    {"objectid": {"time_observed": "1970-01-01 00:00:01.000"}},
+                    {"objectid": {"time_observed": "1970-01-01 00:00:02.000"}},
+                    {"objectid": {"time_observed": "1970-01-01 00:00:03.000"}},
                 ],
             ),
             (
                 [
-                    {"objectid": {"time_observed": "1970-01-01 00:00:03"}},
-                    {"objectid": {"time_observed": "1970-01-01 00:00:02"}},
-                    {"objectid": {"time_observed": "1-01-01 00:00:00"}},
+                    {"objectid": {"time_observed": "1970-01-01 00:00:03.000"}},
+                    {"objectid": {"time_observed": "1970-01-01 00:00:02.000"}},
+                    {"objectid": {"time_observed": "1-01-01 00:00:00.000000"}},
                 ],
                 [
-                    {"objectid": {"time_observed": "1-01-01 00:00:00"}},
-                    {"objectid": {"time_observed": "1970-01-01 00:00:02"}},
-                    {"objectid": {"time_observed": "1970-01-01 00:00:03"}},
+                    {"objectid": {"time_observed": "1-01-01 00:00:00.000000"}},
+                    {"objectid": {"time_observed": "1970-01-01 00:00:02.000"}},
+                    {"objectid": {"time_observed": "1970-01-01 00:00:03.000"}},
                 ],
             ),
         ],
@@ -6049,7 +6049,7 @@ class TestOntologyResults:
                     {
                         "pid": 1,
                         "image": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "guid": "{12345678-1234-5678-1234-567812345678}",
                     }
                 ],
@@ -6063,7 +6063,7 @@ class TestOntologyResults:
                             "session": None,
                             "treeid": None,
                             "processtree": None,
-                            "time_observed": "1970-01-01 00:00:01",
+                            "time_observed": "1970-01-01 00:00:01.000",
                         },
                         "pobjectid": None,
                         "pimage": None,
@@ -6072,7 +6072,7 @@ class TestOntologyResults:
                         "pid": 1,
                         "image": "blah",
                         "command_line": None,
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "end_time": None,
                         "integrity_level": None,
                         "image_hash": None,
@@ -6085,7 +6085,7 @@ class TestOntologyResults:
                     {
                         "pid": 1,
                         "image": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "guid": None,
                     }
                 ],
@@ -6096,13 +6096,13 @@ class TestOntologyResults:
                     {
                         "pid": 1,
                         "image": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "guid": "{12345678-1234-5678-1234-567812345678}",
                     },
                     {
                         "pid": 2,
                         "image": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "guid": "{12345678-1234-5678-1234-567812345679}",
                     },
                 ],
@@ -6113,7 +6113,7 @@ class TestOntologyResults:
                             "tag": "blah",
                             "treeid": None,
                             "processtree": None,
-                            "time_observed": "1970-01-01 00:00:01",
+                            "time_observed": "1970-01-01 00:00:01.000",
                             "ontology_id": "blah",
                             "service_name": "blah",
                             "session": None,
@@ -6125,7 +6125,7 @@ class TestOntologyResults:
                         "pid": 1,
                         "image": "blah",
                         "command_line": None,
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "end_time": None,
                         "integrity_level": None,
                         "image_hash": None,
@@ -6137,7 +6137,7 @@ class TestOntologyResults:
                             "tag": "blah",
                             "treeid": None,
                             "processtree": None,
-                            "time_observed": "1970-01-01 00:00:01",
+                            "time_observed": "1970-01-01 00:00:01.000",
                             "ontology_id": "blah",
                             "service_name": "blah",
                             "session": None,
@@ -6149,7 +6149,7 @@ class TestOntologyResults:
                         "pid": 2,
                         "image": "blah",
                         "command_line": None,
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "end_time": None,
                         "integrity_level": None,
                         "image_hash": None,
@@ -6193,7 +6193,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -6216,7 +6216,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "children": [],
                         "objectid": {
                             "guid": "a",
@@ -6243,7 +6243,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -6264,7 +6264,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "b",
                             "tag": "blah",
@@ -6287,7 +6287,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -6308,7 +6308,7 @@ class TestOntologyResults:
                                 "ppid": 1,
                                 "image": "blah",
                                 "command_line": "blah",
-                                "start_time": "1970-01-01 00:00:01",
+                                "start_time": "1970-01-01 00:00:01.000",
                                 "objectid": {
                                     "guid": "b",
                                     "tag": "blah",
@@ -6337,7 +6337,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -6358,7 +6358,7 @@ class TestOntologyResults:
                         "ppid": 2,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "b",
                             "tag": "blah",
@@ -6381,7 +6381,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -6403,7 +6403,7 @@ class TestOntologyResults:
                         "ppid": 2,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "b",
                             "tag": "blah",
@@ -6430,7 +6430,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -6451,7 +6451,7 @@ class TestOntologyResults:
                         "ppid": 2,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "b",
                             "tag": "blah",
@@ -6472,7 +6472,7 @@ class TestOntologyResults:
                         "ppid": 2,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "c",
                             "tag": "blah",
@@ -6495,7 +6495,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -6517,7 +6517,7 @@ class TestOntologyResults:
                         "ppid": 2,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "b",
                             "tag": "blah",
@@ -6538,7 +6538,7 @@ class TestOntologyResults:
                                 "ppid": 2,
                                 "image": "blah",
                                 "command_line": "blah",
-                                "start_time": "1970-01-01 00:00:01",
+                                "start_time": "1970-01-01 00:00:01.000",
                                 "objectid": {
                                     "guid": "c",
                                     "tag": "blah",
@@ -6567,7 +6567,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -6588,7 +6588,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:02",
+                        "start_time": "1970-01-01 00:00:02.000",
                         "objectid": {
                             "guid": "b",
                             "tag": "blah",
@@ -6630,7 +6630,7 @@ class TestOntologyResults:
                         "ppid": 4,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:02",
+                        "start_time": "1970-01-01 00:00:02.000",
                         "objectid": {
                             "guid": "d",
                             "tag": "blah",
@@ -6653,7 +6653,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -6674,7 +6674,7 @@ class TestOntologyResults:
                                 "ppid": 1,
                                 "image": "blah",
                                 "command_line": "blah",
-                                "start_time": "1970-01-01 00:00:02",
+                                "start_time": "1970-01-01 00:00:02.000",
                                 "objectid": {
                                     "guid": "b",
                                     "tag": "blah",
@@ -6721,7 +6721,7 @@ class TestOntologyResults:
                         "ppid": 4,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:02",
+                        "start_time": "1970-01-01 00:00:02.000",
                         "objectid": {
                             "guid": "d",
                             "tag": "blah",
@@ -6748,7 +6748,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -6769,7 +6769,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:02",
+                        "start_time": "1970-01-01 00:00:02.000",
                         "objectid": {
                             "guid": "b",
                             "tag": "blah",
@@ -6834,7 +6834,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -6855,7 +6855,7 @@ class TestOntologyResults:
                                 "ppid": 1,
                                 "image": "blah",
                                 "command_line": "blah",
-                                "start_time": "1970-01-01 00:00:02",
+                                "start_time": "1970-01-01 00:00:02.000",
                                 "objectid": {
                                     "guid": "b",
                                     "tag": "blah",
@@ -6929,7 +6929,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -6971,7 +6971,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:02",
+                        "start_time": "1970-01-01 00:00:02.000",
                         "objectid": {
                             "guid": "c",
                             "tag": "blah",
@@ -7015,7 +7015,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -7036,7 +7036,7 @@ class TestOntologyResults:
                                 "ppid": 1,
                                 "image": "blah",
                                 "command_line": "blah",
-                                "start_time": "1970-01-01 00:00:02",
+                                "start_time": "1970-01-01 00:00:02.000",
                                 "objectid": {
                                     "guid": "c",
                                     "tag": "blah",
@@ -7110,7 +7110,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -7149,7 +7149,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -7193,7 +7193,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -7235,7 +7235,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -7283,7 +7283,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -7344,7 +7344,7 @@ class TestOntologyResults:
                         "ppid": 1,
                         "image": "blah",
                         "command_line": "blah",
-                        "start_time": "1970-01-01 00:00:01",
+                        "start_time": "1970-01-01 00:00:01.000",
                         "objectid": {
                             "guid": "a",
                             "tag": "blah",
@@ -7506,7 +7506,7 @@ class TestOntologyResults:
         safelist = ["blahblah"]
         p_objectid = ObjectID(tag="blah", ontology_id="blah")
         p = so.create_process(
-            objectid=p_objectid, image="blah", pid=2, start_time="1970-01-01 00:00:01"
+            objectid=p_objectid, image="blah", pid=2, start_time="1970-01-01 00:00:01.000"
         )
         so.add_process(p)
         sig_objectid = ObjectID(tag="blah", ontology_id="blah")
@@ -7706,7 +7706,7 @@ class TestOntologyResults:
                 ontology_id="blah",
             ),
             image="blah",
-            start_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:01.000",
             pid=1,
         )
         p1 = default_or.create_process(
@@ -7716,7 +7716,7 @@ class TestOntologyResults:
                 ontology_id="blah",
             ),
             image="blah",
-            start_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:01.000",
             pid=2,
         )
         p2 = default_or.create_process(
@@ -7726,7 +7726,7 @@ class TestOntologyResults:
                 ontology_id="blah",
             ),
             image="blah",
-            start_time="1970-01-01 00:00:01",
+            start_time="1970-01-01 00:00:01.000",
             pid=3,
         )
         default_or.add_process(p)
@@ -8737,19 +8737,19 @@ class TestOntologyResults:
         sandbox = Sandbox(
             objectid=ObjectID(ontology_id="blah", tag="blah", session="blah"),
             analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:01", end_time="1970-01-01 00:00:02"
+                start_time="1970-01-01 00:00:01.000", end_time="1970-01-01 00:00:02.000"
             ),
             sandbox_name="blah",
         )
         default_or.add_sandbox(sandbox)
         p_objectid = ObjectID(tag="blah", ontology_id="blah", session="blah")
         p = default_or.create_process(
-            objectid=p_objectid, image="blah", start_time="1-01-01 00:00:00", pid=1
+            objectid=p_objectid, image="blah", start_time="1-01-01 00:00:00.000000", pid=1
         )
         default_or._set_item_times(p)
-        assert p.start_time == "1970-01-01 00:00:01"
-        assert p.end_time == "1970-01-01 00:00:02"
-        assert p.objectid.time_observed == "1970-01-01 00:00:01"
+        assert p.start_time == "1970-01-01 00:00:01.000"
+        assert p.end_time == "1970-01-01 00:00:02.000"
+        assert p.objectid.time_observed == "1970-01-01 00:00:01.000"
 
         objectid = ObjectID(tag="blah", ontology_id="blah", session="blah")
         default_or._set_item_times(objectid)
@@ -8760,7 +8760,7 @@ class TestOntologyResults:
         default_or = OntologyResults(service_name="blah")
         p_objectid = ObjectID(tag="blah", ontology_id="blah", treeid="blah")
         p = default_or.create_process(
-            objectid=p_objectid, image="blah", start_time="1-01-01 00:00:00", pid=1
+            objectid=p_objectid, image="blah", start_time="1-01-01 00:00:00.000000", pid=1
         )
         default_or.add_process(p)
 
@@ -8801,7 +8801,7 @@ class TestOntologyResults:
         sandbox = Sandbox(
             objectid=ObjectID(tag="blah", ontology_id="blah"),
             analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:01", end_time="1970-01-01 00:00:02"
+                start_time="1970-01-01 00:00:01.000", end_time="1970-01-01 00:00:02.000"
             ),
             sandbox_name="blah",
         )
@@ -8810,13 +8810,13 @@ class TestOntologyResults:
             objectid=ObjectID(tag="blah", ontology_id="blah", treeid="blah"),
             pid=1,
             image="blah",
-            start_time="1-01-01 00:00:00",
+            start_time="1-01-01 00:00:00.000000",
         )
         default_or.add_process(p)
         default_or.preprocess_ontology()
-        assert p.start_time == "1970-01-01 00:00:01"
-        assert p.end_time == "1970-01-01 00:00:02"
-        assert p.objectid.time_observed == "1970-01-01 00:00:01"
+        assert p.start_time == "1970-01-01 00:00:01.000"
+        assert p.end_time == "1970-01-01 00:00:02.000"
+        assert p.objectid.time_observed == "1970-01-01 00:00:01.000"
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -8842,11 +8842,11 @@ class TestOntologyResults:
               {"@Name": "Image", "#text": "blah.exe"},
               {"@Name": "CommandLine", "#text": "./blah"},
               {"@Name": "ProcessGuid", "#text": "{12345678-1234-5678-1234-567812345679}"}]}}],
-          {'start_time': "1970-01-01 12:40:30",
-           'end_time': "9999-12-31 23:59:59",
+          {'start_time': "1970-01-01 12:40:30.123",
+           'end_time': "9999-12-31 23:59:59.999999",
            'objectid':
            {'guid': '{12345678-1234-5678-1234-567812345679}', 'tag': 'blah.exe', 'treeid': None,
-            'time_observed': "1970-01-01 12:40:30", 'ontology_id': 'process_4Kj6sgz5Y8rvIQnT9nPBS2',
+            'time_observed': "1970-01-01 12:40:30.123", 'ontology_id': 'process_4Kj6sgz5Y8rvIQnT9nPBS2',
             'processtree': None, 'service_name': 'CAPE',},
            'pobjectid': None,
            'pimage': None, 'pcommand_line': None, 'ppid': 2, 'pid': 1, 'image': 'blah.exe', 'command_line': './blah',
@@ -8863,11 +8863,11 @@ class TestOntologyResults:
               {"@Name": "CommandLine", "#text": "./blah"},
               {"@Name": "ProcessGuid", "#text": "{12345678-1234-5678-1234-567812345679}"},
               {"@Name": "SourceProcessGuid", "#text": "{12345678-1234-5678-1234-567812345678}"}]}}],
-          {'start_time': "1970-01-01 12:40:30",
-           'end_time': "9999-12-31 23:59:59",
+          {'start_time': "1970-01-01 12:40:30.123",
+           'end_time': "9999-12-31 23:59:59.999999",
            'objectid':
            {'guid': '{12345678-1234-5678-1234-567812345679}', 'tag': 'blah.exe', 'treeid': None,
-            'time_observed': "1970-01-01 12:40:30", 'ontology_id': 'process_4Kj6sgz5Y8rvIQnT9nPBS2',
+            'time_observed': "1970-01-01 12:40:30.123", 'ontology_id': 'process_4Kj6sgz5Y8rvIQnT9nPBS2',
             'processtree': None, 'service_name': 'CAPE'},
            'pobjectid': None,
            'pimage': None, 'pcommand_line': None, 'ppid': 2, 'pid': 1, 'image': 'blah.exe', 'command_line': './blah',
@@ -8880,10 +8880,10 @@ class TestOntologyResults:
               {"@Name": "ProcessGuid", "#text": "{12345678-1234-5678-1234-567812345678}"},
               {"@Name": "ProcessId", "#text": "123"},
               {"@Name": "Image", "#text": "blah"}]}}],
-          {'start_time': '1970-01-01 12:40:30', 'end_time': "9999-12-31 23:59:59",
+          {'start_time': '1970-01-01 12:40:30.123', 'end_time': "9999-12-31 23:59:59.999999",
            'objectid':
            {'guid': '{12345678-1234-5678-1234-567812345678}', 'tag': 'blah', 'treeid': None, 'processtree': None,
-            'time_observed': '1970-01-01 12:40:30', 'ontology_id': 'process_5FPZdIxfHmzxsWKUlsSNGl', 'service_name': 'CAPE'},
+            'time_observed': '1970-01-01 12:40:30.123', 'ontology_id': 'process_5FPZdIxfHmzxsWKUlsSNGl', 'service_name': 'CAPE'},
            'pobjectid': None,
            'pimage': None, 'pcommand_line': None, 'ppid': None, 'pid': 123, 'image': 'blah', 'command_line': None,
            'integrity_level': None, 'image_hash': None, 'original_file_name': None}),
@@ -8903,10 +8903,10 @@ class TestOntologyResults:
                 {"@Name": "ProcessGuid", "#text": "{12345678-1234-5678-1234-567812345678}"},
                    {"@Name": "ProcessId", "#text": "123"},
                    {"@Name": "Image", "#text": "blah"}]}}],
-          {'start_time': '1970-01-01 12:40:30', 'end_time': "1970-01-01 12:40:31",
+          {'start_time': '1970-01-01 12:40:30.123', 'end_time': "1970-01-01 12:40:31.123",
            'objectid':
            {'guid': '{12345678-1234-5678-1234-567812345678}', 'tag': 'blah', 'treeid': None, 'processtree': None,
-            'time_observed': '1970-01-01 12:40:30', 'ontology_id': 'process_5FPZdIxfHmzxsWKUlsSNGl', 'service_name': 'CAPE'},
+            'time_observed': '1970-01-01 12:40:30.123', 'ontology_id': 'process_5FPZdIxfHmzxsWKUlsSNGl', 'service_name': 'CAPE'},
            'pobjectid': None,
            'pimage': None, 'pcommand_line': None, 'ppid': None, 'pid': 123, 'image': 'blah', 'command_line': None,
            'integrity_level': None, 'image_hash': None, 'original_file_name': None}), ])
@@ -9124,7 +9124,7 @@ class TestOntologyResults:
                             "pid": 123,
                             "sport": 123,
                             "src": "10.10.10.10",
-                            "time": "2021-07-23 15:42:01",
+                            "time": "2021-07-23 15:42:01.001",
                         }
                     ]
                 },
@@ -9159,7 +9159,7 @@ class TestOntologyResults:
                             "pid": 123,
                             "sport": 123,
                             "src": "10.10.10.10",
-                            "time": "2021-07-23 15:42:01",
+                            "time": "2021-07-23 15:42:01.001",
                         }
                     ]
                 },
@@ -9189,7 +9189,7 @@ class TestOntologyResults:
                             "image": "blah.exe",
                             "pid": 123,
                             "request": "blah.com",
-                            "first_seen": "2021-07-23 15:42:01",
+                            "first_seen": "2021-07-23 15:42:01.001",
                             "type": "A",
                         }
                     ]
@@ -9238,7 +9238,7 @@ class TestOntologyResults:
                             "image": "blah.exe",
                             "pid": 123,
                             "request": "blah.com",
-                            "first_seen": "2021-07-23 15:42:01",
+                            "first_seen": "2021-07-23 15:42:01.001",
                             "type": "A",
                         }
                     ]
