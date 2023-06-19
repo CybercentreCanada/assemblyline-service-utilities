@@ -1,17 +1,21 @@
 import pytest
+from regex import compile
+
+from assemblyline_service_utilities.common.tag_reducer import (
+    ALPHA_REGEX,
+    ALPHANUM_REGEX,
+    BASE64_REGEX,
+    DO_NOT_REDUCE,
+    NUMBER_REGEX,
+    _get_placeholder,
+    _turn_back_into_uri,
+    reduce_uri_tags,
+)
 
 
 class TestTagReducer:
     @staticmethod
     def test_constants():
-        from assemblyline_service_utilities.common.tag_reducer import (
-            ALPHA_REGEX,
-            ALPHANUM_REGEX,
-            BASE64_REGEX,
-            DO_NOT_REDUCE,
-            NUMBER_REGEX,
-        )
-        from regex import compile
         assert NUMBER_REGEX == compile("[0-9]*")
         assert ALPHA_REGEX == compile("[a-zA-Z]*")
         assert ALPHANUM_REGEX == compile("[a-zA-Z0-9]*")
@@ -31,7 +35,6 @@ class TestTagReducer:
         ]
     )
     def test_get_placeholder(val, correct_placeholder):
-        from assemblyline_service_utilities.common.tag_reducer import _get_placeholder
         assert _get_placeholder(val) == correct_placeholder
 
     @staticmethod
@@ -46,7 +49,6 @@ class TestTagReducer:
            "fragment": "fragment"},
           "scheme://domain/path;params#fragment"), ])
     def test_turn_back_into_uri(uri_parts, correct_uri):
-        from assemblyline_service_utilities.common.tag_reducer import _turn_back_into_uri
         assert _turn_back_into_uri(uri_parts) == correct_uri
 
     @staticmethod
@@ -101,5 +103,4 @@ class TestTagReducer:
            "https://hello.com/path?query=THISISATESTTHISISATEST1&rnd=567", ],
           ["https://hello.com/path?query=THISISATESTTHISISATEST1&rnd=${NUMBER}"],), ])
     def test_reduce_uri_tags(uris, correct_tags):
-        from assemblyline_service_utilities.common.tag_reducer import reduce_uri_tags
         assert set(reduce_uri_tags(uris)) == set(correct_tags)
