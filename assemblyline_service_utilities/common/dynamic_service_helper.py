@@ -2,9 +2,8 @@ from datetime import datetime
 from hashlib import sha256
 from json import dumps
 from logging import getLogger
-from re import compile, escape, findall
+from re import compile, findall
 from re import match as re_match
-from re import sub
 from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
@@ -38,30 +37,12 @@ from assemblyline_v4_service.common.result import (
 )
 from assemblyline_v4_service.common.task import MaxExtractedExceeded
 
+from assemblyline_service_utilities.common.command_line_utils import normalize_path
 from assemblyline_service_utilities.common.safelist_helper import URL_REGEX, is_tag_safelisted
 from assemblyline_service_utilities.common.tag_helper import add_tag
 
 al_log.init_logging("service.service_base.dynamic_service_helper")
 log = getLogger("assemblyline.service.service_base.dynamic_service_helper")
-
-X86_64 = "x86_64"
-X86 = "x86"
-
-SYSTEM_DRIVE = "c:\\"
-SYSTEM_ROOT = "c:\\windows\\"
-WINDIR_ENV_VARIABLE = "%windir%"
-SAMPLEPATH_ENV_VARIABLE = "%samplepath%"
-SZ_USR_TEMP_PATH = "users\\*\\appdata\\local\\temp\\"
-SZ_USR_PATH = "users\\*\\"
-ARCH_SPECIFIC_DEFAULTS = {
-    X86_64: {
-        "szProgFiles86": "program files (x86)",
-        "szProgFiles64": "program files",
-        "szSys86": "syswow64",
-        "szSys64": "system32",
-    },
-    X86: {"szProgFiles86": "program files", "szSys86": "system32"},
-}
 
 HOLLOWSHUNTER_EXE_REGEX = r"[0-9]{1,}_hollowshunter\/hh_process_[0-9]{3,}_[0-9a-z]{3,}(\.[a-zA-Z0-9]{2,})*\.exe$"
 HOLLOWSHUNTER_DLL_REGEX = r"[0-9]{1,}_hollowshunter\/hh_process_[0-9]{3,}_[0-9a-z]{3,}(\.[a-zA-Z0-9]{2,})*\.dll$"
@@ -482,7 +463,7 @@ class Process:
         if not image:
             return
 
-        return Process._normalize_path(image)
+        return normalize_path(image)
 
     def set_pobjectid_tag(self, image: Optional[str]) -> None:
         """
@@ -494,7 +475,7 @@ class Process:
         if not self.pobjectid:
             log.debug("You need to set pobjectid before setting its tag")
             return
-        self.pobjectid.set_tag(Process._normalize_path(image))
+        self.pobjectid.set_tag(normalize_path(image))
 
     def update_objectid(self, **kwargs) -> None:
         """
@@ -542,102 +523,6 @@ class Process:
                 log.warning(f"Invalid GUID {kwargs.pop('guid')}")
 
         update_object_items(self.pobjectid, kwargs)
-
-    @staticmethod
-    def _determine_arch(path: str) -> str:
-        """
-        This method determines what architecture the operating system was built with where the event took place
-        :param path: The file path of the image associated with an event
-        :return: The architecture of the operating system
-        """
-        # Clear indicators in a file path of the architecture of the operating system
-        if any(item in path for item in ["program files (x86)", "syswow64"]):
-            return X86_64
-        return X86
-
-    @staticmethod
-    def _pattern_substitution(path: str, rule: Dict[str, str]) -> str:
-        """
-        This method applies pattern rules for explicit string substitution
-        :param path: The file path of the image associated with an event
-        :param rule: The rule to be applied, containing a pattern and the replacement value
-        :return: The modified path, if any rules applied
-        """
-        if path.startswith(rule["pattern"]):
-            path = path.replace(rule["pattern"], rule["replacement"])
-        return path
-
-    @staticmethod
-    def _regex_substitution(path: str, rule: Dict[str, str]) -> str:
-        """
-        This method applies a regular expression for implicit string substitution
-        :param path: The file path of the image associated with an event
-        :param rule: The rule to be applied, containing a pattern and the replacement value
-        :return: The modified path, if any rules applied
-        """
-        rule["regex"] = rule["regex"].split("*")
-        rule["regex"] = [escape(e) for e in rule["regex"]]
-        rule["regex"] = "[^\\\\]+".join(rule["regex"])
-        path = sub(rf"{rule['regex']}", rule["replacement"], path)
-        return path
-
-    @staticmethod
-    def _normalize_path(path: str, arch: Optional[str] = None) -> str:
-        """
-        This method determines what rules should be applied based on architecture and the applies the rules to the path
-        :param path: The file path of the image associated with an event
-        :param arch: The architecture of the operating system
-        :return: The modified path, if any rules applied
-        """
-        path = path.lower()
-        if not arch:
-            arch = Process._determine_arch(path)
-
-        # Order here matters
-        rules: List[Dict[str, str]] = []
-        rules.append(
-            {
-                "pattern": SYSTEM_ROOT + ARCH_SPECIFIC_DEFAULTS[arch]["szSys86"],
-                "replacement": "?sys32",
-            }
-        )
-        if arch == X86_64:
-            rules.append(
-                {
-                    "pattern": SYSTEM_ROOT + ARCH_SPECIFIC_DEFAULTS[arch]["szSys64"],
-                    "replacement": "?sys64",
-                }
-            )
-        rules.append(
-            {
-                "pattern": SYSTEM_DRIVE + ARCH_SPECIFIC_DEFAULTS[arch]["szProgFiles86"],
-                "replacement": "?pf86",
-            }
-        )
-        if arch == X86_64:
-            rules.append(
-                {
-                    "pattern": SYSTEM_DRIVE
-                    + ARCH_SPECIFIC_DEFAULTS[arch]["szProgFiles64"],
-                    "replacement": "?pf64",
-                }
-            )
-        rules.append(
-            {"regex": f"{SYSTEM_DRIVE}{SZ_USR_TEMP_PATH}", "replacement": "?usrtmp\\\\"}
-        )
-        rules.append(
-            {"regex": f"{SYSTEM_DRIVE}{SZ_USR_PATH}", "replacement": "?usr\\\\"}
-        )
-        rules.append({"pattern": SYSTEM_ROOT, "replacement": "?win\\"})
-        rules.append({"pattern": SYSTEM_DRIVE, "replacement": "?c\\"})
-        rules.append({"pattern": WINDIR_ENV_VARIABLE, "replacement": "?win"})
-        rules.append({"pattern": SAMPLEPATH_ENV_VARIABLE, "replacement": "?usrtmp"})
-        for rule in rules:
-            if "pattern" in rule:
-                path = Process._pattern_substitution(path, rule)
-            if "regex" in rule:
-                path = Process._regex_substitution(path, rule)
-        return path
 
 
 class NetworkDNS:
