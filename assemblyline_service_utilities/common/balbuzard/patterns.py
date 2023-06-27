@@ -192,7 +192,7 @@ class PatternMatch(object):
 
 # --- Regex Patterns ---------------------------------------------------------------------------------------------------
 
-    PAT_DOMAIN = rb'(?i)\b(?:[A-Z0-9-]+\.)+(?:XN--[A-Z0-9]{4,18}|[A-Z]{2,12})\b'
+    PAT_DOMAIN = rb'(?i)\b(?:[A-Z0-9-]+\.)+(?:XN--[A-Z0-9]{4,18}|[A-Z]{2,12})(?![A-Z_])'
     PAT_FILECOM = rb'(?i)(?:\b[a-z]?[:]?[- _A-Z0-9.\\~]{0,75}[%]?' \
                   rb'(?:ALLUSERPROFILE|APPDATA|commonappdata|CommonProgramFiles|HOMEPATH|LOCALAPPDATA|' \
                   rb'ProgramData|ProgramFiles|PUBLIC|SystemDrive|SystemRoot|\\TEMP|USERPROFILE|' \
