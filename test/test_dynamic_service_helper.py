@@ -9340,6 +9340,25 @@ class TestOntologyResults:
             },
             [{"uri": "https://microsoft.net"}]
         ),
+        # Upper case examples
+        (
+            "HTTP://EVIL.CA/SOME/THING/BAD.EXE",
+            False,
+            False,
+            {
+                "network.dynamic.domain": ["EVIL.CA"],
+                "network.dynamic.uri": ["HTTP://EVIL.CA/SOME/THING/BAD.EXE"],
+                "network.dynamic.uri_path": ["/SOME/THING/BAD.EXE"],
+            },
+            [{"uri": "HTTP://EVIL.CA/SOME/THING/BAD.EXE"}],
+        ),
+        (
+            "POST /SOME/THING/BAD.EXE HTTP/1.0\nUser-Agent: Mozilla\nHost: EVIL.CA\nAccept: */*\nContent-Type: application/octet-stream\nContent-Encoding: binary\n\nConnection: close",
+            False,
+            False,
+            {"network.dynamic.domain": ["EVIL.CA"]},
+            [],
+        ),
     ],
 )
 def test_extract_iocs_from_text_blob(blob, enforce_min, enforce_max, correct_tags, expected_iocs):
