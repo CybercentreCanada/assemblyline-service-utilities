@@ -3429,7 +3429,6 @@ def extract_iocs_from_text_blob(
     else:
         network_tag_type = "dynamic"
 
-    blob = blob.lower()
     ips = set(findall(IP_REGEX, blob))
     # There is overlap here between regular expressions, so we want to isolate domains that are not ips
     domains = set(findall(DOMAIN_REGEX, blob)) - ips
