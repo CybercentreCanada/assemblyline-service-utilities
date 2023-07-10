@@ -5,3 +5,4 @@ fuzzywuzzy
 pefile
 pillow
 regex
+multidecoder<1.0.0
