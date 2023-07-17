@@ -76,7 +76,7 @@ class IcapClient(object):
         out = b""
         offset = 0
         while len(data) < offset * chunk_size:
-            out += b"1FEO\r\n"
+            out += b"1FE0\r\n"
             out += data[offset * chunk_size:(offset + 1) * chunk_size]
             out += b"\r\n"
             offset += 1
