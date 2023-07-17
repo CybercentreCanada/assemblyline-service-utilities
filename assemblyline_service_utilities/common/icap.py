@@ -87,7 +87,7 @@ class IcapClient(object):
 
         return out
 
-    def _do_respmod(self, filename, data):
+    def _do_respmod(self, filename, data: bytes):
         encoded = self.chunk_encode(data)
 
         # ICAP RESPMOD req-hdr is the start of the original HTTP request.
@@ -142,6 +142,40 @@ class IcapClient(object):
                     raise
 
         raise Exception("Icap server refused to respond.")
+
+    @staticmethod
+    def parse_headers(body: bytes) -> tuple[int, bytes, dict[bytes, bytes]]:
+        def next_line():
+            nonlocal body
+            line, _, body = body.partition(b'\r\n')
+            return line
+
+        # Handle the status line
+        status_line = next_line()
+        protocol, _, status_line = status_line.partition(b' ')
+        if protocol != b'ICAP/1.0':
+            raise ValueError("Unknown protocol: " + protocol.decode())
+        status_code_string, _, status_message = status_line.partition(b' ')
+        status_code = int(status_code_string)
+
+        # pull out header lines
+        pending = next_line()
+        headers: dict[bytes, bytes] = {}
+        while len(pending) > 0:
+            # Handle the first line of a header, which must have the name in it
+            header_name, _, content = pending.partition(b':')
+            content = content.lstrip()
+            pending = next_line()
+
+            # Handle a header extended over multiple lines
+            while len(pending) > 0 and pending[0] in (ord(b' '), ord(b'\t')):
+                content = content + b' ' + pending[1:]
+                pending = next_line()
+
+            # The is case insensitive and should be a single token
+            headers[header_name.upper().strip()] = content
+
+        return status_code, status_message, headers
 
     def close(self):
         self.kill = True
