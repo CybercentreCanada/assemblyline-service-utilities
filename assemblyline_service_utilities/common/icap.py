@@ -60,7 +60,8 @@ class IcapClient(object):
             except Exception:
                 self.successful_connection = False
                 try:
-                    self.socket.close()
+                    if self.socket:
+                        self.socket.close()
                 except Exception:
                     pass
                 self.socket = None
@@ -132,7 +133,8 @@ class IcapClient(object):
             except Exception:
                 self.successful_connection = False
                 try:
-                    self.socket.close()
+                    if self.socket:
+                        self.socket.close()
                 except Exception:
                     pass
                 self.socket = None
@@ -144,6 +146,7 @@ class IcapClient(object):
     def close(self):
         self.kill = True
         try:
-            self.socket.close()
+            if self.socket:
+                self.socket.close()
         except Exception:
             pass
