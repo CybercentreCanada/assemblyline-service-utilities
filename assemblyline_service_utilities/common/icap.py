@@ -1,5 +1,6 @@
 import os
 import socket
+from typing import Optional
 
 from assemblyline.common.str_utils import safe_str
 
@@ -29,22 +30,22 @@ class IcapClient(object):
         self.number_of_retries = number_of_retries
         self.successful_connection = False
 
-    def scan_data(self, data, name=None):
+    def scan_data(self, data: bytes, name: Optional[str] = None) -> Optional[bytes]:
         return self._do_respmod(name or 'filetoscan', data)
 
-    def scan_local_file(self, filepath):
+    def scan_local_file(self, filepath: str) -> Optional[bytes]:
         filename = os.path.basename(filepath)
-        with open(filepath, 'r') as f:
+        with open(filepath, 'rb') as f:
             data = f.read()
             return self.scan_data(data, filename)
 
-    def options_respmod(self):
+    def options_respmod(self) -> Optional[bytes]:
         request = f"OPTIONS icap://{self.host}:{self.port}/{self.service} ICAP/1.0\r\n\r\n"
 
         for i in range(self.number_of_retries):
             if self.kill:
                 self.kill = False
-                return
+                return None
             try:
                 if not self.socket:
                     self.socket = socket.create_connection((self.host, self.port), timeout=self.timeout)
@@ -56,7 +57,7 @@ class IcapClient(object):
                     response += temp_resp
                 if not response or not response.startswith(ICAP_OK):
                     raise Exception(f"Unexpected OPTIONS response: {response}")
-                return response.decode()
+                return response
             except Exception:
                 self.successful_connection = False
                 try:
@@ -87,7 +88,7 @@ class IcapClient(object):
 
         return out
 
-    def _do_respmod(self, filename, data: bytes):
+    def _do_respmod(self, filename: str, data: bytes) -> Optional[bytes]:
         encoded = self.chunk_encode(data)
 
         # ICAP RESPMOD req-hdr is the start of the original HTTP request.
@@ -118,7 +119,7 @@ class IcapClient(object):
         for i in range(self.number_of_retries):
             if self.kill:
                 self.kill = False
-                return
+                return None
             try:
                 if not self.socket:
                     self.socket = socket.create_connection((self.host, self.port), timeout=self.timeout)
@@ -129,7 +130,7 @@ class IcapClient(object):
                     temp_resp = self.socket.recv(self.RESP_CHUNK_SIZE)
                     response += temp_resp
 
-                return response.decode()
+                return response
             except Exception:
                 self.successful_connection = False
                 try:
