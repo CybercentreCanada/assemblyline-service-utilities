@@ -70,14 +70,14 @@ class IcapClient(object):
         raise Exception("Icap server refused to respond.")
 
     @staticmethod
-    def chunk_encode(data):
+    def chunk_encode(data: bytes):
         chunk_size = 8160
         out = b""
         offset = 0
         while len(data) < offset * chunk_size:
-            out += "1FEO\r\n"
+            out += b"1FEO\r\n"
             out += data[offset * chunk_size:(offset + 1) * chunk_size]
-            out += "\r\n"
+            out += b"\r\n"
             offset += 1
 
         out += b"%X\r\n" % len(data[offset * chunk_size:])
