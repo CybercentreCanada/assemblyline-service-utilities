@@ -31,7 +31,7 @@ class IcapClient(object):
         self.number_of_retries = number_of_retries
         self.successful_connection = False
 
-    def scan_data(self, data: io.BufferedReader, name: Optional[str] = None) -> Optional[bytes]:
+    def scan_data(self, data: io.BufferedIOBase, name: Optional[str] = None) -> Optional[bytes]:
         return self._do_respmod(name or 'filetoscan', data)
 
     def scan_local_file(self, filepath: str) -> Optional[bytes]:
@@ -73,6 +73,7 @@ class IcapClient(object):
 
     @staticmethod
     def chunk_encode(stream: io.BufferedIOBase, chunk_size=8160) -> Generator[bytes, None, None]:
+        """Take a stream of data and transform it into HTTP chunked encoding (which ICAP uses)."""
         read = 0
         buffer = bytearray(chunk_size)
         while True:
@@ -95,6 +96,7 @@ class IcapClient(object):
 
     @staticmethod
     def chunk_decode(stream: io.BufferedIOBase) -> Generator[bytes, None, None]:
+        """Take an http chunked encoding body and pull out the raw data as chunks come in."""
         while True:
             # Read the head of the chunk and parse the length out
             line = stream.readline().strip()
@@ -184,6 +186,7 @@ class IcapClient(object):
 
     @staticmethod
     def parse_headers(body: bytes) -> tuple[int, bytes, dict[bytes, bytes]]:
+        """Take an ICAP request body and parse out the status and header sections."""
         def next_line():
             nonlocal body
             line, _, body = body.partition(b'\r\n')
