@@ -185,7 +185,7 @@ class IcapClient(object):
         raise Exception("Icap server refused to respond.")
 
     @staticmethod
-    def parse_headers(body: bytes) -> tuple[int, bytes, dict[str, str]]:
+    def parse_headers(body: bytes, check_body_for_headers: bool = False) -> tuple[int, bytes, dict[str, str]]:
         """Take an ICAP request body and parse out the status and header sections."""
         def next_line():
             nonlocal body
@@ -222,7 +222,11 @@ class IcapClient(object):
                 pending = next_line()
 
             # The is case insensitive and should be a single token
-            headers[header_name.decode().upper().strip()] = content.decode()
+            if content:
+                headers[header_name.decode().upper().strip()] = content.decode()
+
+            if check_body_for_headers and not len(pending):
+                pending = next_line()
 
         return status_code, status_message, headers
 

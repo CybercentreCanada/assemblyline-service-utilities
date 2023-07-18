@@ -282,12 +282,20 @@ skyhigh_headers = b"\r\n".join([
 
 
 def test_skyhigh_headers():
-    code, status, headers = IcapClient.parse_headers(skyhigh_headers)
+    code, status, headers = IcapClient.parse_headers(skyhigh_headers, check_body_for_headers=True)
     assert code == 200
     assert status == b'OK'
     assert headers == {
+        'CACHE-CONTROL': 'no-cache',
+        'CONTENT-LENGTH': '396',
+        'CONTENT-TYPE': 'text/html',
         'ENCAPSULATED': 'res-hdr=0, res-body=121',
         'ISTAG': '123456-.1.123-123456-123456',
+        'X-AVIRA-VERSION': 'Avira-Engine=1.2.34.567|Avira-Savapi=1.23.4|Avira-VDF=1.23.4.567|PLATFORM=x64',
+        'X-ENGINE-VERSION': 'AM-DAT=1234|AM-Engine=1234.1970.1234|Avira-Engine=1.2.34.567|Avira-Savapi=1.23.4|Avira-VDF=1.23.4.567|MFE-DAT=12345|MFE-Engine=1234.5678|PLATFORM=x64',
+        'X-FRAME-OPTIONS': 'deny',
+        'X-MGAM-VERSION': 'AM-DAT=1234|AM-Engine=1234.1970.1234|MFE-DAT=12345|MFE-Engine=1234.5678|PLATFORM=x64',
+        'X-VIRUS-ID': 'Bad-GUY!ABCD1234ABCD',
     }
 
 
