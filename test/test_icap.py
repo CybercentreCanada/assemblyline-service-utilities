@@ -34,7 +34,7 @@ def test_single_header():
     assert code == 130
     assert status == b'Not sure really'
     assert headers == {
-        b'X-A-HEADER': b'A message:\tMore-Message'
+        'X-A-HEADER': 'A message:\tMore-Message'
     }
 
 
@@ -54,8 +54,8 @@ def test_multiple_headers():
     assert code == 200
     assert status == b'Ok'
     assert headers == {
-        b'X-A-HEADER': b'A message\t(@More-Message)',
-        b'DATE': b'whenever really',
+        'X-A-HEADER': 'A message\t(@More-Message)',
+        'DATE': 'whenever really',
     }
 
 
@@ -81,9 +81,9 @@ def test_header_multiple_lines():
     assert code == 200
     assert status == b'Ok'
     assert headers == {
-        b'X-A-HEADER': b' - A : B > C = 123',
-        b'X-B-HEADER': b'()<>@,;:\\\"/[]?={} \t',
-        b'DATE': b'whenever really'
+        'X-A-HEADER': ' - A : B > C = 123',
+        'X-B-HEADER': '()<>@,;:\\\"/[]?={} \t',
+        'DATE': 'whenever really'
     }
 
 
