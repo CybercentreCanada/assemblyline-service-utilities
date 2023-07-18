@@ -112,7 +112,7 @@ def test_eset_headers():
     assert status == b'OK'
     assert headers == {
         'ENCAPSULATED': 'res-hdr=0, res-body=70',
-        'ISTAG': '"tag-tag"',
+        'ISTAG': 'tag-tag',
         'X-INFECTION-FOUND': 'Type=0; Resolution=0; Threat=Bad/Guy.A;',
         'X-RESPONSE-INFO': 'Blocked',
         'X-VIRUS-ID': 'Virus',
@@ -153,7 +153,7 @@ def test_bitdefender_headers():
     assert headers == {
         'CONNECTION': 'keep-alive',
         'ENCAPSULATED': 'res-hdr=0, res-body=70',
-        'ISTAG': '"tag"',
+        'ISTAG': 'tag',
         'SERVICE': 'Bitdefender ICAP Server 1.5',
         'SERVICE-ID': 'BDIS',
         'X-INFECTION-FOUND': 'Type=0; Resolution=2; Threat=Bad.Guy.1;',
@@ -202,12 +202,12 @@ def test_withsecure_headers():
         'CONNECTION': 'keep-alive',
         'ENCAPSULATED': 'res-hdr=0, res-body=73',
         'EXPIRES': 'Sun, 1 Dec 1970 00:00:00 GMT',
-        'ISTAG': '"FSAV-1970-01-01_01"',
+        'ISTAG': 'FSAV-1970-01-01_01',
         'SERVER': 'F-Secure ICAP Server',
         'X-DEFINITION-INFO': '1970-01-01_01',
         'X-FSECURE-ALL-SCAN-RESULTS': '%5B%7B%22type%22%3A%22infected%22%2C%22result%22%3A%22Bad.GUY%2FNamed.blah%22%2C%22engine%22%3A%22aquarius%22%2C%22filename%22%3A%22%22%2C%22details%22%3A%7B%22Type%22%3A0%2C%22Danger%22%3A0%2C%22Behaviour%22%3A0%2C%22FSEType%22%3A0%7D%7D%5D',
         'X-FSECURE-FSAV-DURATION': '0.026597',
-        'X-FSECURE-INFECTION-NAME': '"Bad.GUY/Named.blah"',
+        'X-FSECURE-INFECTION-NAME': 'Bad.GUY/Named.blah',
         'X-FSECURE-ORSP-FRS-DURATION': '0.000000',
         'X-FSECURE-SCAN-RESULT': 'infected',
         'X-FSECURE-TRANSACTION-DURATION': '0.042538',
@@ -253,7 +253,7 @@ def test_sophos_headers():
     assert headers == {
         'DATE': 'Sun, 1 Jan 1970 00:00:00 GMT',
         'ENCAPSULATED': 'res-hdr=0, null-body=237',
-        'ISTAG': '"1-02-3-44-5-6-07-8888-99999999"',
+        'ISTAG': '1-02-3-44-5-6-07-8888-99999999',
         'SERVICE': 'Sophos Anti-Virus SAVDI/ICAP',
         'X-HRESULT': '12345678',
         'X-INFECTION-FOUND': 'Type=0; Resolution=2; Threat=Bad/Guy-A;',
@@ -287,7 +287,7 @@ def test_skyhigh_headers():
     assert status == b'OK'
     assert headers == {
         'ENCAPSULATED': 'res-hdr=0, res-body=121',
-        'ISTAG': '"123456-.1.123-123456-123456"',
+        'ISTAG': '123456-.1.123-123456-123456',
     }
 
 

@@ -207,6 +207,13 @@ class IcapClient(object):
             # Handle the first line of a header, which must have the name in it
             header_name, _, content = pending.partition(b':')
             content = content.lstrip()
+
+            # Handle when the content is wrapped in quotes
+            if content and (
+                    content.startswith(b'\"') and content.endswith(b'\"')) or (
+                    content.startswith(b"\'") and content.endswith(b"\'")):
+                content = content[1:-1]
+
             pending = next_line()
 
             # Handle a header extended over multiple lines
