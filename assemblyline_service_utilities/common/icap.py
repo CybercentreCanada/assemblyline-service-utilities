@@ -1,6 +1,7 @@
 import os
 import socket
-from typing import Optional
+from typing import Optional, Generator
+import io
 
 from assemblyline.common.str_utils import safe_str
 
@@ -30,14 +31,13 @@ class IcapClient(object):
         self.number_of_retries = number_of_retries
         self.successful_connection = False
 
-    def scan_data(self, data: bytes, name: Optional[str] = None) -> Optional[bytes]:
+    def scan_data(self, data: io.BufferedReader, name: Optional[str] = None) -> Optional[bytes]:
         return self._do_respmod(name or 'filetoscan', data)
 
     def scan_local_file(self, filepath: str) -> Optional[bytes]:
         filename = os.path.basename(filepath)
-        with open(filepath, 'rb') as f:
-            data = f.read()
-            return self.scan_data(data, filename)
+        with open(filepath, 'rb') as handle:
+            return self.scan_data(handle, filename)
 
     def options_respmod(self) -> Optional[bytes]:
         request = f"OPTIONS icap://{self.host}:{self.port}/{self.service} ICAP/1.0\r\n\r\n"
@@ -72,26 +72,47 @@ class IcapClient(object):
         raise Exception("Icap server refused to respond.")
 
     @staticmethod
-    def chunk_encode(data: bytes):
-        chunk_size = 8160
-        out = b""
-        offset = 0
-        while len(data) < offset * chunk_size:
-            out += b"1FE0\r\n"
-            out += data[offset * chunk_size:(offset + 1) * chunk_size]
-            out += b"\r\n"
-            offset += 1
+    def chunk_encode(stream: io.BufferedIOBase, chunk_size=8160) -> Generator[bytes, None, None]:
+        read = 0
+        buffer = bytearray(chunk_size)
+        while True:
+            read = stream.readinto(buffer)
 
-        out += b"%X\r\n" % len(data[offset * chunk_size:])
-        out += data[offset * chunk_size:]
-        out += b"\r\n0\r\n\r\n"
+            out = b''
 
-        return out
+            if read > 0:
+                out = b"%X\r\n" % read
+                out += buffer[:read]
+                out += b'\r\n'
 
-    def _do_respmod(self, filename: str, data: bytes) -> Optional[bytes]:
-        encoded = self.chunk_encode(data)
+            if read < chunk_size:
+                out += b"0\r\n\r\n"
 
-        # ICAP RESPMOD req-hdr is the start of the original HTTP request.
+            yield out
+
+            if read < chunk_size:
+                break
+
+    @staticmethod
+    def chunk_decode(stream: io.BufferedIOBase) -> Generator[bytes, None, None]:
+        while True:
+            # Read the head of the chunk and parse the length out
+            line = stream.readline().strip()
+            length_string, _, _ = line.partition(b';')
+            length = int(length_string, 16)
+            if length == 0:
+                break
+
+            # Read the chunk data and present it
+            data = stream.read(length)
+            yield data
+
+            # Read the newline that follows the data, should be nothing but a \r\n in this read
+            eol = stream.readline().strip()
+            assert eol == b'', b'unexpected content: ' + eol
+
+    def _do_respmod(self, filename: str, data: io.BufferedIOBase) -> Optional[bytes]:
+        # ICAP RESPMOD req-hdr is the start of the original (in this case fake) HTTP request.
         respmod_req_hdr = "GET /{FILENAME} HTTP/1.1\r\n\r\n".format(FILENAME=safe_str(filename))
 
         # ICAP RESPMOD res-hdr is the start of the HTTP response for above request.
@@ -113,24 +134,41 @@ class IcapClient(object):
             f"Encapsulated: req-hdr=0, res-hdr={res_hdr_offset}, res-body={res_bdy_offset}\r\n\r\n"
         )
 
-        serialized_request = b"%s%s%s%s" % (respmod_icap_hdr.encode(), respmod_req_hdr.encode(),
-                                            respmod_res_hdr.encode(), encoded)
+        serialized_head_and_prefix = b"%s%s%s" % (respmod_icap_hdr.encode(), respmod_req_hdr.encode(),
+                                                  respmod_res_hdr.encode())
 
         for i in range(self.number_of_retries):
             if self.kill:
                 self.kill = False
                 return None
             try:
+                # Open a connection to the ICAP server
                 if not self.socket:
                     self.socket = socket.create_connection((self.host, self.port), timeout=self.timeout)
                     self.successful_connection = True
-                self.socket.sendall(serialized_request)
+
+                # Send the request head and the head of the encapsulated fake request that contains our file
+                self.socket.sendall(serialized_head_and_prefix)
+
+                # Stream the rest of the file to be scanned as the body of the encapsulated request
+                for chunk in self.chunk_encode(data):
+                    self.socket.sendall(chunk)
+
+                # Wait for the response from the server and pack it into a single buffer
+                # The response should be the ICAP headers followed by:
+                # - the request rewritten as an error message because it found a virus and
+                #   replaced the body with an error
+                # - an empty body with a 204 status, because the file is unmodified.
+                #   this doesn't mean the file is safe, just that the icap server didn't feel the
+                #   need to outright replace it
+                # - in principle it could also be the request we sent being echoed back to us
+                #   in a modified or unmodified state, but one of the two above should be more common
                 response = temp_resp = self.socket.recv(self.RESP_CHUNK_SIZE)
                 while len(temp_resp) == self.RESP_CHUNK_SIZE:
                     temp_resp = self.socket.recv(self.RESP_CHUNK_SIZE)
                     response += temp_resp
-
                 return response
+
             except Exception:
                 self.successful_connection = False
                 try:
