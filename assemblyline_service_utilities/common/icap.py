@@ -218,7 +218,7 @@ class IcapClient(object):
 
             # Handle a header extended over multiple lines
             while len(pending) > 0 and pending[0] in (ord(b' '), ord(b'\t')):
-                content = content + b' ' + pending[1:]
+                content = content + b' ' + pending[1:].lstrip()
                 pending = next_line()
 
             # The is case insensitive and should be a single token

@@ -178,7 +178,7 @@ withsecure_headers = b'\r\n'.join([
     b'X-FSecure-FSAV-Duration: 0.026597',
     b'X-FSecure-Transaction-Duration: 0.042538',
     b'X-FSecure-All-Scan-Results: %5B%7B%22type%22%3A%22infected%22%2C%22result%22%3A%22Bad.GUY%2FNamed.blah%22%2C%22engine%22%3A%22aquarius%22%2C%22filename%22%3A%22%22%2C%22details%22%3A%7B%22Type%22%3A0%2C%22Danger%22%3A0%2C%22Behaviour%22%3A0%2C%22FSEType%22%3A0%7D%7D%5D',
-    b'X-FSecure-Versions: F-Secure Corporation Aquarius/1.0.000/1970-01-01_01 F-Secure Corporation Hydra/1.0.000/1970-01-01_01 F-Secure Corporation FMLib/1.0.000.00  (shahash)/1970-01-01_01  fsicapd/1.0.000',
+    b'X-FSecure-Versions: F-Secure Corporation Aquarius/1.0.000/1970-01-01_01 F-Secure Corporation Hydra/1.0.000/1970-01-01_01 F-Secure Corporation FMLib/1.0.000.00  (sha256hash)/1970-01-01_01  fsicapd/1.0.000',
     b'X-Definition-Info: 1970-01-01_01',
     b'Encapsulated: res-hdr=0, res-body=73',
     b'',
@@ -214,7 +214,7 @@ def test_withsecure_headers():
         'X-FSECURE-VERSIONS': 'F-Secure Corporation Aquarius/1.0.000/1970-01-01_01 '
                               'F-Secure Corporation Hydra/1.0.000/1970-01-01_01 '
                               'F-Secure Corporation FMLib/1.0.000.00  '
-                              '(shahash)/1970-01-01_01  fsicapd/1.0.000',
+                              '(sha256hash)/1970-01-01_01  fsicapd/1.0.000',
     }
 
 
@@ -257,7 +257,7 @@ def test_sophos_headers():
         'SERVICE': 'Sophos Anti-Virus SAVDI/ICAP',
         'X-HRESULT': '12345678',
         'X-INFECTION-FOUND': 'Type=0; Resolution=2; Threat=Bad/Guy-A;',
-        'X-VIOLATIONS-FOUND': '1      -      Bad/Guy-A      -      0',
+        'X-VIOLATIONS-FOUND': '1 - Bad/Guy-A - 0',
         'X-VIRUS-ID': 'Bad/Guy-A',
     }
 
