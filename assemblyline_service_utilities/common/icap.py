@@ -185,6 +185,8 @@ class IcapClient(object):
                 except Exception:
                     pass
                 self.socket = None
+                # Issue with the connection? Let's try reading file data again...
+                data.seek(0)
                 if i == (self.number_of_retries-1):
                     raise
 
