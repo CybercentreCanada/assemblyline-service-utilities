@@ -209,22 +209,28 @@ class IcapClient(object):
             content = content.lstrip()
 
             # Handle when the content is wrapped in quotes
-            if content and (
-                    content.startswith(b'\"') and content.endswith(b'\"')) or (
-                    content.startswith(b"\'") and content.endswith(b"\'")):
-                content = content[1:-1]
+            for quote_type in (b'"', b"'"):
+                if content.startswith(quote_type) and content.endswith(quote_type):
+                    content = content[1:-1]
+                    break
 
+            # This may be the next header, which we will handle on the next iteration
+            # or the continuation of the current header on the next line
             pending = next_line()
 
             # Handle a header extended over multiple lines
             while len(pending) > 0 and pending[0] in (ord(b' '), ord(b'\t')):
                 content = content + b' ' + pending[1:].lstrip()
-                pending = next_line()
+                pending = next_line()  # Move the cursor to the next line if we consume the current one
 
-            # The is case insensitive and should be a single token
+            # The name is case insensitive and should be a single token
             if content:
                 headers[header_name.decode().upper().strip()] = content.decode()
 
+            # This forces the parser to treat the entire buffer as if it is one big header section.
+            # The body of an ICAP response is an HTTP response so if the body of the HTTP response
+            # is also formatted as headers, we have three blocks of headers separated by empty lines
+            # an HTTP status line, and chunk headers.
             if check_body_for_headers and not len(pending):
                 pending = next_line()
 
