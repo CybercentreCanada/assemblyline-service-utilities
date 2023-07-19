@@ -124,6 +124,8 @@ class IcapClient(object):
                     self.successful_connection = True
                 self.socket.sendall(serialized_request)
                 response = temp_resp = self.socket.recv(self.RESP_CHUNK_SIZE)
+                if temp_resp == b"":
+                    raise Exception("Failed to get a response from the ICAP server...")
                 while len(temp_resp) == self.RESP_CHUNK_SIZE:
                     temp_resp = self.socket.recv(self.RESP_CHUNK_SIZE)
                     response += temp_resp
