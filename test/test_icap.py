@@ -299,6 +299,45 @@ def test_skyhigh_headers():
     }
 
 
+kaspersky_headers = b"\r\n".join([
+    b'ICAP/1.0 200 OK',
+    b'Date: Sun, 01 Jan 1970 00:00:00 GMT',
+    b'Server: KL ICAP Service v1.0 (KAV SDK v1.2.3.456)',
+    b'Connection: close',
+    b'ISTag: "abcdef1234"',
+    b'X-Virus-ID: Bad.Guy.Named.blah',
+    b'Encapsulated: res-hdr=0, res-body=217',
+    b'',
+    b'HTTP/1.1 403 Forbidden',
+    b'Date: Sun, 01 Jan 1970 00:00:00 GMT',
+    b'Server: KL ICAP Service v1.0 (KAV SDK v1.2.3.456)',
+    b'Last-Modified: 1970-Jan-01 00:00:00',
+    b'ETag: "abcdef1234"',
+    b'Content-Type: text/html',
+    b'Content-Length: 161',
+    b'',
+    b'a1',
+    b'Bad.Guy.Named.blah\n1970-Jan-01 00:00:00.000000\nKL ICAP Service v1.0 (KAV SDK v1.2.3.456)\n/thisisasha256thisisasha256thisisasha256thisisasha256thisisasha25\n',
+    b'0',
+    b'',
+    b'',
+])
+
+
+def test_kaspersky_headers():
+    code, status, headers = IcapClient.parse_headers(kaspersky_headers)
+    assert code == 200
+    assert status == b'OK'
+    assert headers == {
+        'CONNECTION': 'close',
+        'DATE': 'Sun, 01 Jan 1970 00:00:00 GMT',
+        'ENCAPSULATED': 'res-hdr=0, res-body=217',
+        'ISTAG': 'abcdef1234',
+        'SERVER': 'KL ICAP Service v1.0 (KAV SDK v1.2.3.456)',
+        'X-VIRUS-ID': 'Bad.Guy.Named.blah',
+    }
+
+
 def test_single_chunk_encoding():
     data = b'1234567890' * 100
 
