@@ -133,9 +133,9 @@ def dummy_request_class(dummy_task_class):
                 {"path": path, "name": name, "description": description}
             )
 
-        def add_extracted(self, path, name, description):
+        def add_extracted(self, path, name, description, parent_relation="EXTRACTED"):
             self.task.extracted.append(
-                {"path": path, "name": name, "description": description}
+                {"path": path, "name": name, "description": description, "parent_relation": parent_relation}
             )
 
     yield DummyRequest

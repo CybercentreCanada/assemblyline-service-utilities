@@ -2256,12 +2256,14 @@ class OntologyResults:
         request: ServiceRequest,
         collapsed: bool = False,
         injection_heur_id: int = 17,
+        parent_relation: str = 'EXTRACTED',
     ) -> ResultSection:
         """
         Goes through each artifact in artifact_list, uploading them and adding result sections accordingly
         :param artifact_list: List of dictionaries that each represent an artifact
         :param collapsed: A flag used for indicating if the Sandbox Artifacts ResultSection should be collapsed or not
         :param injection_heur_id: The heuristic ID for the Injection heuristic of a service
+        :param parent_relation: File relation to parent, if any.
         :return: A ResultSection containing any Artifact ResultSections
         """
 
@@ -2279,7 +2281,7 @@ class OntologyResults:
             if artifact.to_be_extracted and not any(artifact.sha256 == previously_extracted["sha256"] for previously_extracted in request.extracted):
                 try:
                     request.add_extracted(
-                        artifact.path, artifact.name, artifact.description
+                        artifact.path, artifact.name, artifact.description, parent_relation=parent_relation,
                     )
                 except MaxExtractedExceeded:
                     # To avoid errors from being raised when too many files have been extracted

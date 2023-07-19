@@ -166,6 +166,8 @@ class IcapClient(object):
                 # - in principle it could also be the request we sent being echoed back to us
                 #   in a modified or unmodified state, but one of the two above should be more common
                 response = temp_resp = self.socket.recv(self.RESP_CHUNK_SIZE)
+                if temp_resp == b"":
+                    raise Exception("Failed to get a response from the ICAP server...")
                 while len(temp_resp) == self.RESP_CHUNK_SIZE:
                     temp_resp = self.socket.recv(self.RESP_CHUNK_SIZE)
                     response += temp_resp
