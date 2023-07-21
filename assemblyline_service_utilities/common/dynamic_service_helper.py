@@ -2120,6 +2120,25 @@ class OntologyResults:
         else:
             return processes_with_pid[0]
 
+    def get_process_by_objectid(self, objectid: Optional[ObjectID] = None) -> Optional[Process]:
+        """
+        This method takes a given ObjectID and returns the associated process
+        :param objectid: The given ObjectID that we want an associated process for
+        :return: The associated process
+        """
+        if not objectid:
+            return None
+
+        process_with_objectid = [
+            process
+            for process in self.get_processes()
+            if process.objectid == objectid
+        ]
+        if not process_with_objectid:
+            return None
+        else:
+            return process_with_objectid[0]
+
     def as_primitives(self) -> Dict[str, Any]:
         """
         This method returns the dictionary representation of the object
