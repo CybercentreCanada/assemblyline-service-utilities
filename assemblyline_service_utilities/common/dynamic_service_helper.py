@@ -44,8 +44,8 @@ from assemblyline_service_utilities.common.tag_helper import add_tag
 al_log.init_logging("service.service_base.dynamic_service_helper")
 log = getLogger("assemblyline.service.service_base.dynamic_service_helper")
 
-HOLLOWSHUNTER_EXE_REGEX = r"[0-9]{1,}_hollowshunter\/hh_process_[0-9]{3,}_[0-9a-z]{3,}(\.[a-zA-Z0-9]{2,})*\.exe$"
-HOLLOWSHUNTER_DLL_REGEX = r"[0-9]{1,}_hollowshunter\/hh_process_[0-9]{3,}_[0-9a-z]{3,}(\.[a-zA-Z0-9]{2,})*\.dll$"
+HOLLOWSHUNTER_EXE_REGEX = compile(r"[0-9]{1,}_hollowshunter\/hh_process_[0-9]{3,}_[0-9a-z]{3,}(\.[a-zA-Z0-9]{2,})*\.exe$")
+HOLLOWSHUNTER_DLL_REGEX = compile(r"[0-9]{1,}_hollowshunter\/hh_process_[0-9]{3,}_[0-9a-z]{3,}(\.[a-zA-Z0-9]{2,})*\.dll$")
 
 HOLLOWSHUNTER_TITLE = "HollowsHunter Injected Portable Executable"
 
@@ -2251,6 +2251,25 @@ class OntologyResults:
         self.sandbox_version = json["sandbox_version"]
 
     @staticmethod
+    def _is_hollowshunter_exe_dump(artifact_name: str) -> True:
+        return HOLLOWSHUNTER_EXE_REGEX.match(artifact_name)
+
+    @staticmethod
+    def _is_hollowshunter_dll_dump(artifact_name: str) -> True:
+        return HOLLOWSHUNTER_DLL_REGEX.match(artifact_name)
+
+    @staticmethod
+    def _is_hollowshunter_dump(artifact_name: str) -> True:
+        if OntologyResults._is_hollowshunter_exe_dump(artifact_name):
+            return True
+
+        elif OntologyResults._is_hollowshunter_dll_dump(artifact_name):
+            return True
+
+        else:
+            return False
+
+    @staticmethod
     def handle_artifacts(
         artifact_list: List[Dict[str, Any]],
         request: ServiceRequest,
@@ -2277,6 +2296,9 @@ class OntologyResults:
             OntologyResults._handle_artifact(
                 artifact, artifacts_result_section, injection_heur_id
             )
+
+            if OntologyResults._is_hollowshunter_dump(artifact.name):
+                parent_relation = "MEMDUMP"
 
             if artifact.to_be_extracted and not any(artifact.sha256 == previously_extracted["sha256"] for previously_extracted in request.extracted):
                 try:
@@ -2957,39 +2979,36 @@ class OntologyResults:
 
         artifact_result_section = None
 
-        for regex in [HOLLOWSHUNTER_EXE_REGEX, HOLLOWSHUNTER_DLL_REGEX]:
-            pattern = compile(regex)
-            if pattern.match(artifact.name):
+        if OntologyResults._is_hollowshunter_dump(artifact.name):
+            artifact_result_section = next(
+                (
+                    subsection
+                    for subsection in artifacts_result_section.subsections
+                    if subsection.title_text == HOLLOWSHUNTER_TITLE
+                ),
+                None,
+            )
 
-                artifact_result_section = next(
-                    (
-                        subsection
-                        for subsection in artifacts_result_section.subsections
-                        if subsection.title_text == HOLLOWSHUNTER_TITLE
-                    ),
-                    None,
+            if artifact_result_section is None:
+                artifact_result_section = ResultSection(HOLLOWSHUNTER_TITLE)
+                artifact_result_section.set_heuristic(injection_heur_id)
+                artifact_result_section.add_line(
+                    "HollowsHunter dumped the following:"
                 )
 
-                if artifact_result_section is None:
-                    artifact_result_section = ResultSection(HOLLOWSHUNTER_TITLE)
-                    artifact_result_section.set_heuristic(injection_heur_id)
-                    artifact_result_section.add_line(
-                        "HollowsHunter dumped the following:"
-                    )
-
-                artifact_result_section.add_line(f"\t- {artifact.name}")
-                artifact_result_section.add_tag(
-                    "dynamic.process.file_name", artifact.name
+            artifact_result_section.add_line(f"\t- {artifact.name}")
+            artifact_result_section.add_tag(
+                "dynamic.process.file_name", artifact.name
+            )
+            # As of right now, heuristic ID 17 is associated with the Injection category in the Cuckoo service
+            if OntologyResults._is_hollowshunter_exe_dump(artifact.name):
+                artifact_result_section.heuristic.add_signature_id(
+                    "hollowshunter_exe"
                 )
-                # As of right now, heuristic ID 17 is associated with the Injection category in the Cuckoo service
-                if regex in [HOLLOWSHUNTER_EXE_REGEX]:
-                    artifact_result_section.heuristic.add_signature_id(
-                        "hollowshunter_exe"
-                    )
-                elif regex in [HOLLOWSHUNTER_DLL_REGEX]:
-                    artifact_result_section.heuristic.add_signature_id(
-                        "hollowshunter_dll"
-                    )
+            elif OntologyResults._is_hollowshunter_dll_dump(artifact.name):
+                artifact_result_section.heuristic.add_signature_id(
+                    "hollowshunter_dll"
+                )
 
         if (
             artifact_result_section is not None
