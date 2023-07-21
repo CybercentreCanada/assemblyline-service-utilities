@@ -2336,6 +2336,56 @@ class TestOntologyResults:
         assert default_or.get_processes_by_pguid(guid) == [p]
 
     @staticmethod
+    def test_get_process_by_pid():
+        default_or = OntologyResults(service_name="blah")
+        assert not default_or.get_process_by_pid(None)
+
+        pid = 123
+        assert not default_or.get_process_by_pid(pid)
+
+        objectid = ObjectID(
+            ontology_id="blah",
+            tag="blah",
+        )
+        pobjectid = ObjectID(
+            ontology_id="blah",
+            tag="blah",
+        )
+        p = default_or.create_process(
+            objectid=objectid,
+            pobjectid=pobjectid,
+            image="blah",
+            start_time="1970-01-01 00:00:01.000",
+            pid=pid,
+        )
+        default_or.add_process(p)
+        assert default_or.get_process_by_pid(pid) == p
+
+    @staticmethod
+    def test_get_process_by_objectid():
+        default_or = OntologyResults(service_name="blah")
+        assert not default_or.get_process_by_objectid(None)
+
+        objectid = ObjectID(
+            ontology_id="blah",
+            tag="blah",
+        )
+        assert not default_or.get_process_by_objectid(objectid)
+
+        pobjectid = ObjectID(
+            ontology_id="blah",
+            tag="blah",
+        )
+        p = default_or.create_process(
+            objectid=objectid,
+            pobjectid=pobjectid,
+            image="blah",
+            start_time="1970-01-01 00:00:01.000",
+        )
+        default_or.add_process(p)
+        assert default_or.get_process_by_objectid(objectid) == p
+
+    @staticmethod
     def test_create_attribute():
         assert OntologyResults.create_attribute() is None
         with pytest.raises(ValueError):
