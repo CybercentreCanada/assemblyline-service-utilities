@@ -26,6 +26,7 @@ from assemblyline_service_utilities.common.dynamic_service_helper import (
     set_required_argument,
     update_object_items,
 )
+from assemblyline_service_utilities.testing.helper import check_section_equality
 
 
 def setup_module():
@@ -41,49 +42,6 @@ def setup_module():
 def teardown_module():
     if os.path.exists(TEMP_SERVICE_CONFIG_PATH):
         os.remove(TEMP_SERVICE_CONFIG_PATH)
-
-
-def check_section_equality(this, that) -> bool:
-    # Recursive method to check equality of result section and nested sections
-
-    # Heuristics also need their own equality checks
-    if this.heuristic and that.heuristic:
-        result_heuristic_equality = (
-            this.heuristic.attack_ids == that.heuristic.attack_ids
-            and this.heuristic.frequency == that.heuristic.frequency
-            and this.heuristic.heur_id == that.heuristic.heur_id
-            and this.heuristic.score == that.heuristic.score
-            and this.heuristic.score_map == that.heuristic.score_map
-            and this.heuristic.signatures == that.heuristic.signatures
-        )
-
-    elif not this.heuristic and not that.heuristic:
-        result_heuristic_equality = True
-    else:
-        result_heuristic_equality = False
-
-    # Assuming we are given the "root section" at all times, it is safe to say that we don't need to confirm parent
-    current_section_equality = (
-        result_heuristic_equality
-        and this.body == that.body
-        and this.body_format == that.body_format
-        and this.classification == that.classification
-        and this.depth == that.depth
-        and len(this.subsections) == len(that.subsections)
-        and this.title_text == that.title_text
-    )
-
-    if not current_section_equality:
-        return False
-
-    for index, subsection in enumerate(this.subsections):
-        subsection_equality = check_section_equality(
-            subsection, that.subsections[index]
-        )
-        if not subsection_equality:
-            return False
-
-    return True
 
 
 @pytest.fixture
@@ -4611,13 +4569,46 @@ class TestOntologyResults:
                 ],
                 None,
             ),
+            (
+                [
+                    {
+                        "name": "123_hollowshunter/hh_process_12345_blah123.something.exe",
+                        "path": "blah",
+                        "description": "blah",
+                        "to_be_extracted": True,
+                        "sha256": "blah",
+                    }
+                ],
+                True,
+            ),
         ],
     )
     def test_handle_artifacts(artifact_list, expected_result, dummy_request_class):
+        from assemblyline_v4_service.common.result import ResultSection
+
         r = dummy_request_class()
         o = OntologyResults()
         actual_result = o.handle_artifacts(artifact_list, r)
-        assert actual_result == expected_result
+        if expected_result is None:
+            assert actual_result is None
+        else:
+            expected_result = ResultSection("Sandbox Artifacts")
+            hh_sec = ResultSection(HOLLOWSHUNTER_TITLE)
+            hh_sec.set_heuristic(17)
+            hh_sec.heuristic.add_signature_id("hollowshunter_exe")
+            hh_sec.add_line("HollowsHunter dumped the following:")
+            hh_sec.add_line("\t- 123_hollowshunter/hh_process_12345_blah123.something.exe")
+            hh_sec.add_tag("dynamic.process.file_name", '123_hollowshunter/hh_process_12345_blah123.something.exe')
+            expected_result.add_subsection(hh_sec)
+            assert check_section_equality(actual_result, expected_result)
+            assert r.extracted == [
+                {
+                    'description': 'blah',
+                    'name': '123_hollowshunter/hh_process_12345_blah123.something.exe',
+                    'parent_relation': 'MEMDUMP',
+                    'path': 'blah'
+                },
+            ]
 
     @staticmethod
     def test_get_guids():
