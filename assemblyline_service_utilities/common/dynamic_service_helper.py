@@ -1549,16 +1549,14 @@ class OntologyResults:
         if guid is None:
             return None
 
-        network_connections_with_guid = [
-            network_connection
-            for network_connection in self.get_network_connections()
-            if network_connection.objectid.guid == guid
-        ]
-
-        if not network_connections_with_guid:
-            return None
-        else:
-            return network_connections_with_guid[0]
+        return next(
+            (
+                network_connection
+                for network_connection in self.get_network_connections()
+                if network_connection.objectid.guid == guid
+            ),
+            None,
+        )
 
     def get_network_connection_by_details(
         self,
@@ -1660,11 +1658,14 @@ class OntologyResults:
         :param ip: The IP for which an associated domain is requested
         :return: The domain associated with the given destination IP
         """
-        domains = [dns.domain for dns in self.dns_netflows if ip in dns.resolved_ips]
-        if domains:
-            return domains[0]
-        else:
-            return None
+        return next(
+            (
+                dns.domain
+                for dns in self.dns_netflows
+                if ip in dns.resolved_ips
+            ),
+            None,
+        )
 
     def get_destination_ip_by_domain(self, domain: str) -> Optional[str]:
         """
@@ -1672,11 +1673,14 @@ class OntologyResults:
         :param domain: The domain for which an associated IP is requested
         :return: The IP associated with the given domain
         """
-        ips = [dns.resolved_ips[0] for dns in self.dns_netflows if domain == dns.domain]
-        if ips:
-            return ips[0]
-        else:
-            return None
+        return next(
+            (
+                dns.resolved_ips[0]
+                for dns in self.dns_netflows
+                if domain == dns.domain
+            ),
+            None,
+        )
 
     # NetworkHTTP manipulation methods
     def set_http_netflows(self, network_http: List[NetworkHTTP]) -> None:
@@ -1726,15 +1730,15 @@ class OntologyResults:
         :param path: The path to a response/request body file
         :return: The associated network HTTP call for the given path
         """
-        network_http_with_path = [
-            http
-            for http in self.get_network_http()
-            if http.response_body_path == path or http.request_body_path == path
-        ]
-        if not network_http_with_path:
-            return None
-        else:
-            return network_http_with_path[0]
+        return next(
+            (
+                http
+                for http in self.get_network_http()
+                if http.response_body_path == path
+                or http.request_body_path == path
+            ),
+            None,
+        )
 
     def get_network_http_by_details(
         self, request_uri: str, request_method: str, request_headers: Dict[str, str]
@@ -1746,17 +1750,16 @@ class OntologyResults:
         :param request_headers: The headers of the request
         :return: The network http call (should one exist) that matches these details
         """
-        network_http_with_details = [
-            http
-            for http in self.get_network_http()
-            if http.request_uri == request_uri
-            and http.request_method == request_method
-            and http.request_headers == request_headers
-        ]
-        if not network_http_with_details:
-            return None
-        else:
-            return network_http_with_details[0]
+        return next(
+            (
+                http
+                for http in self.get_network_http()
+                if http.request_uri == request_uri
+                and http.request_method == request_method
+                and http.request_headers == request_headers
+            ),
+            None,
+        )
 
     def get_network_connection_by_network_http(self, network_http: NetworkHTTP) -> Optional[NetworkConnection]:
         """
@@ -2045,19 +2048,18 @@ class OntologyResults:
         if not command_line:
             return None
 
-        processes_with_command_line = [
-            process
-            for process in self.get_processes()
-            if process.command_line
-            and (
-                command_line == process.command_line
-                or command_line in process.command_line
-            )
-        ]
-        if not processes_with_command_line:
-            return None
-        else:
-            return processes_with_command_line[0]
+        return next(
+            (
+                process
+                for process in self.get_processes()
+                if process.command_line
+                and (
+                    command_line == process.command_line
+                    or command_line in process.command_line
+                )
+            ),
+            None,
+        )
 
     def get_process_by_pid_and_time(
         self, pid: Optional[int], timestamp: Optional[str]
@@ -2110,15 +2112,32 @@ class OntologyResults:
         if not pid:
             return None
 
-        processes_with_pid = [
-            process
-            for process in self.get_processes()
-            if process.pid and pid == process.pid
-        ]
-        if not processes_with_pid:
+        return next(
+            (
+                process
+                for process in self.get_processes()
+                if process.pid and pid == process.pid
+            ),
+            None,
+        )
+
+    def get_process_by_objectid(self, objectid: Optional[ObjectID] = None) -> Optional[Process]:
+        """
+        This method takes a given ObjectID and returns the associated process
+        :param objectid: The given ObjectID that we want an associated process for
+        :return: The associated process
+        """
+        if not objectid:
             return None
-        else:
-            return processes_with_pid[0]
+
+        return next(
+            (
+                process
+                for process in self.get_processes()
+                if process.objectid == objectid
+            ),
+            None,
+        )
 
     def as_primitives(self) -> Dict[str, Any]:
         """
