@@ -21,7 +21,7 @@ from assemblyline.common.isotime import (
     local_to_epoch,
 )
 from assemblyline.common.uid import get_random_id
-from assemblyline.odm.base import DOMAIN_REGEX, FULL_URI, IP_REGEX, IPV4_REGEX, URI_PATH
+from assemblyline.odm.base import DOMAIN_REGEX, FULL_URI, IP_REGEX, IPV4_REGEX, URI_PATH, URI_REGEX
 from assemblyline.odm.models.ontology.results import NetworkConnection as NetworkConnectionModel
 from assemblyline.odm.models.ontology.results import Process as ProcessModel
 from assemblyline.odm.models.ontology.results import Sandbox as SandboxModel
@@ -38,7 +38,7 @@ from assemblyline_v4_service.common.result import (
 from assemblyline_v4_service.common.task import MaxExtractedExceeded
 
 from assemblyline_service_utilities.common.command_line_utils import normalize_path
-from assemblyline_service_utilities.common.safelist_helper import URL_REGEX, is_tag_safelisted
+from assemblyline_service_utilities.common.safelist_helper import is_tag_safelisted
 from assemblyline_service_utilities.common.tag_helper import add_tag
 
 al_log.init_logging("service.service_base.dynamic_service_helper")
@@ -90,8 +90,8 @@ SERVICE_NAME = None
 # The following lists of domains and top-level domains are used for finding false-positives
 # when extracting domains from text blobs
 COMMON_FP_DOMAINS = ["example.com"]
-COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".one", ".pub", ".py", ".sh", ".zip"]
-COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS = [".test", ".id", ".call", ".top", ".map", ".support", ".run", ".shell", ".net", ".stream"]
+COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".one", ".pub", ".py", ".sh", ".zip", ".js"]
+COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS = [".test", ".id", ".call", ".top", ".map", ".support", ".run", ".shell", ".net", ".stream", ".in", ".cl", ".xmlhttp", ".runincontext"]
 COMMON_FP_TLDS = COMMON_FP_TLDS_THAT_ARE_FILE_EXTS + COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS
 
 # Arbitrarily chosen common URL schemes from https://en.wikipedia.org/wiki/List_of_URI_schemes
@@ -3475,7 +3475,17 @@ def extract_iocs_from_text_blob(
     # There is overlap here between regular expressions, so we want to isolate uris that are not domains
     # TODO: Are we missing IOCs to the point where we need a different regex?
     # uris = {uri.decode() for uri in set(findall(PatternMatch.PAT_URI_NO_PROTOCOL, blob.encode()))} - domains - ips
-    uris = set(findall(URL_REGEX, blob)) - domains - ips
+
+    uri_results = findall(URI_REGEX, blob)
+    uris = set()
+    for uri in uri_results:
+        if isinstance(uri, tuple):
+            uris.add(uri[0])
+        else:
+            uris.add(uri)
+
+    uris = uris - domains - ips
+
     for ip in sorted(ips):
         if add_tag(result_section, f"network.{network_tag_type}.ip", ip, safelist):
             if not result_section.section_body.body:
