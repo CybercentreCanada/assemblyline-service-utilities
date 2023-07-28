@@ -113,7 +113,7 @@ def _validate_tag(
             valid_ip = _validate_tag(result_section, f"network.{network_tag_type}.ip", ip, safelist)
 
         if value not in [domain, ip] and (valid_domain or valid_ip):
-            _tag_uri(value, result_section, network_tag_type, safelist)
+            return _tag_uri(value, result_section, network_tag_type, safelist)
         else:
             # Might as well tag this while we're here
             result_section.add_tag("file.string.extracted", safe_str(value))
@@ -123,14 +123,14 @@ def _validate_tag(
     return True
 
 
-def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "dynamic", safelist: Dict[str, Dict[str, List[str]]] = None) -> None:
+def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "dynamic", safelist: Dict[str, Dict[str, List[str]]] = None) -> bool:
     """
     This method tags components of a URI
     :param url: The url to be analyzed
     :param result_section: The ResultSection that the tag will be added to
     :param safelist: The safelist containing matches and regexs. The product of a
                      service using self.get_api_interface().get_safelist().
-    :return: None
+    :return: Tag was successfully added
     """
     # Extract URI
     uri_match = match(FULL_URI, url)
@@ -161,3 +161,7 @@ def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "d
         if uri_path_match:
             uri_path = uri_path_match.group(0)
             result_section.add_tag(f"network.{network_tag_type}.uri_path", uri_path)
+
+        return True
+
+    return False
