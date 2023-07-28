@@ -3485,7 +3485,7 @@ def extract_iocs_from_text_blob(
             uri_to_add = uri
 
         # The following characters frequently mess up our results
-        for char in [" ", ",", "\\\\"]:
+        for char in [" ", ",", "\\"]:
             if char in uri_to_add:
                 uri_to_add, _, remainder = uri_to_add.partition(char)
                 if remainder:
