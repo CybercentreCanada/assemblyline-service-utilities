@@ -3480,9 +3480,17 @@ def extract_iocs_from_text_blob(
     uris = set()
     for uri in uri_results:
         if isinstance(uri, tuple):
-            uris.add(uri[0])
+            uri_to_add = uri[0]
         else:
-            uris.add(uri)
+            uri_to_add = uri
+
+        # The following characters frequently mess up our results
+        for char in [" ", ",", "\\\\"]:
+            if char in uri_to_add:
+                uri_to_add, _, remainder = uri_to_add.partition(char)
+                extract_iocs_from_text_blob(remainder, result_section, so_sig, source, enforce_char_min, enforce_domain_char_max, safelist, is_network_static)
+
+        uris.add(uri_to_add)
 
     uris = uris - domains - ips
 
