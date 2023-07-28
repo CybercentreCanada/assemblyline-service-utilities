@@ -88,17 +88,17 @@ def _validate_tag(
     if regex and not match(regex, value) and not tag.endswith(".uri"):
         return False
 
-    if "ip" in tag and not is_valid_ip(value):
+    if tag.endswith(".ip") and not is_valid_ip(value):
         return False
 
-    if "domain" in tag and not is_valid_domain(value):
+    if tag.endswith(".domain") and not is_valid_domain(value):
             return False
 
     if is_tag_safelisted(value, [tag], safelist):
         return False
 
     # if "uri" is in the tag, let's try to extract its domain/ip and tag it.
-    if "uri_path" not in tag and "uri" in tag:
+    if tag.endswith(".uri"):
         # First try to get the domain
         valid_domain = False
         domain = search(DOMAIN_REGEX, value)
