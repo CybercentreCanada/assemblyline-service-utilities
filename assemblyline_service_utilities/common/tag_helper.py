@@ -1,5 +1,6 @@
 from re import match, search
 from typing import Any, Dict, List, Optional, Union
+from urllib.parse import quote_plus, urlparse, urlunparse
 
 from assemblyline.common.net import is_valid_domain, is_valid_ip
 from assemblyline.common.str_utils import safe_str
@@ -46,13 +47,13 @@ def _get_regex_for_tag(tag: str) -> str:
     :return: The relevant regular expression
     """
     reg_to_match: Optional[str] = None
-    if "domain" in tag:
+    if tag.endswith(".domain"):
         reg_to_match = DOMAIN_ONLY_REGEX
-    elif "uri_path" in tag:
+    elif tag.endswith(".uri_path"):
         reg_to_match = URI_PATH
-    elif "uri" in tag:
+    elif tag.endswith(".uri"):
         reg_to_match = FULL_URI
-    elif "ip" in tag:
+    elif tag.endswith(".ip"):
         reg_to_match = IP_REGEX
     return reg_to_match
 
@@ -81,20 +82,23 @@ def _validate_tag(
         network_tag_type = "dynamic"
 
     regex = _get_regex_for_tag(tag)
-    if regex and not match(regex, value):
+
+    # We frequently see URIs that don't follow standards, but we still want to grab all the
+    # information we can from this
+    if regex and not match(regex, value) and not tag.endswith(".uri"):
         return False
 
-    if "ip" in tag and not is_valid_ip(value):
+    if tag.endswith(".ip") and not is_valid_ip(value):
         return False
 
-    if "domain" in tag and not is_valid_domain(value):
+    if tag.endswith(".domain") and not is_valid_domain(value):
             return False
 
     if is_tag_safelisted(value, [tag], safelist):
         return False
 
     # if "uri" is in the tag, let's try to extract its domain/ip and tag it.
-    if "uri_path" not in tag and "uri" in tag:
+    if tag.endswith(".uri"):
         # First try to get the domain
         valid_domain = False
         domain = search(DOMAIN_REGEX, value)
@@ -109,10 +113,55 @@ def _validate_tag(
             valid_ip = _validate_tag(result_section, f"network.{network_tag_type}.ip", ip, safelist)
 
         if value not in [domain, ip] and (valid_domain or valid_ip):
-            result_section.add_tag(tag, safe_str(value))
+            return _tag_uri(value, result_section, network_tag_type, safelist)
         else:
-            return False
+            # Might as well tag this while we're here
+            result_section.add_tag("file.string.extracted", safe_str(value))
     else:
         result_section.add_tag(tag, safe_str(value))
 
     return True
+
+
+def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "dynamic", safelist: Dict[str, Dict[str, List[str]]] = None) -> bool:
+    """
+    This method tags components of a URI
+    :param url: The url to be analyzed
+    :param result_section: The ResultSection that the tag will be added to
+    :param safelist: The safelist containing matches and regexs. The product of a
+                     service using self.get_api_interface().get_safelist().
+    :return: Tag was successfully added
+    """
+    # Extract URI
+    uri_match = match(FULL_URI, url)
+
+    # Let's try to UrlEncode it, sometimes the queries are not UrlEncoded by default
+    if not uri_match:
+        parsed_url = urlparse(url)
+        url_encoded = urlunparse(
+            [
+                parsed_url.scheme, parsed_url.netloc, parsed_url.path,
+                parsed_url.params, quote_plus(parsed_url.query), parsed_url.fragment
+            ]
+        )
+        uri_match = match(FULL_URI, url_encoded)
+
+        if uri_match:
+            url = url_encoded
+
+    if uri_match:
+        # url could have changed from quote_plus, so we should check the safelist again
+        if is_tag_safelisted(url, ["network.dynamic.uri", "network.static.uri"], safelist):
+            return
+        result_section.add_tag(f"network.{network_tag_type}.uri", url)
+        # Extract URI path
+        if "//" in url:
+            url = url.split("//")[1]
+        uri_path_match = search(URI_PATH, url)
+        if uri_path_match:
+            uri_path = uri_path_match.group(0)
+            result_section.add_tag(f"network.{network_tag_type}.uri_path", uri_path)
+
+        return True
+
+    return False
