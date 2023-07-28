@@ -129,14 +129,15 @@ def _validate_tag(
     return (True, False)
 
 
-def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "dynamic", safelist: Dict[str, Dict[str, List[str]]] = None) -> bool:
+def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "dynamic", safelist: Dict[str, Dict[str, List[str]]] = None) -> Tuple[bool, bool]:
     """
     This method tags components of a URI
     :param url: The url to be analyzed
     :param result_section: The ResultSection that the tag will be added to
     :param safelist: The safelist containing matches and regexs. The product of a
                      service using self.get_api_interface().get_safelist().
-    :return: Tag was successfully added
+    :return: A tuple of boolean indicating if tag was successfully added,
+        and boolean indicating if value is safelisted
     """
     # Extract URI
     uri_match = match(FULL_URI, url)
