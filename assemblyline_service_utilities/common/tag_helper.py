@@ -1,5 +1,5 @@
 from re import match, search
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from urllib.parse import quote_plus, urlparse, urlunparse
 
 from assemblyline.common.net import is_valid_domain, is_valid_ip
@@ -34,9 +34,9 @@ def add_tag(
     if type(value) == list:
         for item in value:
             # If one tag is added, then return True
-            tags_were_added = _validate_tag(result_section, tag, item, safelist) or tags_were_added
+            tags_were_added, _ = _validate_tag(result_section, tag, item, safelist) or tags_were_added
     else:
-        tags_were_added = _validate_tag(result_section, tag, value, safelist)
+        tags_were_added, _ = _validate_tag(result_section, tag, value, safelist)
     return tags_were_added
 
 
@@ -63,7 +63,7 @@ def _validate_tag(
     tag: str,
     value: Any,
     safelist: Dict[str, Dict[str, List[str]]] = None
-) -> bool:
+) -> Tuple[bool, bool]:
     """
     This method validates the value relative to the tag type before adding the value as a tag to the ResultSection.
     :param result_section: The ResultSection that the tag will be added to
@@ -71,10 +71,14 @@ def _validate_tag(
     :param value: The item that will be tagged under the tag type
     :param safelist: The safelist containing matches and regexs. The product of a
                      service using self.get_api_interface().get_safelist().
-    :return: Tag was successfully added
+    :return: A tuple of boolean indicating if tag was successfully added,
+        and boolean indicating if value is safelisted
     """
     if safelist is None:
         safelist = {}
+
+    if not value:
+        return False, False
 
     if tag.startswith("network.static."):
         network_tag_type = "static"
@@ -86,16 +90,16 @@ def _validate_tag(
     # We frequently see URIs that don't follow standards, but we still want to grab all the
     # information we can from this
     if regex and not match(regex, value) and not tag.endswith(".uri"):
-        return False
+        return (False, False)
 
     if tag.endswith(".ip") and not is_valid_ip(value):
-        return False
+        return (False, False)
 
     if tag.endswith(".domain") and not is_valid_domain(value):
-            return False
+            return (False, False)
 
     if is_tag_safelisted(value, [tag], safelist):
-        return False
+        return (False, True)
 
     # if "uri" is in the tag, let's try to extract its domain/ip and tag it.
     if tag.endswith(".uri"):
@@ -104,15 +108,16 @@ def _validate_tag(
         domain = search(DOMAIN_REGEX, value)
         if domain:
             domain = domain.group()
-            valid_domain = _validate_tag(result_section, f"network.{network_tag_type}.domain", domain, safelist)
+            valid_domain, tag_is_safelisted = _validate_tag(result_section, f"network.{network_tag_type}.domain", domain, safelist)
         # Then try to get the IP
         valid_ip = False
         ip = search(IP_REGEX, value)
         if ip:
             ip = ip.group()
-            valid_ip = _validate_tag(result_section, f"network.{network_tag_type}.ip", ip, safelist)
+            valid_ip, tag_is_safelisted = _validate_tag(result_section, f"network.{network_tag_type}.ip", ip, safelist)
 
-        if value not in [domain, ip] and (valid_domain or valid_ip):
+        # So we have unique value that has a valid domain / ip
+        if (value not in [domain, ip] and (valid_domain or valid_ip)) or tag_is_safelisted:
             return _tag_uri(value, result_section, network_tag_type, safelist)
         else:
             # Might as well tag this while we're here
@@ -120,7 +125,7 @@ def _validate_tag(
     else:
         result_section.add_tag(tag, safe_str(value))
 
-    return True
+    return (True, False)
 
 
 def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "dynamic", safelist: Dict[str, Dict[str, List[str]]] = None) -> bool:
@@ -152,7 +157,7 @@ def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "d
     if uri_match:
         # url could have changed from quote_plus, so we should check the safelist again
         if is_tag_safelisted(url, ["network.dynamic.uri", "network.static.uri"], safelist):
-            return
+            return (False, True)
         result_section.add_tag(f"network.{network_tag_type}.uri", url)
         # Extract URI path
         if "//" in url:
@@ -162,6 +167,6 @@ def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "d
             uri_path = uri_path_match.group(0)
             result_section.add_tag(f"network.{network_tag_type}.uri_path", uri_path)
 
-        return True
+        return (True, False)
 
-    return False
+    return (False, False)
