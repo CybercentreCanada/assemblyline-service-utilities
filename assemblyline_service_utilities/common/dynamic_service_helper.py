@@ -3589,7 +3589,7 @@ def extract_iocs_from_text_blob(
         if any(key.endswith(tag_extension) for tag_extension in [".uri", ".domain", ".ip", ".uri_path"]):
             result_section.tags[key] = sorted(values)
     # With rows
-    result_section.section_body._data = sorted(result_section.section_body._data, key=lambda x: x["ioc"])
+    result_section.section_body._data = sorted(result_section.section_body._data, key=lambda x: x["ioc_type"])
     # With signature attributes
     if so_sig:
         so_sig.attributes = sorted(so_sig.attributes, key=lambda x: x.uri)
