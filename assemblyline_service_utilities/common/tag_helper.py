@@ -106,6 +106,7 @@ def _validate_tag(
         # First try to get the domain
         valid_domain = False
         domain = search(DOMAIN_REGEX, value)
+        tag_is_safelisted = False
         if domain:
             domain = domain.group()
             valid_domain, tag_is_safelisted = _validate_tag(result_section, f"network.{network_tag_type}.domain", domain, safelist)
