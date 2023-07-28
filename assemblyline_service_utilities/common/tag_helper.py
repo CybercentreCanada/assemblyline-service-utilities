@@ -4,10 +4,11 @@ from urllib.parse import quote_plus, urlparse, urlunparse
 
 from assemblyline.common.net import is_valid_domain, is_valid_ip
 from assemblyline.common.str_utils import safe_str
-from assemblyline.odm.base import DOMAIN_ONLY_REGEX, DOMAIN_REGEX, FULL_URI, IP_REGEX, URI_PATH
+from assemblyline.odm.base import (DOMAIN_ONLY_REGEX, DOMAIN_REGEX, FULL_URI,
+                                   IP_REGEX, URI_PATH)
+from assemblyline_service_utilities.common.safelist_helper import \
+    is_tag_safelisted
 from assemblyline_v4_service.common.result import ResultSection
-
-from assemblyline_service_utilities.common.safelist_helper import is_tag_safelisted
 
 
 def add_tag(
@@ -120,6 +121,8 @@ def _validate_tag(
         # So we have unique value that has a valid domain / ip
         if (value not in [domain, ip] and (valid_domain or valid_ip)) or tag_is_safelisted:
             return _tag_uri(value, result_section, network_tag_type, safelist)
+        elif value in [domain, ip]:
+            return (True, False)
         else:
             # Might as well tag this while we're here
             result_section.add_tag("file.string.extracted", safe_str(value))

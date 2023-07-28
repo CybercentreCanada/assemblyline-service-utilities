@@ -82,6 +82,8 @@ def test_get_regex_for_tag():
         ("network.static.uri", "C:\\file.js?blah/blah.exe", {"file.string.extracted": ["C:\\file.js?blah/blah.exe"]}, (True, False)),
         # Safelisted domain value in URI
         ("network.static.uri", "http://blah.ca/blah", {"network.static.uri": ["http://blah.ca/blah"], "network.static.uri_path": ["/blah"]}, (True, False)),
+        # Domain value tagged as URI
+        ("network.static.uri", "www.blah.ca", {"network.static.domain": ["www.blah.ca"]}, (True, False)),
     ]
 )
 def test_validate_tag(tag, value, expected_tags, added_tag):
