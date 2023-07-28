@@ -3488,7 +3488,8 @@ def extract_iocs_from_text_blob(
         for char in [" ", ",", "\\\\"]:
             if char in uri_to_add:
                 uri_to_add, _, remainder = uri_to_add.partition(char)
-                extract_iocs_from_text_blob(remainder, result_section, so_sig, source, enforce_char_min, enforce_domain_char_max, safelist, is_network_static)
+                if remainder:
+                    extract_iocs_from_text_blob(remainder, result_section, so_sig, source, enforce_char_min, enforce_domain_char_max, safelist, is_network_static)
 
         uris.add(uri_to_add)
 
@@ -3581,6 +3582,17 @@ def extract_iocs_from_text_blob(
                     not in result_section.section_body.body
                 ):
                     result_section.add_row(TableRow(ioc_type="uri_path", ioc=uri_path))
+
+    # Now that we are performing recursion with this method, we need additional sorting
+    # With tags
+    for key, values in result_section.tags.items():
+        if any(key.endswith(tag_extension) for tag_extension in [".uri", ".domain", ".ip", ".uri_path"]):
+            result_section.tags[key] = sorted(values)
+    # With rows
+    result_section.section_body._data = sorted(result_section.section_body._data, key=lambda x: x["ioc"])
+    # With signature attributes
+    if so_sig:
+        so_sig.attributes = sorted(so_sig.attributes, key=lambda x: x.uri)
 
 
 # DEBUGGING METHOD

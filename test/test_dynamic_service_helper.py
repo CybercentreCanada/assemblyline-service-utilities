@@ -9401,15 +9401,15 @@ class TestOntologyResults:
             [],
         ),
         (
-            "for i in https://bad1.com/blah,https://bad2.com/blah,https://bad3.com/blah do get",
+            "for i in https://bad2.com/blah,https://bad1.com/blah,https://bad3.com/blah do get",
             False,
             False,
             {
-                "network.dynamic.domain": ["bad3.com", "bad2.com", "bad1.com"],
-                "network.dynamic.uri": ["https://bad3.com/blah", "https://bad2.com/blah", "https://bad1.com/blah"],
+                "network.dynamic.domain": ["bad1.com", "bad2.com", "bad3.com"],
+                "network.dynamic.uri": ["https://bad1.com/blah", "https://bad2.com/blah", "https://bad3.com/blah"],
                 "network.dynamic.uri_path": ["/blah"]
             },
-            [{"uri": "https://bad3.com/blah"}, {"uri": "https://bad2.com/blah"}, {"uri": "https://bad1.com/blah"}],
+            [{"uri": "https://bad1.com/blah"}, {"uri": "https://bad2.com/blah"}, {"uri": "https://bad3.com/blah"}],
         ),
     ],
 )
