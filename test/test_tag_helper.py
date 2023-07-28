@@ -56,32 +56,34 @@ def test_get_regex_for_tag():
         # Normal run without regex match
         ("blah", "blah", {"blah": ["blah"]}, True),
         # Normal run with regex match
-        ("uri_path", "/blah", {"uri_path": ["/blah"]}, True),
+        ("network.static.uri_path", "/blah", {"network.static.uri_path": ["/blah"]}, True),
         # No regex match for ip
-        ("ip", "blah", {}, False),
+        ("network.static.ip", "blah", {}, False),
         # Regex match for ip
-        ("ip", "1.1.1.1", {"ip": ["1.1.1.1"]}, True),
+        ("network.static.ip", "1.1.1.1", {"network.static.ip": ["1.1.1.1"]}, True),
         # No regex match for domain
-        ("domain", "blah", {}, False),
+        ("network.static.domain", "blah", {}, False),
         # Regex match but not valid domain
-        ("domain", "blah.blah", {}, False),
+        ("network.static.domain", "blah.blah", {}, False),
         # Regex match, but FP found (the determination of the FP is no longer handled in this method)
-        ("domain", "microsoft.net", {"domain": ["microsoft.net"]}, True),
+        ("network.static.domain", "microsoft.net", {"network.static.domain": ["microsoft.net"]}, True),
         # Regex match, but FP found (the determination of the FP is no longer handled in this method)
-        ("domain", "blah.py", {"domain": ["blah.py"]}, True),
+        ("network.static.domain", "blah.py", {"network.static.domain": ["blah.py"]}, True),
         # Safelisted value
-        ("domain", "blah.ca", {}, False),
-        # URI with invalid domain
-        ("uri", "http://blah.blah/blah", {}, False),
+        ("network.static.domain", "blah.ca", {}, False),
+        # Valid URI with invalid domain
+        ("network.static.uri", "http://blah.blah/blah", {"file.string.extracted": ["http://blah.blah/blah"]}, True),
         # URI with valid domain
-        ("uri", "http://blah.com/blah", {"uri": ["http://blah.com/blah"],
-         "network.dynamic.domain": ["blah.com"]}, True),
+        ("network.dynamic.uri", "http://blah.com/blah", {"network.dynamic.uri": ["http://blah.com/blah"],
+         "network.dynamic.domain": ["blah.com"], "network.dynamic.uri_path": ["/blah"]}, True),
         # URI with valid IP
-        ("uri", "http://1.1.1.1/blah", {"uri": ["http://1.1.1.1/blah"], "network.dynamic.ip": ["1.1.1.1"]}, True),
+        ("network.dynamic.uri", "http://1.1.1.1/blah", {"network.dynamic.uri": ["http://1.1.1.1/blah"], "network.dynamic.ip": ["1.1.1.1"], "network.dynamic.uri_path": ["/blah"]}, True),
+        # Invalid URI with no URI regex match
+        ("network.static.uri", "C:\\file.js?blah/blah.exe", {"file.string.extracted": ["C:\\file.js?blah/blah.exe"]}, True),
     ]
 )
 def test_validate_tag(tag, value, expected_tags, added_tag):
     res_sec = ResultSection("blah")
-    safelist = {"match": {"domain": ["blah.ca"]}}
+    safelist = {"match": {"network.static.domain": ["blah.ca"]}}
     assert add_tag(res_sec, tag, value, safelist) == added_tag
     assert res_sec.tags == expected_tags
