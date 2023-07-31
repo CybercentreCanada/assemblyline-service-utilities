@@ -21,7 +21,7 @@ from assemblyline.common.isotime import (
     local_to_epoch,
 )
 from assemblyline.common.uid import get_random_id
-from assemblyline.odm.base import DOMAIN_REGEX, FULL_URI, IP_REGEX, IPV4_REGEX, URI_PATH
+from assemblyline.odm.base import DOMAIN_REGEX, FULL_URI, IP_REGEX, IPV4_REGEX, URI_PATH, URI_REGEX
 from assemblyline.odm.models.ontology.results import NetworkConnection as NetworkConnectionModel
 from assemblyline.odm.models.ontology.results import Process as ProcessModel
 from assemblyline.odm.models.ontology.results import Sandbox as SandboxModel
@@ -38,7 +38,7 @@ from assemblyline_v4_service.common.result import (
 from assemblyline_v4_service.common.task import MaxExtractedExceeded
 
 from assemblyline_service_utilities.common.command_line_utils import normalize_path
-from assemblyline_service_utilities.common.safelist_helper import URL_REGEX, is_tag_safelisted
+from assemblyline_service_utilities.common.safelist_helper import is_tag_safelisted
 from assemblyline_service_utilities.common.tag_helper import add_tag
 
 al_log.init_logging("service.service_base.dynamic_service_helper")
@@ -90,8 +90,8 @@ SERVICE_NAME = None
 # The following lists of domains and top-level domains are used for finding false-positives
 # when extracting domains from text blobs
 COMMON_FP_DOMAINS = ["example.com"]
-COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".one", ".pub", ".py", ".sh", ".zip"]
-COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS = [".test", ".id", ".call", ".top", ".map", ".support", ".run", ".shell", ".net", ".stream"]
+COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".one", ".pub", ".py", ".sh", ".zip", ".js"]
+COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS = [".test", ".id", ".call", ".top", ".map", ".support", ".run", ".shell", ".net", ".stream", ".in", ".cl", ".xmlhttp", ".runincontext"]
 COMMON_FP_TLDS = COMMON_FP_TLDS_THAT_ARE_FILE_EXTS + COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS
 
 # Arbitrarily chosen common URL schemes from https://en.wikipedia.org/wiki/List_of_URI_schemes
@@ -3475,7 +3475,26 @@ def extract_iocs_from_text_blob(
     # There is overlap here between regular expressions, so we want to isolate uris that are not domains
     # TODO: Are we missing IOCs to the point where we need a different regex?
     # uris = {uri.decode() for uri in set(findall(PatternMatch.PAT_URI_NO_PROTOCOL, blob.encode()))} - domains - ips
-    uris = set(findall(URL_REGEX, blob)) - domains - ips
+
+    uri_results = findall(URI_REGEX, blob)
+    uris = set()
+    for uri in uri_results:
+        if isinstance(uri, tuple):
+            uri_to_add = uri[0]
+        else:
+            uri_to_add = uri
+
+        # The following characters frequently mess up our results
+        for char in [" ", ",", "\\"]:
+            if char in uri_to_add:
+                uri_to_add, _, remainder = uri_to_add.partition(char)
+                if remainder:
+                    extract_iocs_from_text_blob(remainder, result_section, so_sig, source, enforce_char_min, enforce_domain_char_max, safelist, is_network_static)
+
+        uris.add(uri_to_add)
+
+    uris = uris - domains - ips
+
     for ip in sorted(ips):
         if add_tag(result_section, f"network.{network_tag_type}.ip", ip, safelist):
             if not result_section.section_body.body:
@@ -3563,6 +3582,17 @@ def extract_iocs_from_text_blob(
                     not in result_section.section_body.body
                 ):
                     result_section.add_row(TableRow(ioc_type="uri_path", ioc=uri_path))
+
+    # Now that we are performing recursion with this method, we need additional sorting
+    # With tags
+    for key, values in result_section.tags.items():
+        if any(key.endswith(tag_extension) for tag_extension in [".uri", ".domain", ".ip", ".uri_path"]):
+            result_section.tags[key] = sorted(values)
+    # With rows
+    result_section.section_body._data = sorted(result_section.section_body._data, key=lambda x: (x["ioc_type"], x["ioc"]))
+    # With signature attributes
+    if so_sig:
+        so_sig.attributes = sorted(so_sig.attributes, key=lambda x: x.uri)
 
 
 # DEBUGGING METHOD
