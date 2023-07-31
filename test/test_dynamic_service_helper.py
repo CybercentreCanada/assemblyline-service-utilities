@@ -9400,6 +9400,17 @@ class TestOntologyResults:
             {"network.dynamic.domain": ["EVIL.CA"]},
             [],
         ),
+        (
+            "for i in https://bad2.com/blah,https://bad1.com/blah,https://bad3.com/blah do get",
+            False,
+            False,
+            {
+                "network.dynamic.domain": ["bad1.com", "bad2.com", "bad3.com"],
+                "network.dynamic.uri": ["https://bad1.com/blah", "https://bad2.com/blah", "https://bad3.com/blah"],
+                "network.dynamic.uri_path": ["/blah"]
+            },
+            [{"uri": "https://bad1.com/blah"}, {"uri": "https://bad2.com/blah"}, {"uri": "https://bad3.com/blah"}],
+        ),
     ],
 )
 def test_extract_iocs_from_text_blob(blob, enforce_min, enforce_max, correct_tags, expected_iocs):

@@ -2,12 +2,7 @@ from re import IGNORECASE, compile, match, search
 from typing import Dict, List
 from urllib.parse import urlparse
 
-from assemblyline.odm.base import DOMAIN_REGEX, IP_REGEX
-
-URL_REGEX = compile(
-    r"(?:(?:(?:[A-Za-z]*:)?//)?(?:\S+(?::\S*)?@)?(?:(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
-    r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(?:(?:[A-Za-z0-9\u00a1-\uffff][A-Za-z0-9\u00a1-\uffff_-]{0,62})"
-    r"?[A-Za-z0-9\u00a1-\uffff]\.)+(?:xn--)?(?:[A-Za-z0-9\u00a1-\uffff]{2,}\.?))(?::\d{2,5})?)(?:[/?#][^\s,\\\\]*)?")
+from assemblyline.odm.base import DOMAIN_REGEX, IP_REGEX, URI_REGEX
 
 
 def is_tag_safelisted(
@@ -58,7 +53,7 @@ def contains_safelisted_value(val: str, safelist: Dict[str, Dict[str, List[str]]
     if not val or not isinstance(val, str):
         return False
     ip = search(IP_REGEX, val)
-    url = search(URL_REGEX, val)
+    url = search(URI_REGEX, val)
     domain = search(DOMAIN_REGEX, val)
     if ip is not None:
         ip = ip.group()
