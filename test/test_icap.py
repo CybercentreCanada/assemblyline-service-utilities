@@ -1,8 +1,8 @@
 from io import BytesIO
 
-from assemblyline_service_utilities.common.icap import IcapClient
-
 import pytest
+
+from assemblyline_service_utilities.common.icap import IcapClient
 
 # It is allowed to simply not include any headers.
 # though the body may LOOK like a header
@@ -336,6 +336,14 @@ def test_kaspersky_headers():
         'SERVER': 'KL ICAP Service v1.0 (KAV SDK v1.2.3.456)',
         'X-VIRUS-ID': 'Bad.Guy.Named.blah',
     }
+
+odd_empty_protocol_headers = b"\r\n".join([
+    b' possibly useful info ',
+])
+
+def test_odd_empty_headers():
+    with pytest.raises(ValueError):
+        IcapClient.parse_headers(odd_empty_protocol_headers)
 
 
 def test_single_chunk_encoding():

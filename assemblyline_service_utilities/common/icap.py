@@ -1,7 +1,7 @@
+import io
 import os
 import socket
-from typing import Optional, Generator
-import io
+from typing import Generator, Optional
 
 from assemblyline.common.str_utils import safe_str
 
@@ -202,7 +202,7 @@ class IcapClient(object):
 
         # Handle the status line
         status_line = next_line()
-        protocol, _, status_line = status_line.partition(b' ')
+        protocol, _, status_line = status_line.strip().partition(b' ')
         if protocol != b'ICAP/1.0':
             raise ValueError("Unknown protocol: " + protocol.decode())
         status_code_string, _, status_message = status_line.partition(b' ')
