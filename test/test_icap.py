@@ -337,13 +337,25 @@ def test_kaspersky_headers():
         'X-VIRUS-ID': 'Bad.Guy.Named.blah',
     }
 
+
 odd_empty_protocol_headers = b"\r\n".join([
     b' possibly useful info ',
 ])
 
-def test_odd_empty_headers():
+
+def test_odd_empty_protocol_headers():
     with pytest.raises(ValueError):
         IcapClient.parse_headers(odd_empty_protocol_headers)
+
+
+odd_empty_headers = b"\r\n".join([
+    b'',
+])
+
+
+def test_odd_empty_headers():
+    with pytest.raises(ValueError):
+        IcapClient.parse_headers(odd_empty_headers)
 
 
 def test_single_chunk_encoding():

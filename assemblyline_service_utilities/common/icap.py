@@ -202,6 +202,10 @@ class IcapClient(object):
 
         # Handle the status line
         status_line = next_line()
+
+        if not status_line.strip():
+            raise ValueError("No response from server")
+
         protocol, _, status_line = status_line.strip().partition(b' ')
         if protocol != b'ICAP/1.0':
             raise ValueError("Unknown protocol: " + protocol.decode())
