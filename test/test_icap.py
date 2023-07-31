@@ -337,9 +337,11 @@ def test_kaspersky_headers():
         'X-VIRUS-ID': 'Bad.Guy.Named.blah',
     }
 
+
 odd_empty_protocol_headers = b"\r\n".join([
     b' possibly useful info ',
 ])
+
 
 def test_odd_empty_headers():
     with pytest.raises(ValueError):
