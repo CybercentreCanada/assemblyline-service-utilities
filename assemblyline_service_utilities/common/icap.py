@@ -204,7 +204,7 @@ class IcapClient(object):
         status_line = next_line()
 
         if not status_line.strip():
-            raise ValueError("No response from server")
+            raise ValueError(f"No status line in server response body: '{body}'")
 
         protocol, _, status_line = status_line.strip().partition(b' ')
         if protocol != b'ICAP/1.0':
