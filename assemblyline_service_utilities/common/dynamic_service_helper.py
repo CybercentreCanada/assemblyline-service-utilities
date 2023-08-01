@@ -4,6 +4,7 @@ from json import dumps
 from logging import getLogger
 from re import compile, findall
 from re import match as re_match
+from re import sub
 from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
@@ -99,6 +100,9 @@ COMMON_SCHEMES = [
     "dns", "dntp", "file", "ftp", "git", "http", "https", "icap", "imap", "irc", "irc6", "ircs", "nfs", "rdp",
     "s3", "sftp", "shttp", "smb", "sms", "snmp", "ssh", "telnet", "tftp", "udp",
 ]
+
+# Regular expression that looks for byte string characters
+BYTE_STRING = r"\\x[a-z0-9]{2}"
 
 
 def set_required_argument(self: object, name: str, value: Any, value_type: Any) -> None:
@@ -3471,7 +3475,21 @@ def extract_iocs_from_text_blob(
 
     ips = set(findall(IP_REGEX, blob))
     # There is overlap here between regular expressions, so we want to isolate domains that are not ips
-    domains = set(findall(DOMAIN_REGEX, blob)) - ips
+    domains = set(findall(DOMAIN_REGEX, blob))
+
+    # When extracting domains from byte blobs, we need to be careful
+    if any(domain.startswith("x") for domain in domains):
+        # Remove all byte characters from blob, then check if domain exists
+        # Commas cannot exist in a domain so let's replace with that for now
+        modified_blob = sub(BYTE_STRING, ",", blob)
+        domains_from_mod_blob = set(findall(DOMAIN_REGEX, modified_blob))
+        for domain in domains.copy():
+            if domain[3:] in domains_from_mod_blob:
+                _ = domains.remove(domain)
+                domains.add(domain[3:])
+
+    domains = domains - ips
+
     # There is overlap here between regular expressions, so we want to isolate uris that are not domains
     # TODO: Are we missing IOCs to the point where we need a different regex?
     # uris = {uri.decode() for uri in set(findall(PatternMatch.PAT_URI_NO_PROTOCOL, blob.encode()))} - domains - ips
