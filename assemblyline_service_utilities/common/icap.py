@@ -193,24 +193,31 @@ class IcapClient(object):
         raise Exception("Icap server refused to respond.")
 
     @staticmethod
-    def parse_headers(body: bytes, check_body_for_headers: bool = False) -> tuple[int, bytes, dict[str, str]]:
+    def parse_headers(
+        body: bytes, check_body_for_headers: bool = False, no_status_line_in_headers: bool = False
+    ) -> tuple[Optional[int], Optional[bytes], dict[str, str]]:
         """Take an ICAP request body and parse out the status and header sections."""
         def next_line():
             nonlocal body
             line, _, body = body.partition(b'\n')
             return line.strip(b'\r')
 
-        # Handle the status line
-        status_line = next_line()
+        if not no_status_line_in_headers:
+            # Handle the status line
+            status_line = next_line()
 
-        if not status_line.strip():
-            raise ValueError(f"No status line in server response body: '{body}'")
+            if not status_line.strip():
+                raise ValueError(f"No status line in server response body: '{body}'")
 
-        protocol, _, status_line = status_line.strip().partition(b' ')
-        if protocol != b'ICAP/1.0':
-            raise ValueError("Unknown protocol: " + protocol.decode())
-        status_code_string, _, status_message = status_line.partition(b' ')
-        status_code = int(status_code_string)
+            protocol, _, status_line = status_line.strip().partition(b' ')
+            if protocol != b'ICAP/1.0':
+                raise ValueError("Unknown protocol: " + protocol.decode())
+            status_code_string, _, status_message = status_line.partition(b' ')
+            status_code = int(status_code_string)
+        else:
+            # If there is no status line in the server response body, then do not try to parse first line as such
+            status_code = None
+            status_message = None
 
         # pull out header lines
         pending = next_line()

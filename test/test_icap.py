@@ -347,6 +347,11 @@ def test_odd_empty_protocol_headers():
     with pytest.raises(ValueError):
         IcapClient.parse_headers(odd_empty_protocol_headers)
 
+    code, status, headers = IcapClient.parse_headers(odd_empty_protocol_headers, no_status_line_in_headers=True)
+    assert code is None
+    assert status is None
+    assert headers == {}
+
 
 odd_empty_headers = b"\r\n".join([
     b'',
@@ -356,6 +361,39 @@ odd_empty_headers = b"\r\n".join([
 def test_odd_empty_headers():
     with pytest.raises(ValueError):
         IcapClient.parse_headers(odd_empty_headers)
+
+    code, status, headers = IcapClient.parse_headers(odd_empty_headers, no_status_line_in_headers=True)
+    assert code is None
+    assert status is None
+    assert headers == {}
+
+
+no_status_line_headers = b"\r\n".join([
+    b'Methods: RESPMOD',
+    b'Max-Connections: 1000',
+    b'Options-TTL: 1500',
+    b'Service-ID: kl_icap_service',
+    b'Allow: 204',
+    b'Encapsulated: null-body=0',
+    b'',
+    b'',
+])
+
+def test_no_status_line_headers():
+    with pytest.raises(ValueError):
+        IcapClient.parse_headers(no_status_line_headers)
+
+    code, status, headers = IcapClient.parse_headers(no_status_line_headers, no_status_line_in_headers=True)
+    assert code is None
+    assert status is None
+    assert headers == {
+        'ALLOW': '204',
+        'ENCAPSULATED': 'null-body=0',
+        'MAX-CONNECTIONS': '1000',
+        'METHODS': 'RESPMOD',
+        'OPTIONS-TTL': '1500',
+        'SERVICE-ID': 'kl_icap_service',
+    }
 
 
 def test_single_chunk_encoding():
