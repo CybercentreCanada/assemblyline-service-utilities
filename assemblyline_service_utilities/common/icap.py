@@ -197,6 +197,9 @@ class IcapClient(object):
         body: bytes, check_body_for_headers: bool = False, no_status_line_in_headers: bool = False
     ) -> tuple[Optional[int], Optional[bytes], dict[str, str]]:
         """Take an ICAP request body and parse out the status and header sections."""
+        # Saving this value for error logging
+        initial_body = body
+
         def next_line():
             nonlocal body
             line, _, body = body.partition(b'\n')
@@ -208,7 +211,7 @@ class IcapClient(object):
             status_line = next_line()
 
             if not status_line.strip():
-                raise ValueError(f"No status line in server response body: '{body}'")
+                raise ValueError(f"No status line in server response body: '{initial_body}'")
 
             protocol, _, status_line = status_line.strip().partition(b' ')
             if protocol != b'ICAP/1.0':
