@@ -202,7 +202,8 @@ class IcapClient(object):
             line, _, body = body.partition(b'\n')
             return line.strip(b'\r')
 
-        if not no_status_line_in_headers:
+        # Only override status line checking if body starts with the ICAP protocol string
+        if not no_status_line_in_headers or body.strip().startswith(b'ICAP/1.0'):
             # Handle the status line
             status_line = next_line()
 
