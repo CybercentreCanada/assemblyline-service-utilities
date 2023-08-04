@@ -395,6 +395,19 @@ def test_no_status_line_headers():
         'SERVICE-ID': 'kl_icap_service',
     }
 
+    # Override the no_status_line_in_headers switch
+    code, status, headers = IcapClient.parse_headers(b"ICAP/1.0 200 OK\r\n" + no_status_line_headers, no_status_line_in_headers=True)
+    assert code == 200
+    assert status == b"OK"
+    assert headers == {
+        'ALLOW': '204',
+        'ENCAPSULATED': 'null-body=0',
+        'MAX-CONNECTIONS': '1000',
+        'METHODS': 'RESPMOD',
+        'OPTIONS-TTL': '1500',
+        'SERVICE-ID': 'kl_icap_service',
+    }
+
 
 def test_single_chunk_encoding():
     data = b'1234567890' * 100
