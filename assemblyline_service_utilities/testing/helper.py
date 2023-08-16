@@ -43,9 +43,9 @@ class IssueHelper:
         self.issues[itype].append((action, message))
 
     def get_issue_list(self):
-        return [f"[{k.upper()}] {action.capitalize()} {message}"
-                for k, v in self.issues.items()
-                for action, message in v]
+        return [
+            f"[{k.upper()}] {action.capitalize()} {message}" for k, v in self.issues.items() for action, message in v
+        ]
 
     def get_issues(self):
         return self.issues
@@ -90,11 +90,11 @@ class TestHelper:
         if params is None:
             params = {}
 
-        metadata = params.get('metadata', {})
-        temp_submission_data = params.get('temp_submission_data', {})
-        submission_params = params.get('submission_params', {})
-        tags = params.get('tags', [])
-        filename = params.get('filename', os.path.basename(file_path))
+        metadata = params.get("metadata", {})
+        temp_submission_data = params.get("temp_submission_data", {})
+        submission_params = params.get("submission_params", {})
+        tags = params.get("tags", [])
+        filename = params.get("filename", os.path.basename(file_path))
 
         return ServiceTask(
             {
@@ -102,15 +102,16 @@ class TestHelper:
                 "metadata": metadata,
                 "deep_scan": False,
                 "service_name": self.service_class.__name__,
-                "service_config": {param.name: submission_params.get(param.name, param.default)
-                                   for param in self.submission_params},
+                "service_config": {
+                    param.name: submission_params.get(param.name, param.default) for param in self.submission_params
+                },
                 "fileinfo": {k: v for k, v in self.identify.fileinfo(file_path).items() if k in fileinfo_keys},
                 "filename": filename,
                 "min_classification": "TLP:C",
                 "max_files": 501,
                 "ttl": 3600,
                 "temporary_submission_data": [
-                    {'name': name, 'value': value} for name, value in temp_submission_data.items()
+                    {"name": name, "value": value} for name, value in temp_submission_data.items()
                 ],
                 "tags": tags,
             }
@@ -135,59 +136,56 @@ class TestHelper:
         generalized_results = {
             "files": {
                 "extracted": sorted(
-                    [{"name": x["name"], "sha256": x["sha256"]}
-                     for x in result.get("response", {}).get("extracted", [])], key=lambda x: x["sha256"]
+                    [
+                        {"name": x["name"], "sha256": x["sha256"]}
+                        for x in result.get("response", {}).get("extracted", [])
+                    ],
+                    key=lambda x: x["sha256"],
                 ),
                 "supplementary": sorted(
-                    [{"name": x["name"], "sha256": x["sha256"]}
-                     for x in result.get("response", {}).get("supplementary", [])], key=lambda x: x["sha256"]
-                )
+                    [
+                        {"name": x["name"], "sha256": x["sha256"]}
+                        for x in result.get("response", {}).get("supplementary", [])
+                    ],
+                    key=lambda x: x["sha256"],
+                ),
             },
-            "results": {
-                "heuristics": [],
-                "tags": {},
-                "temp_submission_data": temp_submission_data
-            },
+            "results": {"heuristics": [], "tags": {}, "temp_submission_data": temp_submission_data},
             "extra": {
                 "sections": [],
-                "score": result.get("result", {}).get('score', 0),
-                "drop_file": result.get("drop", False)
-            }
+                "score": result.get("result", {}).get("score", 0),
+                "drop_file": result.get("drop", False),
+            },
         }
 
         # Parse sections
         for section in result.get("result", {}).get("sections", []):
 
             # Add section to extras (This will not be tested)
-            generalized_results['extra']['sections'].append(section)
+            generalized_results["extra"]["sections"].append(section)
 
             # Parse Heuristics
-            heuristic = section.get('heuristic', None)
+            heuristic = section.get("heuristic", None)
             sigs = []
             heur_id = None
             if heuristic:
-                sigs = list(heuristic['signatures'].keys())
-                heur_id = heuristic['heur_id']
+                sigs = list(heuristic["signatures"].keys())
+                heur_id = heuristic["heur_id"]
                 generalized_results["results"]["heuristics"].append(
-                    {
-                        "heur_id": heur_id,
-                        "attack_ids": heuristic['attack_ids'],
-                        'signatures': sigs
-                    }
+                    {"heur_id": heur_id, "attack_ids": heuristic["attack_ids"], "signatures": sigs}
                 )
             # Sort Heuristics
-            generalized_results["results"]["heuristics"] = \
-                sorted(generalized_results["results"]["heuristics"], key=lambda x: x["heur_id"])
+            generalized_results["results"]["heuristics"] = sorted(
+                generalized_results["results"]["heuristics"], key=lambda x: x["heur_id"]
+            )
 
             # Parse tags
             for k, v in flatten(section.get("tags", {})).items():
                 generalized_results["results"]["tags"].setdefault(k, [])
                 for tag in v:
-                    generalized_results["results"]["tags"][k].append({
-                        "value": tag,
-                        "heur_id": heur_id,
-                        "signatures": sigs
-                    })
+                    generalized_results["results"]["tags"][k].append(
+                        {"value": tag, "heur_id": heur_id, "signatures": sigs}
+                    )
             # Sort Tags
             for k, v in generalized_results["results"]["tags"].items():
                 try:
@@ -206,7 +204,7 @@ class TestHelper:
         return generalized_results
 
     def _execute_sample(self, sample, save=False, save_files=False):
-        file_path = os.path.join("/tmp", sample.split('_', 1)[0])
+        file_path = os.path.join("/tmp", sample.split("_", 1)[0])
         cls = None
 
         try:
@@ -215,14 +213,14 @@ class TestHelper:
             unpack_file(sample_path, file_path)
 
             # Load optional submission parameters
-            params_file = os.path.join(self.result_folder, sample, 'params.json')
+            params_file = os.path.join(self.result_folder, sample, "params.json")
             if os.path.exists(params_file):
                 params = json.load(open(params_file))
             else:
                 params = {}
 
             # Initialize service class
-            cls = self.service_class(params.get('config', {}))
+            cls = self.service_class(params.get("config", {}))
             cls.start()
 
             # Create the service request
@@ -249,13 +247,13 @@ class TestHelper:
                         )
 
                 # Save results
-                result_json = os.path.join(self.result_folder, sample, 'result.json')
-                json.dump(results, open(result_json, 'w'), indent=2, allow_nan=False, sort_keys=True)
+                result_json = os.path.join(self.result_folder, sample, "result.json")
+                json.dump(results, open(result_json, "w"), indent=2, allow_nan=False, sort_keys=True)
 
                 if save_files:
                     # Cleanup old extracted and supplementary
-                    extracted_dir = os.path.join(self.result_folder, sample, 'extracted')
-                    supplementary_dir = os.path.join(self.result_folder, sample, 'supplementary')
+                    extracted_dir = os.path.join(self.result_folder, sample, "extracted")
+                    supplementary_dir = os.path.join(self.result_folder, sample, "supplementary")
                     if os.path.exists(extracted_dir):
                         shutil.rmtree(extracted_dir)
                     if os.path.exists(supplementary_dir):
@@ -263,15 +261,15 @@ class TestHelper:
 
                     # Save extracted files
                     for ext in task.extracted:
-                        target_file = os.path.join(self.result_folder, sample, 'extracted', ext['name'])
+                        target_file = os.path.join(self.result_folder, sample, "extracted", ext["name"])
                         os.makedirs(os.path.dirname(target_file), exist_ok=True)
-                        shutil.move(ext['path'], target_file)
+                        shutil.move(ext["path"], target_file)
 
                     # Save supplementary files
                     for ext in task.supplementary:
-                        target_file = os.path.join(self.result_folder, sample, 'supplementary', ext['name'])
+                        target_file = os.path.join(self.result_folder, sample, "supplementary", ext["name"])
                         os.makedirs(os.path.dirname(target_file), exist_ok=True)
-                        shutil.move(ext['path'], target_file)
+                        shutil.move(ext["path"], target_file)
 
             return results
         finally:
@@ -284,12 +282,15 @@ class TestHelper:
                 os.remove(file_path)
 
     def result_list(self):
-        return [f for f in os.listdir(self.result_folder)
-                if len(f.split("_")[0]) == 64 and os.path.isdir(os.path.join(self.result_folder, f))]
+        return [
+            f
+            for f in os.listdir(self.result_folder)
+            if len(f.split("_")[0]) == 64 and os.path.isdir(os.path.join(self.result_folder, f))
+        ]
 
     def compare_sample_results(self, sample, test_extra=False):
         ih = IssueHelper()
-        original_results_file = os.path.join(self.result_folder, sample, 'result.json')
+        original_results_file = os.path.join(self.result_folder, sample, "result.json")
 
         if os.path.exists(original_results_file):
             original_results = json.load(open(original_results_file))
@@ -297,24 +298,25 @@ class TestHelper:
 
             # Compile the list of issues between the two results
             # Test extra results
-            if test_extra and original_results.get('extra', None) != results.get('extra', None):
+            if test_extra and original_results.get("extra", None) != results.get("extra", None):
                 ih.add_issue(ih.TYPE_EXTRA, ih.ACTION_CHANGED, "Extra results have changed.")
 
             # Extracted files
             self._file_compare(
-                ih, ih.TYPE_EXTRACTED, original_results['files']['extracted'],
-                results['files']['extracted'])
+                ih, ih.TYPE_EXTRACTED, original_results["files"]["extracted"], results["files"]["extracted"]
+            )
             # Supplementary files
-            self._file_compare(ih, ih.TYPE_SUPPLEMENTARY, original_results['files']['supplementary'],
-                               results['files']['supplementary'])
+            self._file_compare(
+                ih, ih.TYPE_SUPPLEMENTARY, original_results["files"]["supplementary"], results["files"]["supplementary"]
+            )
             # Heuristics triggered
-            self._heuristic_compare(ih, original_results['results']['heuristics'], results['results']['heuristics'])
+            self._heuristic_compare(ih, original_results["results"]["heuristics"], results["results"]["heuristics"])
             # Tags generated
-            self._tag_compare(ih, original_results['results']['tags'], results['results']['tags'])
+            self._tag_compare(ih, original_results["results"]["tags"], results["results"]["tags"])
             # Temp submission data generated
             self._temp_data_compare(
-                ih, original_results['results']['temp_submission_data'],
-                results['results']['temp_submission_data'])
+                ih, original_results["results"]["temp_submission_data"], results["results"]["temp_submission_data"]
+            )
         else:
             ih.append(f"Original result file missing for sample: {sample}")
 
@@ -328,68 +330,80 @@ class TestHelper:
             issues.insert(0, "")
             pytest.fail("\n".join(issues))
 
-    @ staticmethod
+    @staticmethod
     def _heuristic_compare(ih: IssueHelper, original, new):
-        oh_map = {x['heur_id']: x for x in original}
-        nh_map = {x['heur_id']: x for x in new}
+        oh_map = {x["heur_id"]: x for x in original}
+        nh_map = {x["heur_id"]: x for x in new}
         for heur_id, heur in oh_map.items():
             if heur_id not in nh_map:
                 ih.add_issue(ih.TYPE_HEUR, ih.ACTION_MISSING, f"Heuristic #{heur_id} missing from results.")
             else:
                 new_heur = nh_map[heur_id]
-                for attack_id in heur['attack_ids']:
-                    if attack_id not in new_heur['attack_ids']:
-                        ih.add_issue(ih.TYPE_HEUR, ih.ACTION_MISSING,
-                                     f"Attack ID '{attack_id}' missing from heuristic #{heur_id}.")
-                for signature in heur['signatures']:
-                    if signature not in new_heur['signatures']:
-                        ih.add_issue(ih.TYPE_HEUR, ih.ACTION_MISSING,
-                                     f"Signature '{signature}' missing from heuristic #{heur_id}.")
+                for attack_id in heur["attack_ids"]:
+                    if attack_id not in new_heur["attack_ids"]:
+                        ih.add_issue(
+                            ih.TYPE_HEUR,
+                            ih.ACTION_MISSING,
+                            f"Attack ID '{attack_id}' missing from heuristic #{heur_id}.",
+                        )
+                for signature in heur["signatures"]:
+                    if signature not in new_heur["signatures"]:
+                        ih.add_issue(
+                            ih.TYPE_HEUR,
+                            ih.ACTION_MISSING,
+                            f"Signature '{signature}' missing from heuristic #{heur_id}.",
+                        )
 
-                for attack_id in new_heur['attack_ids']:
-                    if attack_id not in heur['attack_ids']:
-                        ih.add_issue(ih.TYPE_HEUR, ih.ACTION_ADDED,
-                                     f"Attack ID '{attack_id}' added to heuristic #{heur_id}.")
-                for signature in new_heur['signatures']:
-                    if signature not in heur['signatures']:
-                        ih.add_issue(ih.TYPE_HEUR, ih.ACTION_ADDED,
-                                     f"Signature '{signature}' added to heuristic #{heur_id}.")
+                for attack_id in new_heur["attack_ids"]:
+                    if attack_id not in heur["attack_ids"]:
+                        ih.add_issue(
+                            ih.TYPE_HEUR, ih.ACTION_ADDED, f"Attack ID '{attack_id}' added to heuristic #{heur_id}."
+                        )
+                for signature in new_heur["signatures"]:
+                    if signature not in heur["signatures"]:
+                        ih.add_issue(
+                            ih.TYPE_HEUR, ih.ACTION_ADDED, f"Signature '{signature}' added to heuristic #{heur_id}."
+                        )
 
         for heur_id in nh_map.keys():
             if heur_id not in oh_map:
                 ih.add_issue(ih.TYPE_HEUR, ih.ACTION_ADDED, f"Heuristic #{heur_id} added to results.")
 
-    @ staticmethod
+    @staticmethod
     def _tag_compare(ih: IssueHelper, original, new):
         for tag_type, tags in original.items():
             if tag_type not in new:
                 for t in tags:
-                    ih.add_issue(ih.TYPE_TAGS, ih.ACTION_MISSING,
-                                 f"Tag '{t['value']} [{tag_type}]' missing from the results.")
+                    ih.add_issue(
+                        ih.TYPE_TAGS, ih.ACTION_MISSING, f"Tag '{t['value']} [{tag_type}]' missing from the results."
+                    )
             else:
-                otm = {x['value']: x for x in tags}
-                ntm = {x['value']: x for x in new[tag_type]}
+                otm = {x["value"]: x for x in tags}
+                ntm = {x["value"]: x for x in new[tag_type]}
                 for v, tag in otm.items():
                     if v not in ntm:
-                        ih.add_issue(ih.TYPE_TAGS, ih.ACTION_MISSING,
-                                     f"Tag '{v} [{tag_type}]' missing from the results.")
+                        ih.add_issue(
+                            ih.TYPE_TAGS, ih.ACTION_MISSING, f"Tag '{v} [{tag_type}]' missing from the results."
+                        )
                     else:
                         new_tag = ntm[v]
-                        if tag['heur_id'] != new_tag['heur_id']:
+                        if tag["heur_id"] != new_tag["heur_id"]:
                             ih.add_issue(
-                                ih.TYPE_TAGS, ih.ACTION_CHANGED,
+                                ih.TYPE_TAGS,
+                                ih.ACTION_CHANGED,
                                 (
                                     f"Heuristic ID for tag '{v} [{tag_type}]' has changed "
                                     f"from {tag['heur_id']} to {new_tag['heur_id']}."
-                                )
+                                ),
                             )
-                        if tag['signatures'] != new_tag['signatures']:
+                        if tag["signatures"] != new_tag["signatures"]:
                             ih.add_issue(
-                                ih.TYPE_TAGS, ih.ACTION_CHANGED,
+                                ih.TYPE_TAGS,
+                                ih.ACTION_CHANGED,
                                 (
                                     f"Associated signatures for tag '{v} [{tag_type}]' have changed "
                                     f"from {tag['signatures']} to {new_tag['signatures']}."
-                                )
+                                ),
                             )
 
                 for v in ntm.keys():
@@ -399,30 +413,36 @@ class TestHelper:
         for tag_type, tags in new.items():
             if tag_type not in original:
                 for t in tags:
-                    ih.add_issue(ih.TYPE_TAGS, ih.ACTION_ADDED,
-                                 f"Tag '{t['value']} [{tag_type}]' added to the results.")
+                    ih.add_issue(
+                        ih.TYPE_TAGS, ih.ACTION_ADDED, f"Tag '{t['value']} [{tag_type}]' added to the results."
+                    )
 
-    @ staticmethod
+    @staticmethod
     def _temp_data_compare(ih: IssueHelper, original, new):
         for k, v in original.items():
             if k not in new:
-                ih.add_issue(ih.TYPE_TEMP, ih.ACTION_MISSING,
-                             f"Temporary submission data with key '{k}' is missing from the results.")
+                ih.add_issue(
+                    ih.TYPE_TEMP,
+                    ih.ACTION_MISSING,
+                    f"Temporary submission data with key '{k}' is missing from the results.",
+                )
             elif v != new[k]:
-                ih.add_issue(ih.TYPE_TEMP, ih.ACTION_CHANGED,
-                             f"Value of temporary submission data with key '{k}' has changed.")
+                ih.add_issue(
+                    ih.TYPE_TEMP, ih.ACTION_CHANGED, f"Value of temporary submission data with key '{k}' has changed."
+                )
 
         for k, v in new.items():
             if k not in original:
-                ih.add_issue(ih.TYPE_TEMP, ih.ACTION_ADDED,
-                             f"Temporary submission data with key '{k}' was added to the results.")
+                ih.add_issue(
+                    ih.TYPE_TEMP, ih.ACTION_ADDED, f"Temporary submission data with key '{k}' was added to the results."
+                )
 
-    @ staticmethod
+    @staticmethod
     def _file_compare(ih: IssueHelper, f_type, original, new):
-        oh_map = {x['sha256']: x['name'] for x in original}
-        on_map = {x['name']: x['sha256'] for x in original}
-        nh_map = {x['sha256']: x['name'] for x in new}
-        nn_map = {x['name']: x['sha256'] for x in new}
+        oh_map = {x["sha256"]: x["name"] for x in original}
+        on_map = {x["name"]: x["sha256"] for x in original}
+        nh_map = {x["sha256"]: x["name"] for x in new}
+        nn_map = {x["name"]: x["sha256"] for x in new}
 
         for sha256, name in oh_map.items():
             if sha256 not in nh_map:
@@ -434,7 +454,7 @@ class TestHelper:
                     ih.add_issue(
                         f_type,
                         ih.ACTION_CHANGED,
-                        f"The sha256 of the file '{name}' has changed. {sha256} -> {nn_map[name]}"
+                        f"The sha256 of the file '{name}' has changed. {sha256} -> {nn_map[name]}",
                     )
                     continue
 
@@ -442,7 +462,7 @@ class TestHelper:
                 ih.add_issue(
                     f_type,
                     ih.ACTION_CHANGED,
-                    f"The name of the file '{sha256}' has changed. {name} -> {nh_map[sha256]}"
+                    f"The name of the file '{sha256}' has changed. {name} -> {nh_map[sha256]}",
                 )
                 continue
 
@@ -467,12 +487,14 @@ def check_section_equality(this, that) -> bool:
 
     # Heuristics also need their own equality checks
     if this.heuristic and that.heuristic:
-        result_heuristic_equality = this.heuristic.attack_ids == that.heuristic.attack_ids and \
-            this.heuristic.frequency == that.heuristic.frequency and \
-            this.heuristic.heur_id == that.heuristic.heur_id and \
-            this.heuristic.score == that.heuristic.score and \
-            this.heuristic.score_map == that.heuristic.score_map and \
-            this.heuristic.signatures == that.heuristic.signatures
+        result_heuristic_equality = (
+            this.heuristic.attack_ids == that.heuristic.attack_ids
+            and this.heuristic.frequency == that.heuristic.frequency
+            and this.heuristic.heur_id == that.heuristic.heur_id
+            and this.heuristic.score == that.heuristic.score
+            and this.heuristic.score_map == that.heuristic.score_map
+            and this.heuristic.signatures == that.heuristic.signatures
+        )
 
         if not result_heuristic_equality:
             print("The heuristics are not equal:")
@@ -516,15 +538,17 @@ def check_section_equality(this, that) -> bool:
         result_heuristic_equality = False
 
     # Assuming we are given the "root section" at all times, it is safe to say that we don't need to confirm parent
-    current_section_equality = result_heuristic_equality and \
-        this.body == that.body and \
-        this.body_format == that.body_format and \
-        this.classification == that.classification and \
-        this.depth == that.depth and \
-        len(this.subsections) == len(that.subsections) and \
-        this.title_text == that.title_text and \
-        this.tags == that.tags and \
-        this.auto_collapse == that.auto_collapse
+    current_section_equality = (
+        result_heuristic_equality
+        and this.body == that.body
+        and this.body_format == that.body_format
+        and this.classification == that.classification
+        and this.depth == that.depth
+        and len(this.subsections) == len(that.subsections)
+        and this.title_text == that.title_text
+        and this.tags == that.tags
+        and this.auto_collapse == that.auto_collapse
+    )
 
     if not current_section_equality:
         print("The current sections are not equal:")
