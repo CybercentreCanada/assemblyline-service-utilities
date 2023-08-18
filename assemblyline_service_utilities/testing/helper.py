@@ -105,7 +105,11 @@ class TestHelper:
                 "service_config": {
                     param.name: submission_params.get(param.name, param.default) for param in self.submission_params
                 },
-                "fileinfo": {k: v for k, v in self.identify.fileinfo(file_path).items() if k in fileinfo_keys},
+                "fileinfo": {
+                    k: v
+                    for k, v in self.identify.fileinfo(file_path, skip_fuzzy_hashes=True).items()
+                    if k in fileinfo_keys
+                },
                 "filename": filename,
                 "min_classification": "TLP:C",
                 "max_files": 501,
