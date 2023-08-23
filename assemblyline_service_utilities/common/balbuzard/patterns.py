@@ -212,10 +212,13 @@ class PatternMatch(object):
                 rb'HKLM|hkey_performance_data|hkey_users|HKPD|internet settings|\\sam|\\software|\\system|' \
                 rb'\\userinit)' \
                 rb'\\[-_A-Z0-9.\\ ]{1,200}\b'
-    PAT_URL = rb'(?i)(?:ftp|http|https)://(?:[A-Z0-9.-_:]*@)?' \
-              rb'[A-Z0-9.-]{1,}\.(?:XN--[A-Z0-9]{4,18}|[a-z]{2,12}|[0-9]{1,3})' \
-              rb'(?::[0-9]{1,5})?' \
-              rb'(?:/[A-Z0-9/\-\.&%\$#=~\?_+]{3,1000}){0,1}'
+    # $-/ is $%&'()*+,-./ of which $&'()*+, are subdelims and .- are unreserved
+    PAT_URL = (rb"(?i)(?:ftp|https?)://"  # scheme
+               rb"(?:[\w!$-.:;=~]{,2000}@)?"  # userinfo
+               rb"(?:[A-Z0-9.-]{4,253}|\[[0-9A-F:]{3,39}\])"  # hostname
+               rb"(?::[0-9]{0,5})?"  # port
+               rb"(?:[/?][\w!$-/:;=@?~]{,2000})?"  # path and or query
+               rb"(?:#[\w!$-/:;=@?~]*)?")  # fragment
     PAT_ANYHTTP = rb'(?i)http://' \
                   rb'[A-Z0-9.-]{6,}\.' \
                   rb'(?:XN--[A-Z0-9]{4,18}|[a-z]{2,12}|[0-9]{1,3})' \
