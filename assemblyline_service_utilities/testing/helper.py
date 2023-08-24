@@ -83,6 +83,9 @@ class TestHelper:
         # Load service heuristic
         self.heuristics = helper.get_heuristics()
 
+        # Set the options for tests
+        self.test_options = {}
+
     def _create_service_task(self, file_path, params):
         fileinfo_keys = ["magic", "md5", "mime", "sha1", "sha256", "size", "type"]
 
@@ -238,6 +241,9 @@ class TestHelper:
             # Get results from the scan
             results = self._generalize_result(task.get_service_result(), task.temp_submission_data)
 
+            # Apply test options per sample
+            self.test_options = params.get("options", {})
+
             # Save results if needs be
             if save:
                 # If we are re-writing the results, validate that the heuristics raised were meant for the sample
@@ -302,7 +308,9 @@ class TestHelper:
 
             # Compile the list of issues between the two results
             # Test extra results
-            if test_extra and original_results.get("extra", None) != results.get("extra", None):
+            if (test_extra or self.test_options.get("test_extra", False)) and original_results.get(
+                "extra", None
+            ) != results.get("extra", None):
                 ih.add_issue(ih.TYPE_EXTRA, ih.ACTION_CHANGED, "Extra results have changed.")
 
             # Extracted files
@@ -315,8 +323,11 @@ class TestHelper:
             )
             # Heuristics triggered
             self._heuristic_compare(ih, original_results["results"]["heuristics"], results["results"]["heuristics"])
+
             # Tags generated
-            self._tag_compare(ih, original_results["results"]["tags"], results["results"]["tags"])
+            if not self.test_options.get("ignore_tags", False):
+                self._tag_compare(ih, original_results["results"]["tags"], results["results"]["tags"])
+
             # Temp submission data generated
             self._temp_data_compare(
                 ih, original_results["results"]["temp_submission_data"], results["results"]["temp_submission_data"]
