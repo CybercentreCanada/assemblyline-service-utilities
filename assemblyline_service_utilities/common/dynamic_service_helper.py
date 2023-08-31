@@ -92,7 +92,7 @@ SERVICE_NAME = None
 # when extracting domains from text blobs
 COMMON_FP_DOMAINS = ["example.com"]
 COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".one", ".pub", ".py", ".sh", ".zip", ".js"]
-COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS = [".test", ".id", ".call", ".top", ".map", ".support", ".run", ".shell", ".net", ".stream", ".in", ".cl", ".xmlhttp", ".runincontext"]
+COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS = [".test", ".id", ".call", ".top", ".map", ".support", ".run", ".shell", ".net", ".stream", ".in", ".cl", ".xmlhttp", ".runincontext", ".target", ".name", ".nc", ".tt"]
 COMMON_FP_TLDS = COMMON_FP_TLDS_THAT_ARE_FILE_EXTS + COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS
 
 # Arbitrarily chosen common URL schemes from https://en.wikipedia.org/wiki/List_of_URI_schemes
