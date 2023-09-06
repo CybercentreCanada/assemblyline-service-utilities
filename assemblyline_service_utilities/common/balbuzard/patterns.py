@@ -211,7 +211,7 @@ class PatternMatch(object):
     )
     PAT_FILEPDB = rb"(?i)\b[-_A-Z0-9.\\]{0,200}\w\.PDB\b"
     PAT_EMAIL = rb"(?i)\b[A-Z0-9._%+-]{3,200}@(?:[A-Z0-9-]+\.)+(?:XN--[A-Z0-9]{4,18}|[A-Z]{2,12})\b"
-    PAT_IP = rb"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b"
+    PAT_IP = rb"(?![\w.])\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?![\w.])"
     PAT_REGIS = (
         rb"(?i)\b[- _A-Z0-9.\\]{0,25}"
         rb"(?:controlset001|controlset002|currentcontrolset|currentversion|HKCC|HKCR|HKCU|HKDD|"
