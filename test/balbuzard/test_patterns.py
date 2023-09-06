@@ -34,6 +34,7 @@ def test_PAT_DOMAIN(data, domain):
         b"https://www.google.com.account.login:.@example.com",
         b"https://@example.com",
         b"https://:@example.com",
+        b"https://google.com@micrsoft.com@adobe.com@example.com/path/to?param=value1&_param=value2&trailing_url=https%3A%2F%2Fmalicious.com",
         # Example URIs from https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Example_URIs
         b"https://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top",
         b"http://[2001:db8::7]/c=GB?objectClass?one",

@@ -223,7 +223,7 @@ class PatternMatch(object):
     # $-/ is $%&'()*+,-./ of which $&'()*+, are subdelims and .- are unreserved
     PAT_URL = (
         rb"(?i)(?:ftp|https?)://"  # scheme
-        rb"(?:[\w!$-.:;=~]{,2000}@)?"  # userinfo
+        rb"(?:[\w!$-.:;=~@]{,2000}@)?"  # userinfo
         rb"(?:[A-Z0-9.-]{4,253}|\[[0-9A-F:]{3,39}\])"  # hostname
         rb"(?::[0-9]{0,5})?"  # port
         rb"(?:[/?][\w!$-/:;=@?~]{,2000})?"  # path and or query
