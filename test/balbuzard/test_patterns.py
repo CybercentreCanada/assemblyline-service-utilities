@@ -18,6 +18,7 @@ def test_PAT_IP(data, ip):
     "data,domain",
     [
         (b"config.edge.skype.com0", b"config.edge.skype.com"),
+        (b"domain.com-", None),
     ],
 )
 def test_PAT_DOMAIN(data, domain):
