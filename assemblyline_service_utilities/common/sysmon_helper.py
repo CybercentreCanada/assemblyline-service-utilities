@@ -3,11 +3,11 @@ from re import findall
 from re import match as re_match
 from typing import Any, Dict, List
 
-from assemblyline.common.isotime import LOCAL_FMT_WITH_MS, MIN_TIME, ensure_time_format
+from assemblyline.common.isotime import LOCAL_FMT_WITH_MS, ensure_time_format
 from assemblyline.odm.base import IPV4_REGEX
 from assemblyline.odm.models.ontology.results import Process as ProcessModel
 
-from assemblyline_service_utilities.common.dynamic_service_helper import OntologyResults, Process
+from assemblyline_service_utilities.common.dynamic_service_helper import MIN_TIME, OntologyResults, Process
 from assemblyline_service_utilities.common.safelist_helper import is_tag_safelisted
 
 # Possible Sysmon image name value
