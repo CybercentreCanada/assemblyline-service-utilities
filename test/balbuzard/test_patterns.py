@@ -45,3 +45,16 @@ def test_PAT_DOMAIN(data, domain):
 )
 def test_PAT_URL_basic_auth(url):
     assert re.match(PatternMatch.PAT_URL, url).span() == (0, len(url))
+
+
+@pytest.mark.parametrize(
+    ("url", "suffix_len"),
+    [
+        (b"function('https://example.com/')", 2),
+        (b"full sentence with a url https://example.com/.", 1),
+        (b"part of a phrase with a url https://example.com/,", 1),
+        (b"barefunction(https://example.com)", 1),
+    ],
+)
+def test_PAT_URL_in_context(url, suffix_len):
+    assert re.search(PatternMatch.PAT_URL, url).end() == len(url) - suffix_len

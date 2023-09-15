@@ -226,7 +226,7 @@ class PatternMatch(object):
         rb"(?:[\w!$-.:;=~@]{,2000}@)?"  # userinfo
         rb"(?:[A-Z0-9.-]{4,253}|\[[0-9A-F:]{3,39}\])"  # hostname
         rb"(?::[0-9]{0,5})?"  # port
-        rb"(?:[/?#](?:[\w!#$-/:;=@?~]{,2000}[\w!#$%&(*+-/:;=@?~])?)?"  # path, query and fragment
+        rb"(?:[/?#](?:[\w!#$-/:;=@?~]{,2000}[\w!#$%&(*+\-/:;=@?~])?)?"  # path, query and fragment
     )
     PAT_ANYHTTP = (
         rb"(?i)http://"
