@@ -5,7 +5,13 @@ import pytest
 from assemblyline_service_utilities.common.balbuzard.patterns import PatternMatch
 
 
-@pytest.mark.parametrize("data,ip", [(b"12.2.1.3.0", None)])
+@pytest.mark.parametrize(
+    "data,ip",
+    [
+        (b"12.2.1.3.0", None),
+        (b"127.0.0.1", b"127.0.0.1"),
+    ],
+)
 def test_PAT_IP(data, ip):
     match = re.search(PatternMatch.PAT_IP, data)
     if ip is None:
