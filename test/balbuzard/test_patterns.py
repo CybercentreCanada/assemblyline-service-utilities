@@ -55,6 +55,8 @@ def test_PAT_URL_basic_auth(url):
         (b"full sentence with a url https://example.com/.", 1),
         (b"part of a phrase with a url https://example.com/,", 1),
         (b"barefunction(https://example.com)", 1),
+        (b'in a string content "https://example.com"works.', 7),
+        (b"whitespaceless('https://example.com'){script;}", 11),
     ],
 )
 def test_PAT_URL_in_context(url, suffix_len):
