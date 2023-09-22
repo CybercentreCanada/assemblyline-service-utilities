@@ -1,13 +1,17 @@
+"""Interface to help services use Multidecoder."""
+
 from __future__ import annotations
 
 import hashlib
 import os
 from collections import defaultdict
-from typing import Any, Optional
+from typing import TYPE_CHECKING
 
 import magic
 from multidecoder.multidecoder import Multidecoder
-from multidecoder.query import invert_tree
+
+if TYPE_CHECKING:
+    from multidecoder.node import Node
 
 EXTRACT_FILETYPES = ["application", "document", "exec", "image", "Microsoft", "text"]
 
@@ -49,7 +53,8 @@ BLACKLIST = {
 }
 
 
-def map_tag_type(tag_type: str, dynamic=False) -> Optional[str]:
+def map_tag_type(tag_type: str, *, dynamic: object = False) -> str | None:
+    """Convert Multidecoder node types to Assemblyline tag types."""
     if tag_type in TAG_MAP:
         return TAG_MAP[tag_type]
     if tag_type in STATIC_TAG_MAP:
@@ -63,30 +68,36 @@ def map_tag_type(tag_type: str, dynamic=False) -> Optional[str]:
     return None
 
 
-def get_tree_tags(tree: list[dict[str, Any]], dynamic=False) -> dict[str, set[bytes]]:
+def get_tree_tags(tree: Node, *, dynamic: object = False) -> dict[str, set[bytes]]:
+    """Get Assemblyline tags from Multidecoder tree."""
     tags: dict[str, set[bytes]] = defaultdict(set)
-    nodes = invert_tree(tree)
-    for node in nodes:
-        tag_type = map_tag_type(node.type, dynamic)
-        if tag_type:
+    for node in tree:
+        if tag_type := map_tag_type(node.type, dynamic):
             tags[tag_type].add(node.value)
     return tags
 
 
 class DecoderWrapper:
+    """Wrapper for Multidecoder() object with helper methods for common tasks."""
+
     def __init__(self, working_directory: str) -> None:
         self.multidecoder = Multidecoder()
         self.working_directory = working_directory
-        self.extracted_files = set()
+        self.extracted_files: set[str] = set()
 
-    def ioc_tags(self, data: bytes, dynamic=False) -> dict[str, set[bytes]]:
+    def ioc_tags(self, data: bytes, *, dynamic: object = False) -> dict[str, set[bytes]]:
+        """Extract tags from data using multidecoder.
+
+        Network tags are tagged as network.dynamic if dynamic is truthy,
+        otherwise they are tagged network.static.
+        """
         tree = self.multidecoder.scan(data)
         return get_tree_tags(tree, dynamic)
 
-    def extract_files(self, tree: list[dict[str, Any]], min_size) -> set[str]:
+    def extract_files(self, tree: Node, min_size: int) -> set[str]:
+        """Extract node values with a good filetype if the size is at least min_size."""
         files: set[str] = set()
-        nodes = invert_tree(tree)
-        for node in nodes:
+        for node in tree:
             if len(node.value) < min_size:
                 continue
             if node.type == "pe_file":
