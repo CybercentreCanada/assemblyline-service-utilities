@@ -5,4 +5,4 @@ fuzzywuzzy
 pefile
 pillow
 regex
-multidecoder<1.0.0
+multidecoder>=1.0.0,<2
