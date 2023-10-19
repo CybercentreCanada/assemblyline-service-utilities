@@ -32,7 +32,7 @@ def add_tag(
     if not value:
         return tags_were_added
 
-    if type(value) == list:
+    if isinstance(value, list):
         for item in value:
             # If one tag is added, then return True
             tags_were_added, _ = _validate_tag(result_section, tag, item, safelist) or tags_were_added
@@ -97,7 +97,7 @@ def _validate_tag(
         return (False, False)
 
     if tag.endswith(".domain") and not is_valid_domain(value):
-            return (False, False)
+        return (False, False)
 
     if is_tag_safelisted(value, [tag], safelist):
         return (False, True)
@@ -110,7 +110,8 @@ def _validate_tag(
         tag_is_safelisted = False
         if domain:
             domain = domain.group()
-            valid_domain, tag_is_safelisted = _validate_tag(result_section, f"network.{network_tag_type}.domain", domain, safelist)
+            valid_domain, tag_is_safelisted = _validate_tag(
+                result_section, f"network.{network_tag_type}.domain", domain, safelist)
         # Then try to get the IP
         valid_ip = False
         ip = search(IP_REGEX, value)
@@ -132,7 +133,8 @@ def _validate_tag(
     return (True, False)
 
 
-def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "dynamic", safelist: Dict[str, Dict[str, List[str]]] = None) -> Tuple[bool, bool]:
+def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "dynamic",
+             safelist: Dict[str, Dict[str, List[str]]] = None) -> Tuple[bool, bool]:
     """
     This method tags components of a URI
     :param url: The url to be analyzed
