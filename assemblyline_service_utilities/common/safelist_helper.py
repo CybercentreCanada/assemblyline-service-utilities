@@ -1,4 +1,4 @@
-from re import IGNORECASE, compile, match, search
+from re import IGNORECASE,  match, search
 from typing import Dict, List
 from urllib.parse import urlparse
 
