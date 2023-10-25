@@ -271,13 +271,13 @@ class TestHelper:
 
                     # Save extracted files
                     for ext in task.extracted:
-                        target_file = os.path.join(self.result_folder, sample, "extracted", ext["name"])
+                        target_file = os.path.join(self.result_folder, sample, "extracted", ext["sha256"])
                         os.makedirs(os.path.dirname(target_file), exist_ok=True)
                         shutil.move(ext["path"], target_file)
 
                     # Save supplementary files
                     for ext in task.supplementary:
-                        target_file = os.path.join(self.result_folder, sample, "supplementary", ext["name"])
+                        target_file = os.path.join(self.result_folder, sample, "supplementary", ext["sha256"])
                         os.makedirs(os.path.dirname(target_file), exist_ok=True)
                         shutil.move(ext["path"], target_file)
 
