@@ -34,6 +34,7 @@ class IssueHelper:
     TYPE_SUPPLEMENTARY = "SUPPLEMENTARY"
     TYPE_EXTRACTED = "EXTRACTED"
     TYPE_EXTRA = "EXTRA"
+    TYPE_TEST = "TEST"
 
     def __init__(self):
         self.issues = {}
@@ -87,7 +88,7 @@ class TestHelper:
         self.test_options = {}
 
     def _create_service_task(self, file_path, params):
-        fileinfo_keys = ["magic", "md5", "mime", "sha1", "sha256", "size", "type"]
+        fileinfo_keys = ["magic", "md5", "mime", "sha1", "sha256", "size", "type", "uri_info"]
 
         # Set proper default values
         if params is None:
@@ -333,7 +334,7 @@ class TestHelper:
                 ih, original_results["results"]["temp_submission_data"], results["results"]["temp_submission_data"]
             )
         else:
-            ih.append(f"Original result file missing for sample: {sample}")
+            ih.add_issue(ih.TYPE_TEST, ih.ACTION_MISSING, f"Original result file missing for sample: {sample}")
 
         return ih
 
