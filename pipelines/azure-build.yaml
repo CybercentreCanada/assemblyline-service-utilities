@@ -28,6 +28,9 @@ jobs:
       python setup.py bdist_wheel
     displayName: Build
 
+  - publish: $(System.DefaultWorkingDirectory)/dist
+    artifact: dist
+
   - script: |
       set -xv # Echo commands before they are run
       sudo apt-get update
@@ -48,6 +51,9 @@ jobs:
   variables:
   - group: deployment-information-test
   steps:
+  - download: current
+    artifact: dist
+
   - task: UsePythonVersion@0
     displayName: Set python version
     inputs:
@@ -58,6 +64,7 @@ jobs:
       sudo env "PATH=$PATH" python -m pip install --no-cache-dir twine
       ls dist
       twine upload --skip-existing --repository-url $TEST_REPOSITORY_URL dist/*
+    workingDirectory: $(Pipeline.Workspace)/dist/
     displayName: Deploy to Test PyPI
     env:
       TWINE_USERNAME: $(twineUsername)
@@ -69,15 +76,20 @@ jobs:
   variables:
   - group: deployment-information
   steps:
+  - download: current
+    artifact: dist
+
   - task: UsePythonVersion@0
     displayName: Set python version
     inputs:
       versionSpec: 3.9
+
   - script: |
       set -xv  # Echo commands before they are run
       sudo env "PATH=$PATH" python -m pip install --no-cache-dir twine
       ls dist
       twine upload --skip-existing dist/*
+    workingDirectory: $(Pipeline.Workspace)/dist/
     displayName: Deploy to PyPI
     env:
       TWINE_USERNAME: $(twineUsername)
