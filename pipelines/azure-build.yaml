@@ -12,10 +12,8 @@ pool:
   vmImage: "ubuntu-20.04"
 
 jobs:
-- job: test_build_deploy
-  displayName: Test, Build and Deploy
-  variables:
-  - group: deployment-information
+- job: test_build
+  displayName: Test and Build
   steps:
   - task: UsePythonVersion@0
     displayName: Set python version
@@ -44,6 +42,17 @@ jobs:
       python -m pytest -p no:cacheprovider --durations=10 -rsx -xsvvv --disable-warnings
     displayName: Test
 
+- job: deploy_test
+  displayName: Deploy to test PyPI
+  dependsOn: test_build
+  variables:
+  - group: deployment-information-test
+  steps:
+  - task: UsePythonVersion@0
+    displayName: Set python version
+    inputs:
+      versionSpec: 3.9
+
   - script: |
       set -xv  # Echo commands before they are run
       sudo env "PATH=$PATH" python -m pip install --no-cache-dir twine
@@ -54,6 +63,16 @@ jobs:
       TWINE_USERNAME: $(twineUsername)
       TWINE_PASSWORD: $(twinePassword)
 
+- job: deploy
+  displayName: Deploy to PyPI
+  dependsOn: deploy_test
+  variables:
+  - group: deployment-information
+  steps:
+  - task: UsePythonVersion@0
+    displayName: Set python version
+    inputs:
+      versionSpec: 3.9
   - script: |
       set -xv  # Echo commands before they are run
       sudo env "PATH=$PATH" python -m pip install --no-cache-dir twine
