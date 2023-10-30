@@ -61,6 +61,8 @@ jobs:
 
   - script: |
       set -xv  # Echo commands before they are run
+      pwd
+      ls
       sudo env "PATH=$PATH" python -m pip install --no-cache-dir twine
       ls dist
       twine upload --skip-existing --repository-url $TEST_REPOSITORY_URL dist/*
