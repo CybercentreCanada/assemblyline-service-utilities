@@ -61,7 +61,6 @@ jobs:
 
   - script: |
       set -xv  # Echo commands before they are run
-      ls
       sudo env "PATH=$PATH" python -m pip install --no-cache-dir twine
       ls dist
       twine upload --skip-existing --repository-url $TEST_REPOSITORY_URL dist/*
@@ -90,6 +89,7 @@ jobs:
       sudo env "PATH=$PATH" python -m pip install --no-cache-dir twine
       ls dist
       twine upload --skip-existing dist/*
+    workingDirectory: $(Pipeline.Workspace)
     displayName: Deploy to PyPI
     env:
       TWINE_USERNAME: $(twineUsername)
