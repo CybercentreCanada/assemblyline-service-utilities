@@ -26,6 +26,8 @@ from assemblyline_service_utilities.common.dynamic_service_helper import (
 )
 from assemblyline_service_utilities.testing.helper import check_section_equality
 
+from assemblyline.odm.models.result import PARENT_RELATION
+
 
 def setup_module():
     if not os.path.exists(TEMP_SERVICE_CONFIG_PATH):
@@ -89,7 +91,7 @@ def dummy_request_class(dummy_task_class):
                 {"path": path, "name": name, "description": description}
             )
 
-        def add_extracted(self, path, name, description, parent_relation="EXTRACTED"):
+        def add_extracted(self, path, name, description, parent_relation=PARENT_RELATION.EXTRACTED):
             self.task.extracted.append(
                 {"path": path, "name": name, "description": description, "parent_relation": parent_relation}
             )
@@ -4653,7 +4655,7 @@ class TestOntologyResults:
                 {
                     'description': 'blah',
                     'name': '123_hollowshunter/hh_process_12345_blah123.something.exe',
-                    'parent_relation': 'MEMDUMP',
+                    'parent_relation': PARENT_RELATION.MEMDUMP,
                     'path': 'blah'
                 },
             ]

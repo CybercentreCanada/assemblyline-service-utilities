@@ -9,6 +9,19 @@ from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
 
+from assemblyline_service_utilities.common.command_line_utils import normalize_path
+from assemblyline_service_utilities.common.tag_helper import add_tag
+from assemblyline_v4_service.common.base import ServiceBase
+from assemblyline_v4_service.common.request import ServiceRequest
+from assemblyline_v4_service.common.result import (
+    ProcessItem,
+    ResultProcessTreeSection,
+    ResultSection,
+    ResultTableSection,
+    TableRow,
+)
+from assemblyline_v4_service.common.task import MaxExtractedExceeded
+
 from assemblyline.common import log as al_log
 from assemblyline.common.attack_map import attack_map, group_map, revoke_map, software_map
 from assemblyline.common.digests import get_sha256_for_file
@@ -27,19 +40,7 @@ from assemblyline.odm.models.ontology.results import NetworkConnection as Networ
 from assemblyline.odm.models.ontology.results import Process as ProcessModel
 from assemblyline.odm.models.ontology.results import Sandbox as SandboxModel
 from assemblyline.odm.models.ontology.results import Signature as SignatureModel
-from assemblyline_v4_service.common.base import ServiceBase
-from assemblyline_v4_service.common.request import ServiceRequest
-from assemblyline_v4_service.common.result import (
-    ProcessItem,
-    ResultProcessTreeSection,
-    ResultSection,
-    ResultTableSection,
-    TableRow,
-)
-from assemblyline_v4_service.common.task import MaxExtractedExceeded
-
-from assemblyline_service_utilities.common.command_line_utils import normalize_path
-from assemblyline_service_utilities.common.tag_helper import add_tag
+from assemblyline.odm.models.result import PARENT_RELATION
 
 al_log.init_logging("service.service_base.dynamic_service_helper")
 log = getLogger("assemblyline.service.service_base.dynamic_service_helper")
@@ -2297,7 +2298,7 @@ class OntologyResults:
         request: ServiceRequest,
         collapsed: bool = False,
         injection_heur_id: int = 17,
-        parent_relation: str = 'EXTRACTED',
+        parent_relation: str = PARENT_RELATION.EXTRACTED,
     ) -> ResultSection:
         """
         Goes through each artifact in artifact_list, uploading them and adding result sections accordingly
@@ -2320,7 +2321,7 @@ class OntologyResults:
             )
 
             if OntologyResults._is_hollowshunter_dump(artifact.name):
-                parent_relation = "MEMDUMP"
+                parent_relation = PARENT_RELATION.MEMDUMP
 
             if artifact.to_be_extracted and not any(artifact.sha256 == previously_extracted["sha256"] for previously_extracted in request.extracted):
                 try:
