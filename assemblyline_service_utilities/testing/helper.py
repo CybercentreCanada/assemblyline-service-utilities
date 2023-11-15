@@ -168,6 +168,10 @@ class TestHelper:
 
         # Parse sections
         for section in result.get("result", {}).get("sections", []):
+            try:
+                section["body"] = json.loads(section["body"])
+            except (json.decoder.JSONDecodeError, TypeError):
+                pass
 
             # Add section to extras (This will not be tested)
             generalized_results["extra"]["sections"].append(section)
