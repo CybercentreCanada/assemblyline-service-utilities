@@ -241,7 +241,7 @@ def convert_sysmon_network(
                 continue
             # If Sysmon was unable to get the QueryResults from the DNS event, populate the missing fields
             elif dns_query["answers"] == []:
-                for query in network["dns"][:]:
+                for query in network.get("dns", [])[:]:
                     if query["request"] == dns_query["request"]:
                         for key in dns_query.keys():
                             if key not in query:
@@ -252,7 +252,7 @@ def convert_sysmon_network(
                 for query in network.get("dns", [])
             ):
                 # Replace record since we have more info from Sysmon
-                for query in network["dns"][:]:
+                for query in network.get("dns", [])[:]:
                     if query["request"] == dns_query["request"]:
                         network["dns"].remove(query)
                         network["dns"].append(dns_query)
