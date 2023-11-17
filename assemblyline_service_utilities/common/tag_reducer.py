@@ -28,16 +28,16 @@ def reduce_uri_tags(uris=None) -> List[str]:
         parsed_uri = urlparse(uri)
         # Match items we care about into a nice dictionary
         uri_dict = {
-            "scheme": parsed_uri.scheme,      # scheme param
-            "netloc": parsed_uri.netloc,      # ""
-            "path": parsed_uri.path,          # ""
-            "params": parsed_uri.params,      # ""
-            "query": parsed_uri.query,        # ""
+            "scheme": parsed_uri.scheme,  # scheme param
+            "netloc": parsed_uri.netloc,  # ""
+            "path": parsed_uri.path,  # ""
+            "params": parsed_uri.params,  # ""
+            "query": parsed_uri.query,  # ""
             "fragment": parsed_uri.fragment,  # ""
             "username": parsed_uri.username,  # None
             "password": parsed_uri.password,  # None
             "hostname": parsed_uri.hostname,  # None
-            "port": parsed_uri.port           # None
+            "port": parsed_uri.port,  # None
         }
 
         # We need to parse a couple of the returned params from urlparse more in-depth
@@ -168,7 +168,7 @@ def reduce_uri_tags(uris=None) -> List[str]:
                                 if list_item != "/" and list_item[0] == "/":
                                     # use regex to determine the parameter type
                                     placeholder = _get_placeholder(list_item[1:])
-                                    placeholders[key].append("/"+placeholder)
+                                    placeholders[key].append("/" + placeholder)
                                 else:
                                     placeholder = _get_placeholder(list_item)
                                     placeholders[key].append(placeholder)
@@ -201,7 +201,7 @@ def reduce_uri_tags(uris=None) -> List[str]:
 
 def _turn_back_into_uri(uri_parts: dict) -> str:
     # turn the path back into a string
-    uri_parts["path"] = '/'.join(uri_parts["path"])
+    uri_parts["path"] = "/".join(uri_parts["path"])
     # turn the query back into a query string
     # first, remove the list wrappers
     if uri_parts["query"] != "":
@@ -209,9 +209,14 @@ def _turn_back_into_uri(uri_parts: dict) -> str:
             uri_parts["query"][item] = uri_parts["query"][item][0]
     uri_parts["query"] = unquote(urlencode(uri_parts["query"]))
 
-    uri_tuple = (uri_parts["scheme"], uri_parts["netloc"],
-                 uri_parts["path"], uri_parts["params"],
-                 uri_parts["query"], uri_parts["fragment"])
+    uri_tuple = (
+        uri_parts["scheme"],
+        uri_parts["netloc"],
+        uri_parts["path"],
+        uri_parts["params"],
+        uri_parts["query"],
+        uri_parts["fragment"],
+    )
     real_url = urlunparse(uri_tuple)
     return real_url
 
@@ -238,5 +243,5 @@ REDUCE_MAP = {
     "network.dynamic.uri": reduce_uri_tags,
     "network.static.uri": reduce_uri_tags,
     "network.dynamic.uri_path": reduce_uri_tags,
-    "network.static.uri_path": reduce_uri_tags
+    "network.static.uri_path": reduce_uri_tags,
 }

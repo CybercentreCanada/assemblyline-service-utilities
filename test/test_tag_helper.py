@@ -1,10 +1,10 @@
 import os
 
 import pytest
-from assemblyline.odm.base import DOMAIN_ONLY_REGEX, FULL_URI, IP_REGEX, URI_PATH
+from assemblyline_service_utilities.common.tag_helper import _get_regex_for_tag, _validate_tag, add_tag
 from assemblyline_v4_service.common.result import ResultSection
 
-from assemblyline_service_utilities.common.tag_helper import _get_regex_for_tag, _validate_tag, add_tag
+from assemblyline.odm.base import DOMAIN_ONLY_REGEX, FULL_URI, IP_REGEX, URI_PATH
 
 SERVICE_CONFIG_NAME = "service_manifest.yml"
 TEMP_SERVICE_CONFIG_PATH = os.path.join("/tmp", SERVICE_CONFIG_NAME)

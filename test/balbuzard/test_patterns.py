@@ -1,7 +1,6 @@
 import re
 
 import pytest
-
 from assemblyline_service_utilities.common.balbuzard.patterns import PatternMatch
 
 

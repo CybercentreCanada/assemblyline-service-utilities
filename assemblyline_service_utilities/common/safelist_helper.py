@@ -1,4 +1,4 @@
-from re import IGNORECASE,  match, search
+from re import IGNORECASE, match, search
 from typing import Dict, List
 from urllib.parse import urlparse
 
@@ -6,9 +6,8 @@ from assemblyline.odm.base import DOMAIN_REGEX, IP_REGEX, URI_REGEX
 
 
 def is_tag_safelisted(
-        value: str, tags: List[str],
-        safelist: Dict[str, Dict[str, List[str]]],
-        substring: bool = False) -> bool:
+    value: str, tags: List[str], safelist: Dict[str, Dict[str, List[str]]], substring: bool = False
+) -> bool:
     """
     This method determines if a given value has any safelisted components.
     :param value: The value to be checked if it has been safelisted

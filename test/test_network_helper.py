@@ -1,5 +1,4 @@
 import pytest
-
 from assemblyline_service_utilities.common.network_helper import convert_url_to_https
 
 

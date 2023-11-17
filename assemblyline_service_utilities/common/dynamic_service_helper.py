@@ -9,6 +9,19 @@ from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
 
+from assemblyline_service_utilities.common.command_line_utils import normalize_path
+from assemblyline_service_utilities.common.tag_helper import add_tag
+from assemblyline_v4_service.common.base import ServiceBase
+from assemblyline_v4_service.common.request import ServiceRequest
+from assemblyline_v4_service.common.result import (
+    ProcessItem,
+    ResultProcessTreeSection,
+    ResultSection,
+    ResultTableSection,
+    TableRow,
+)
+from assemblyline_v4_service.common.task import MaxExtractedExceeded
+
 from assemblyline.common import log as al_log
 from assemblyline.common.attack_map import attack_map, group_map, revoke_map, software_map
 from assemblyline.common.digests import get_sha256_for_file
@@ -27,25 +40,16 @@ from assemblyline.odm.models.ontology.results import NetworkConnection as Networ
 from assemblyline.odm.models.ontology.results import Process as ProcessModel
 from assemblyline.odm.models.ontology.results import Sandbox as SandboxModel
 from assemblyline.odm.models.ontology.results import Signature as SignatureModel
-from assemblyline_v4_service.common.base import ServiceBase
-from assemblyline_v4_service.common.request import ServiceRequest
-from assemblyline_v4_service.common.result import (
-    ProcessItem,
-    ResultProcessTreeSection,
-    ResultSection,
-    ResultTableSection,
-    TableRow,
-)
-from assemblyline_v4_service.common.task import MaxExtractedExceeded
-
-from assemblyline_service_utilities.common.command_line_utils import normalize_path
-from assemblyline_service_utilities.common.tag_helper import add_tag
 
 al_log.init_logging("service.service_base.dynamic_service_helper")
 log = getLogger("assemblyline.service.service_base.dynamic_service_helper")
 
-HOLLOWSHUNTER_EXE_REGEX = compile(r"[0-9]{1,}_hollowshunter\/hh_process_[0-9]{3,}_[0-9a-z]{3,}(\.[a-zA-Z0-9]{2,})*\.exe$")
-HOLLOWSHUNTER_DLL_REGEX = compile(r"[0-9]{1,}_hollowshunter\/hh_process_[0-9]{3,}_[0-9a-z]{3,}(\.[a-zA-Z0-9]{2,})*\.dll$")
+HOLLOWSHUNTER_EXE_REGEX = compile(
+    r"[0-9]{1,}_hollowshunter\/hh_process_[0-9]{3,}_[0-9a-z]{3,}(\.[a-zA-Z0-9]{2,})*\.exe$"
+)
+HOLLOWSHUNTER_DLL_REGEX = compile(
+    r"[0-9]{1,}_hollowshunter\/hh_process_[0-9]{3,}_[0-9a-z]{3,}(\.[a-zA-Z0-9]{2,})*\.dll$"
+)
 
 HOLLOWSHUNTER_TITLE = "HollowsHunter Injected Portable Executable"
 
@@ -90,14 +94,106 @@ SERVICE_NAME = None
 # The following lists of domains and top-level domains are used for finding false-positives
 # when extracting domains from text blobs
 COMMON_FP_DOMAINS = ["example.com"]
-COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".one", ".pub", ".py", ".sh", ".zip", ".js"]
-COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS = [".test", ".id", ".call", ".top", ".map", ".support", ".run", ".shell", ".net", ".stream", ".in", ".cl", ".xmlhttp", ".runincontext", ".target", ".name", ".nc", ".tt"]
+COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".js", ".one", ".pub", ".py", ".sh", ".zip"]
+COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS = [
+    ".as",
+    ".author",
+    ".auto",
+    ".bar",
+    ".bf",
+    ".box",
+    ".call",
+    ".cf",
+    ".cl",
+    ".click",
+    ".cm",
+    ".country",
+    ".data",
+    ".download",
+    ".family",
+    ".foo",
+    ".group",
+    ".ht",
+    ".id",
+    ".in",
+    ".info",
+    ".link",
+    ".map",
+    ".me",
+    ".menu",
+    ".microsoft",
+    ".movie",
+    ".ms",
+    ".mt",
+    ".mv",
+    ".mx",
+    ".name",
+    ".nc",
+    ".net",
+    ".new",
+    ".next",
+    ".nf",
+    ".now",
+    ".open",
+    ".parts",
+    ".ph",
+    ".play",
+    ".properties",
+    ".protection",
+    ".read",
+    ".rs",
+    ".run",
+    ".runincontext",
+    ".save",
+    ".seek",
+    ".select",
+    ".shell",
+    ".show",
+    ".si",
+    ".ss",
+    ".storage",
+    ".stream",
+    ".style",
+    ".support",
+    ".sz",
+    ".target",
+    ".test",
+    ".to",
+    ".top",
+    ".tt",
+    ".tz",
+    ".ws",
+    ".wtf",
+    ".xmlhttp",
+]
 COMMON_FP_TLDS = COMMON_FP_TLDS_THAT_ARE_FILE_EXTS + COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS
 
 # Arbitrarily chosen common URL schemes from https://en.wikipedia.org/wiki/List_of_URI_schemes
 COMMON_SCHEMES = [
-    "dns", "dntp", "file", "ftp", "git", "http", "https", "icap", "imap", "irc", "irc6", "ircs", "nfs", "rdp",
-    "s3", "sftp", "shttp", "smb", "sms", "snmp", "ssh", "telnet", "tftp", "udp",
+    "dns",
+    "dntp",
+    "file",
+    "ftp",
+    "git",
+    "http",
+    "https",
+    "icap",
+    "imap",
+    "irc",
+    "irc6",
+    "ircs",
+    "nfs",
+    "rdp",
+    "s3",
+    "sftp",
+    "shttp",
+    "smb",
+    "sms",
+    "snmp",
+    "ssh",
+    "telnet",
+    "tftp",
+    "udp",
 ]
 
 # Regular expression that looks for byte string characters
@@ -167,9 +263,7 @@ def update_object_items(self: object, update_items: Dict[str, Any]) -> None:
         elif hasattr(self, key):
             setattr(self, key, value)
         else:
-            log.warning(
-                f"{self.__class__} does not have the attribute {key}. Ignoring..."
-            )
+            log.warning(f"{self.__class__} does not have the attribute {key}. Ignoring...")
 
 
 class Artifact:
@@ -325,14 +419,8 @@ class Process:
         :param original_file_name: The original name of the file
         :return: None
         """
-        if (
-            start_time
-            and end_time
-            and local_to_epoch(start_time) > local_to_epoch(end_time)
-        ):
-            raise ValueError(
-                f"Start time {start_time} cannot be greater than end time {end_time}."
-            )
+        if start_time and end_time and local_to_epoch(start_time) > local_to_epoch(end_time):
+            raise ValueError(f"Start time {start_time} cannot be greater than end time {end_time}.")
 
         if pid and ppid and pid == ppid:
             raise ValueError(f"PID {pid} cannot be equal to its PPID")
@@ -400,11 +488,7 @@ class Process:
             kwargs["integrity_level"] = kwargs["integrity_level"].lower()
 
         # Remove objectid attributes
-        kwargs = {
-            key: value
-            for key, value in kwargs.items()
-            if key not in OBJECTID_KEYS and key not in POBJECTID_KEYS
-        }
+        kwargs = {key: value for key, value in kwargs.items() if key not in OBJECTID_KEYS and key not in POBJECTID_KEYS}
         update_object_items(self, kwargs)
 
     def set_parent(self, parent: object) -> None:
@@ -506,15 +590,8 @@ class Process:
         if all(value is None for value in kwargs.values()):
             return
 
-        if (
-            not self.pobjectid
-            and kwargs.get("tag")
-            and kwargs.get("ontology_id")
-            and kwargs.get("service_name")
-        ):
-            self.pobjectid: ObjectID = ObjectID(
-                kwargs["tag"], kwargs["ontology_id"], kwargs["service_name"]
-            )
+        if not self.pobjectid and kwargs.get("tag") and kwargs.get("ontology_id") and kwargs.get("service_name"):
+            self.pobjectid: ObjectID = ObjectID(kwargs["tag"], kwargs["ontology_id"], kwargs["service_name"])
         elif not self.pobjectid:
             log.debug("You need to set pobjectid or pass its required arguments")
             return
@@ -613,9 +690,7 @@ class NetworkHTTP:
         :return: The dictionary representation of the object
         """
         return {
-            key: value
-            for key, value in self.__dict__.items()
-            if key not in ["request_body_path", "response_body_path"]
+            key: value for key, value in self.__dict__.items() if key not in ["request_body_path", "response_body_path"]
         }
 
 
@@ -661,9 +736,7 @@ class NetworkConnection:
         :return: None
         """
         if transport_layer_protocol not in self.TRANSPORT_LAYER_PROTOCOL:
-            raise ValueError(
-                f"Invalid transport layer protocol: {transport_layer_protocol}"
-            )
+            raise ValueError(f"Invalid transport layer protocol: {transport_layer_protocol}")
 
         if direction not in self.DIRECTIONS:
             raise ValueError(f"Invalid direction: {direction}")
@@ -671,9 +744,7 @@ class NetworkConnection:
         set_required_argument(self, "objectid", objectid, ObjectID)
         set_required_argument(self, "destination_ip", destination_ip, str)
         set_required_argument(self, "destination_port", destination_port, int)
-        set_required_argument(
-            self, "transport_layer_protocol", transport_layer_protocol, str
-        )
+        set_required_argument(self, "transport_layer_protocol", transport_layer_protocol, str)
         set_required_argument(self, "direction", direction, str)
 
         set_optional_argument(self, "process", process, Process)
@@ -682,23 +753,15 @@ class NetworkConnection:
         set_optional_argument(self, "http_details", http_details, NetworkHTTP)
         set_optional_argument(self, "dns_details", dns_details, NetworkDNS)
         if self.http_details and self.dns_details:
-            raise ValueError(
-                "A network connection cannot be associated to both a DNS and an HTTP call."
-            )
+            raise ValueError("A network connection cannot be associated to both a DNS and an HTTP call.")
         set_optional_argument(self, "connection_type", connection_type, str)
         if self.connection_type:
             if self.connection_type not in self.CONNECTION_TYPES:
-                raise ValueError(
-                    f"Connection type {self.connection_type} must be one of {self.CONNECTION_TYPES}"
-                )
+                raise ValueError(f"Connection type {self.connection_type} must be one of {self.CONNECTION_TYPES}")
             elif self.connection_type == self.HTTP and self.http_details is None:
-                raise ValueError(
-                    f"Connection type is {self.HTTP} but {self.HTTP}_details is None"
-                )
+                raise ValueError(f"Connection type is {self.HTTP} but {self.HTTP}_details is None")
             elif self.connection_type == self.DNS and self.dns_details is None:
-                raise ValueError(
-                    f"Connection type is {self.DNS} but {self.DNS}_details is None"
-                )
+                raise ValueError(f"Connection type is {self.DNS} but {self.DNS}_details is None")
         else:
             if self.http_details or self.dns_details:
                 raise ValueError("Specify the connection type")
@@ -730,9 +793,7 @@ class NetworkConnection:
                 self.update_objectid(**objectid)
         else:
             # Get the objectid attributes out
-            objectid_kwargs = {
-                key: value for key, value in kwargs.items() if key in OBJECTID_KEYS
-            }
+            objectid_kwargs = {key: value for key, value in kwargs.items() if key in OBJECTID_KEYS}
             self.update_objectid(**objectid_kwargs)
 
         if "process" in kwargs:
@@ -744,9 +805,7 @@ class NetworkConnection:
                     self.update_process(**process)
 
         # Remove objectid attributes
-        kwargs = {
-            key: value for key, value in kwargs.items() if key not in OBJECTID_KEYS
-        }
+        kwargs = {key: value for key, value in kwargs.items() if key not in OBJECTID_KEYS}
         update_object_items(self, kwargs)
 
     def update_process(self, **kwargs) -> None:
@@ -755,15 +814,8 @@ class NetworkConnection:
         :param kwargs: Key word arguments to be used for updating the process object attribute
         :return: None
         """
-        if (
-            not self.process
-            and kwargs.get("objectid")
-            and kwargs.get("image")
-            and kwargs.get("start_time")
-        ):
-            self.process: Process = Process(
-                kwargs["objectid"], kwargs["image"], kwargs["start_time"]
-            )
+        if not self.process and kwargs.get("objectid") and kwargs.get("image") and kwargs.get("start_time"):
+            self.process: Process = Process(kwargs["objectid"], kwargs["image"], kwargs["start_time"])
         elif not self.process:
             log.debug("You need to set process or pass its required arguments")
             return
@@ -776,9 +828,7 @@ class NetworkConnection:
         :return: None
         """
         if not self.process:
-            raise ValueError(
-                "Process must be set before you can update the process ObjectID"
-            )
+            raise ValueError("Process must be set before you can update the process ObjectID")
         self.process.update_objectid(**kwargs)
 
     def set_process(self, process: Process) -> None:
@@ -805,14 +855,10 @@ class NetworkConnection:
         :return: The created tag, if any
         """
         if not domain and destination_ip is None:
-            log.debug(
-                "Cannot set tag for network connection. Requires either domain or destination IP..."
-            )
+            log.debug("Cannot set tag for network connection. Requires either domain or destination IP...")
             return
         if destination_port is None:
-            log.debug(
-                "Cannot set tag for network connection. Requires destination port..."
-            )
+            log.debug("Cannot set tag for network connection. Requires destination port...")
             return
 
         if domain and direction == NetworkConnection.OUTBOUND:
@@ -840,7 +886,6 @@ class NetworkConnection:
 
 
 class Attribute:
-
     actions = [
         "clipboard_capture",
         "create_remote_thread",
@@ -898,9 +943,7 @@ class Attribute:
 
         set_optional_argument(self, "action", action, str)
         if self.action and self.action not in self.actions:
-            raise ValueError(
-                f"The action {self.action} is not in the list of valid actions"
-            )
+            raise ValueError(f"The action {self.action} is not in the list of valid actions")
 
         set_optional_argument(self, "meta", meta, str)
         set_optional_argument(self, "event_record_id", event_record_id, str)
@@ -1048,10 +1091,7 @@ class Signature:
         :param attribute: The attribute to be added
         :return: None
         """
-        if any(
-            attribute.as_primitives() == added_attribute.as_primitives()
-            for added_attribute in self.attributes
-        ):
+        if any(attribute.as_primitives() == added_attribute.as_primitives() for added_attribute in self.attributes):
             return
 
         self.attributes.append(attribute)
@@ -1080,9 +1120,7 @@ class Signature:
         self.malware_families: List[str] = (
             malware_families
             if isinstance(malware_families, List)
-            and all(
-                isinstance(malware_family, str) for malware_family in malware_families
-            )
+            and all(isinstance(malware_family, str) for malware_family in malware_families)
             else []
         )
 
@@ -1178,9 +1216,7 @@ class Sandbox:
                 self.end_time: str = MAX_TIME
 
             set_optional_argument(self, "routing", routing, str)
-            set_optional_argument(
-                self, "machine_metadata", machine_metadata, self.MachineMetadata
-            )
+            set_optional_argument(self, "machine_metadata", machine_metadata, self.MachineMetadata)
 
         def as_primitives(self) -> Dict[str, Any]:
             """
@@ -1188,9 +1224,7 @@ class Sandbox:
             :return: The dictionary representation of the object
             """
             return {
-                key: value
-                if not isinstance(value, self.MachineMetadata)
-                else value.as_primitives()
+                key: value if not isinstance(value, self.MachineMetadata) else value.as_primitives()
                 for key, value in self.__dict__.items()
             }
 
@@ -1223,9 +1257,7 @@ class Sandbox:
         :return: None
         """
         set_required_argument(self, "objectid", objectid, ObjectID)
-        set_required_argument(
-            self, "analysis_metadata", analysis_metadata, self.AnalysisMetadata
-        )
+        set_required_argument(self, "analysis_metadata", analysis_metadata, self.AnalysisMetadata)
         set_required_argument(self, "sandbox_name", sandbox_name, str)
         set_optional_argument(self, "sandbox_version", sandbox_version, str)
 
@@ -1244,9 +1276,7 @@ class Sandbox:
         :return: None
         """
         if not self.analysis_metadata.machine_metadata:
-            self.analysis_metadata.machine_metadata = (
-                self.AnalysisMetadata.MachineMetadata()
-            )
+            self.analysis_metadata.machine_metadata = self.AnalysisMetadata.MachineMetadata()
         update_object_items(self.analysis_metadata.machine_metadata, kwargs)
 
     def as_primitives(self) -> Dict[str, Any]:
@@ -1293,14 +1323,20 @@ class OntologyResults:
         """
         if not (kwargs.get("tag") and kwargs.get("ontology_id")):
             raise ValueError("The objectid needs its required arguments")
-        objectid = ObjectID(
-            kwargs["tag"], kwargs["ontology_id"], kwargs.get("service_name")
-        )
+        objectid = ObjectID(kwargs["tag"], kwargs["ontology_id"], kwargs.get("service_name"))
         # Ensure that is time_observed is passed in and has a value, that that value is a str
-        if "time_observed" in kwargs and kwargs["time_observed"] is not None and not isinstance(kwargs["time_observed"], str):
+        if (
+            "time_observed" in kwargs
+            and kwargs["time_observed"] is not None
+            and not isinstance(kwargs["time_observed"], str)
+        ):
             raise ValueError("time_observed must be a str")
         # Ensure that time_observed is of a certain format
-        elif "time_observed" in kwargs and kwargs["time_observed"] is not None and isinstance(kwargs["time_observed"], str):
+        elif (
+            "time_observed" in kwargs
+            and kwargs["time_observed"] is not None
+            and isinstance(kwargs["time_observed"], str)
+        ):
             kwargs["time_observed"] = ensure_time_format(kwargs["time_observed"], LOCAL_FMT_WITH_MS)
         update_object_items(objectid, kwargs)
         return objectid
@@ -1322,8 +1358,7 @@ class OntologyResults:
         """
         self.sandboxes = (
             sandboxes
-            if isinstance(sandboxes, List)
-            and all(isinstance(sandbox, Sandbox) for sandbox in sandboxes)
+            if isinstance(sandboxes, List) and all(isinstance(sandbox, Sandbox) for sandbox in sandboxes)
             else []
         )
 
@@ -1345,15 +1380,11 @@ class OntologyResults:
         """
         if not (kwargs.get("objectid") and kwargs.get("sandbox_name")):
             raise ValueError("The sandbox needs its required arguments")
-        sandbox = Sandbox(
-            kwargs["objectid"], Sandbox.AnalysisMetadata(), kwargs["sandbox_name"]
-        )
+        sandbox = Sandbox(kwargs["objectid"], Sandbox.AnalysisMetadata(), kwargs["sandbox_name"])
 
         update_object_items(sandbox, kwargs)
         if kwargs.get("analysis_metadata"):
-            sandbox.update_analysis_metadata(
-                **kwargs["analysis_metadata"].as_primitives()
-            )
+            sandbox.update_analysis_metadata(**kwargs["analysis_metadata"].as_primitives())
         return sandbox
 
     def get_sandbox_by_session(self, session: str) -> Optional[Sandbox]:
@@ -1363,11 +1394,7 @@ class OntologyResults:
         :return: A Sandbox object, if it exists
         """
         return next(
-            (
-                sandbox
-                for sandbox in self.sandboxes
-                if sandbox.objectid.session == session
-            ),
+            (sandbox for sandbox in self.sandboxes if sandbox.objectid.session == session),
             None,
         )
 
@@ -1387,8 +1414,7 @@ class OntologyResults:
         """
         self.signatures = (
             signatures
-            if isinstance(signatures, List)
-            and all(isinstance(signature, Signature) for signature in signatures)
+            if isinstance(signatures, List) and all(isinstance(signature, Signature) for signature in signatures)
             else []
         )
 
@@ -1429,20 +1455,14 @@ class OntologyResults:
         :return: A list of signatures that match the process pid
         """
         signatures_with_pid: List[Signature] = []
-        processes_with_pid = [
-            process for process in self.processes if process.pid == pid
-        ]
+        processes_with_pid = [process for process in self.processes if process.pid == pid]
         for signature in self.signatures:
             for attribute in signature.attributes:
                 if attribute.source.guid:
-                    if any(
-                        attribute.source.guid == process.objectid.guid
-                        for process in processes_with_pid
-                    ):
+                    if any(attribute.source.guid == process.objectid.guid for process in processes_with_pid):
                         signatures_with_pid.append(signature)
                 elif any(
-                    attribute.source.ontology_id == process.objectid.ontology_id
-                    for process in processes_with_pid
+                    attribute.source.ontology_id == process.objectid.ontology_id for process in processes_with_pid
                 ):
                     signatures_with_pid.append(signature)
 
@@ -1468,10 +1488,7 @@ class OntologyResults:
         self.netflows: List[NetworkConnection] = (
             network_connections
             if isinstance(network_connections, List)
-            and all(
-                isinstance(network_connection, NetworkConnection)
-                for network_connection in network_connections
-            )
+            and all(isinstance(network_connection, NetworkConnection) for network_connection in network_connections)
             else []
         )
 
@@ -1541,9 +1558,7 @@ class OntologyResults:
             if getattr(network_connection.process, "pid", None) == pid
         ]
 
-    def get_network_connection_by_guid(
-        self, guid: Optional[str]
-    ) -> Optional[NetworkConnection]:
+    def get_network_connection_by_guid(self, guid: Optional[str]) -> Optional[NetworkConnection]:
         """
         This method takes a given GUID and returns the associated network connection
         :param guid: The given GUID that we want an associated network connection for
@@ -1601,8 +1616,7 @@ class OntologyResults:
                 network_connection.destination_ip == destination_ip
                 and network_connection.destination_port in destination_ports
                 and network_connection.direction == direction
-                and network_connection.transport_layer_protocol
-                == transport_layer_protocol
+                and network_connection.transport_layer_protocol == transport_layer_protocol
             ):
                 return network_connection
         return None
@@ -1616,8 +1630,7 @@ class OntologyResults:
         """
         self.dns_netflows: List[NetworkDNS] = (
             network_dns
-            if isinstance(network_dns, List)
-            and all(isinstance(dns, NetworkDNS) for dns in network_dns)
+            if isinstance(network_dns, List) and all(isinstance(dns, NetworkDNS) for dns in network_dns)
             else []
         )
 
@@ -1628,15 +1641,9 @@ class OntologyResults:
         :param kwargs: Key word arguments to be used for updating the NetworkDNS object's attributes
         :return: NetworkDNS object
         """
-        if not (
-            kwargs.get("domain")
-            and kwargs.get("resolved_ips") is not None
-            and kwargs.get("lookup_type")
-        ):
+        if not (kwargs.get("domain") and kwargs.get("resolved_ips") is not None and kwargs.get("lookup_type")):
             raise ValueError("The network dns connection needs its required arguments")
-        network_dns = NetworkDNS(
-            kwargs["domain"], kwargs["resolved_ips"], kwargs["lookup_type"]
-        )
+        network_dns = NetworkDNS(kwargs["domain"], kwargs["resolved_ips"], kwargs["lookup_type"])
         update_object_items(network_dns, kwargs)
         return network_dns
 
@@ -1662,11 +1669,7 @@ class OntologyResults:
         :return: The domain associated with the given destination IP
         """
         return next(
-            (
-                dns.domain
-                for dns in self.dns_netflows
-                if ip in dns.resolved_ips
-            ),
+            (dns.domain for dns in self.dns_netflows if ip in dns.resolved_ips),
             None,
         )
 
@@ -1677,11 +1680,7 @@ class OntologyResults:
         :return: The IP associated with the given domain
         """
         return next(
-            (
-                dns.resolved_ips[0]
-                for dns in self.dns_netflows
-                if domain == dns.domain
-            ),
+            (dns.resolved_ips[0] for dns in self.dns_netflows if domain == dns.domain),
             None,
         )
 
@@ -1694,8 +1693,7 @@ class OntologyResults:
         """
         self.http_netflows: List[NetworkHTTP] = (
             network_http
-            if isinstance(network_http, List)
-            and all(isinstance(http, NetworkHTTP) for http in network_http)
+            if isinstance(network_http, List) and all(isinstance(http, NetworkHTTP) for http in network_http)
             else []
         )
 
@@ -1737,8 +1735,7 @@ class OntologyResults:
             (
                 http
                 for http in self.get_network_http()
-                if http.response_body_path == path
-                or http.request_body_path == path
+                if http.response_body_path == path or http.request_body_path == path
             ),
             None,
         )
@@ -1785,8 +1782,7 @@ class OntologyResults:
         """
         self.processes: List[Process] = (
             processes
-            if isinstance(processes, List)
-            and all(isinstance(process, Process) for process in processes)
+            if isinstance(processes, List) and all(isinstance(process, Process) for process in processes)
             else []
         )
 
@@ -1797,9 +1793,7 @@ class OntologyResults:
         :param kwargs: Key word arguments to be used for updating the Process object's attributes
         :return: Process object
         """
-        if not (
-            kwargs.get("objectid") and kwargs.get("image") and kwargs.get("start_time")
-        ):
+        if not (kwargs.get("objectid") and kwargs.get("image") and kwargs.get("start_time")):
             raise ValueError("The process needs its required arguments")
         process = Process(kwargs["objectid"], kwargs["image"], kwargs["start_time"])
         process.update(**kwargs)
@@ -1840,15 +1834,9 @@ class OntologyResults:
             return
 
         if "guid" not in kwargs and "pid" not in kwargs:
-            log.warning(
-                "You must pass GUID kwarg or a PID kwarg if you want to update a process"
-            )
+            log.warning("You must pass GUID kwarg or a PID kwarg if you want to update a process")
             return
-        elif (
-            "guid" not in kwargs
-            and "pid" in kwargs
-            and not ("start_time" in kwargs or "end_time" in kwargs)
-        ):
+        elif "guid" not in kwargs and "pid" in kwargs and not ("start_time" in kwargs or "end_time" in kwargs):
             log.warning(
                 "You must pass GUID kwarg or a PID kwarg with a timestamp such as start_time or end_time if you want to update a process."
             )
@@ -1866,9 +1854,7 @@ class OntologyResults:
             "pcommand_line",
             "pobjectid",
         ]
-        parent_kwargs = {
-            key[1:]: value for key, value in kwargs.items() if key in parent_keys
-        }
+        parent_kwargs = {key[1:]: value for key, value in kwargs.items() if key in parent_keys}
 
         if "guid" in kwargs and kwargs["guid"]:
             process_to_update = self.get_process_by_guid(kwargs["guid"])
@@ -1878,9 +1864,7 @@ class OntologyResults:
                 return
             process_to_update.update(**kwargs)
         else:
-            timestamp = (
-                kwargs["end_time"] if kwargs.get("end_time") else kwargs["start_time"]
-            )
+            timestamp = kwargs["end_time"] if kwargs.get("end_time") else kwargs["start_time"]
             if not isinstance(timestamp, str):
                 raise ValueError(f"The timestamp {timestamp} must be a str")
 
@@ -1897,14 +1881,11 @@ class OntologyResults:
         if parent_kwargs.get("guid") or parent_kwargs.get("pobjectid", {}).get("guid"):
             # Only update if ObjectID is not associated with another process
             if process_to_update and any(
-                process_to_update.pobjectid == process.objectid
-                for process in self.get_processes()
+                process_to_update.pobjectid == process.objectid for process in self.get_processes()
             ):
                 return
             pguid = (
-                parent_kwargs["guid"]
-                if parent_kwargs.get("guid")
-                else parent_kwargs.get("pobjectid", {}).get("guid")
+                parent_kwargs["guid"] if parent_kwargs.get("guid") else parent_kwargs.get("pobjectid", {}).get("guid")
             )
             parent = self.get_process_by_guid(pguid)
             if process_to_update and parent:
@@ -1920,9 +1901,7 @@ class OntologyResults:
             return
 
         if "guid" not in kwargs:
-            log.warning(
-                "You must pass GUID kwarg if you want to update a process ObjectID."
-            )
+            log.warning("You must pass GUID kwarg if you want to update a process ObjectID.")
             return
 
         object_to_update = self.get_process_by_guid(kwargs["guid"])
@@ -1945,9 +1924,7 @@ class OntologyResults:
             process.set_parent(parent)
 
         if not parent and process.ppid and process.start_time:
-            parent_guid = self.get_guid_by_pid_and_time(
-                process.ppid, process.start_time
-            )
+            parent_guid = self.get_guid_by_pid_and_time(process.ppid, process.start_time)
             parent = self.get_process_by_guid(parent_guid)
             process.set_parent(parent)
 
@@ -1963,9 +1940,7 @@ class OntologyResults:
                 child_process.set_parent(process)
         # Processes may not have a pguid attribute set, so this is not an elif case
         if process.pid and process.start_time:
-            child_processes = self.get_processes_by_ppid_and_time(
-                process.pid, process.start_time
-            )
+            child_processes = self.get_processes_by_ppid_and_time(process.pid, process.start_time)
             for child_process in child_processes:
                 child_process.set_parent(process)
 
@@ -1989,9 +1964,7 @@ class OntologyResults:
         else:
             return None
 
-    def get_processes_by_ppid_and_time(
-        self, ppid: int, timestamp: str
-    ) -> List[Process]:
+    def get_processes_by_ppid_and_time(self, ppid: int, timestamp: str) -> List[Process]:
         """
         This method allows the retrieval of processes based on a parent process ID and timestamp
         :param ppid: The parent process ID
@@ -2003,9 +1976,7 @@ class OntologyResults:
         return [
             process
             for process in self.get_processes()
-            if process.ppid == ppid
-            and timestamp <= process.end_time
-            and timestamp >= process.start_time
+            if process.ppid == ppid and timestamp <= process.end_time and timestamp >= process.start_time
         ]
 
     def get_pguid_by_pid_and_time(self, pid: int, timestamp: str) -> Optional[str]:
@@ -2038,9 +2009,7 @@ class OntologyResults:
             return None
         return self._guid_process_map.get(guid.upper())
 
-    def get_process_by_command_line(
-        self, command_line: Optional[str] = None
-    ) -> Optional[Process]:
+    def get_process_by_command_line(self, command_line: Optional[str] = None) -> Optional[Process]:
         """
         This method takes a given command line and returns the associated process
         NOTE That this method has a high possibility of not being accurate. If multiple processes use the same
@@ -2056,17 +2025,12 @@ class OntologyResults:
                 process
                 for process in self.get_processes()
                 if process.command_line
-                and (
-                    command_line == process.command_line
-                    or command_line in process.command_line
-                )
+                and (command_line == process.command_line or command_line in process.command_line)
             ),
             None,
         )
 
-    def get_process_by_pid_and_time(
-        self, pid: Optional[int], timestamp: Optional[str]
-    ) -> Optional[Process]:
+    def get_process_by_pid_and_time(self, pid: Optional[int], timestamp: Optional[str]) -> Optional[Process]:
         """
         This method allows the retrieval of a process based on a process ID and timestamp
         :param pid: The process ID
@@ -2078,9 +2042,7 @@ class OntologyResults:
         processes: List[Process] = [
             process
             for process in self.get_processes()
-            if process.pid == pid
-            and timestamp <= process.end_time
-            and timestamp >= process.start_time
+            if process.pid == pid and timestamp <= process.end_time and timestamp >= process.start_time
         ]
         if not processes:
             return None
@@ -2098,11 +2060,7 @@ class OntologyResults:
         """
         if pguid is None:
             return []
-        return [
-            process
-            for process in self.get_processes()
-            if process.pobjectid and process.pobjectid.guid == pguid
-        ]
+        return [process for process in self.get_processes() if process.pobjectid and process.pobjectid.guid == pguid]
 
     def get_process_by_pid(self, pid: Optional[int] = None) -> Optional[Process]:
         """
@@ -2116,11 +2074,7 @@ class OntologyResults:
             return None
 
         return next(
-            (
-                process
-                for process in self.get_processes()
-                if process.pid and pid == process.pid
-            ),
+            (process for process in self.get_processes() if process.pid and pid == process.pid),
             None,
         )
 
@@ -2134,11 +2088,7 @@ class OntologyResults:
             return None
 
         return next(
-            (
-                process
-                for process in self.get_processes()
-                if process.objectid == objectid
-            ),
+            (process for process in self.get_processes() if process.objectid == objectid),
             None,
         )
 
@@ -2150,23 +2100,14 @@ class OntologyResults:
         return {
             "sandboxes": [sandbox.as_primitives() for sandbox in self.sandboxes],
             "signatures": [signature.as_primitives() for signature in self.signatures],
-            "network_connections": [
-                network_connection.as_primitives()
-                for network_connection in self.netflows
-            ],
-            "network_dns": [
-                network_dns.as_primitives() for network_dns in self.dns_netflows
-            ],
-            "network_http": [
-                network_http.as_primitives() for network_http in self.http_netflows
-            ],
+            "network_connections": [network_connection.as_primitives() for network_connection in self.netflows],
+            "network_dns": [network_dns.as_primitives() for network_dns in self.dns_netflows],
+            "network_http": [network_http.as_primitives() for network_http in self.http_netflows],
             "processes": [process.as_primitives() for process in self.processes],
         }
 
     # Process Tree and Event manipulation methods
-    def get_events(
-        self, safelist: List[str] = None
-    ) -> List[Union[Process, NetworkConnection]]:
+    def get_events(self, safelist: List[str] = None) -> List[Union[Process, NetworkConnection]]:
         """
         This method gets all process and network events, sorts them by time observed, and returns a list
         :param safelist: A list of safe treeids
@@ -2178,8 +2119,7 @@ class OntologyResults:
         processes_to_add = [
             process
             for process in self.processes
-            if process.start_time is not None
-            and process.objectid.treeid not in safelist
+            if process.start_time is not None and process.objectid.treeid not in safelist
         ]
         netflows_to_add = [
             network_connection
@@ -2198,14 +2138,8 @@ class OntologyResults:
         """
         # NOTE: This method must be called once tree IDs have been added to the process_event_dicts, most likely
         # through calculating the process tree
-        filtered_processes = [
-            process
-            for process in self.get_processes()
-            if process.objectid.treeid not in safelist
-        ]
-        sorted_filtered_processes = self._sort_things_by_time_observed(
-            filtered_processes
-        )
+        filtered_processes = [process for process in self.get_processes() if process.objectid.treeid not in safelist]
+        sorted_filtered_processes = self._sort_things_by_time_observed(filtered_processes)
         return sorted_filtered_processes
 
     def get_process_tree(self, safelist: List[str] = None) -> List[Dict[str, Any]]:
@@ -2220,14 +2154,10 @@ class OntologyResults:
         tree = self._convert_events_dict_to_tree(events_dict)
         self._create_treeids(tree)
         if safelist:
-            tree = OntologyResults._filter_event_tree_against_safe_treeids(
-                tree, safelist
-            )
+            tree = OntologyResults._filter_event_tree_against_safe_treeids(tree, safelist)
         return tree
 
-    def get_process_tree_result_section(
-        self, safelist: List[str] = None
-    ) -> ResultProcessTreeSection:
+    def get_process_tree_result_section(self, safelist: List[str] = None) -> ResultProcessTreeSection:
         """
         This method creates the Typed ResultSection for Process (Event) Trees
         :param safelist: A safelist of tree IDs that is to be applied to the events
@@ -2243,9 +2173,7 @@ class OntologyResults:
             if "process" in event:
                 # event is a NetworkConnection, we don't want this in the process tree result section, only the counts
                 continue
-            self._convert_event_tree_to_result_section(
-                items, event, safelist, process_tree_result_section
-            )
+            self._convert_event_tree_to_result_section(items, event, safelist, process_tree_result_section)
         for item in items:
             process_tree_result_section.add_process(item)
         return process_tree_result_section
@@ -2260,9 +2188,7 @@ class OntologyResults:
         for signature in json["signatures"]:
             self.signatures.append(self._load_signature_from_json(signature))
         for network_connection in json["network_connections"]:
-            self.network_connections.append(
-                self._load_network_connection_from_json(network_connection)
-            )
+            self.network_connections.append(self._load_network_connection_from_json(network_connection))
         for dns in json["network_dns"]:
             self.network_dns.append(self._load_network_dns_from_json(dns))
         for http in json["network_http"]:
@@ -2297,7 +2223,7 @@ class OntologyResults:
         request: ServiceRequest,
         collapsed: bool = False,
         injection_heur_id: int = 17,
-        parent_relation: str = 'EXTRACTED',
+        parent_relation: str = "EXTRACTED",
     ) -> ResultSection:
         """
         Goes through each artifact in artifact_list, uploading them and adding result sections accordingly
@@ -2310,34 +2236,34 @@ class OntologyResults:
 
         validated_artifacts = OntologyResults._validate_artifacts(artifact_list)
 
-        artifacts_result_section = ResultSection(
-            "Sandbox Artifacts", auto_collapse=collapsed
-        )
+        artifacts_result_section = ResultSection("Sandbox Artifacts", auto_collapse=collapsed)
 
         for artifact in validated_artifacts:
-            OntologyResults._handle_artifact(
-                artifact, artifacts_result_section, injection_heur_id
-            )
+            OntologyResults._handle_artifact(artifact, artifacts_result_section, injection_heur_id)
 
             if OntologyResults._is_hollowshunter_dump(artifact.name):
                 parent_relation = "MEMDUMP"
 
-            if artifact.to_be_extracted and not any(artifact.sha256 == previously_extracted["sha256"] for previously_extracted in request.extracted):
+            if artifact.to_be_extracted and not any(
+                artifact.sha256 == previously_extracted["sha256"] for previously_extracted in request.extracted
+            ):
                 try:
                     request.add_extracted(
-                        artifact.path, artifact.name, artifact.description, parent_relation=parent_relation,
+                        artifact.path,
+                        artifact.name,
+                        artifact.description,
+                        parent_relation=parent_relation,
                     )
                 except MaxExtractedExceeded:
                     # To avoid errors from being raised when too many files have been extracted
                     pass
-            elif not artifact.to_be_extracted and not any(artifact.sha256 == previously_supplemented["sha256"] for previously_supplemented in request.task.supplementary):
-                request.add_supplementary(
-                    artifact.path, artifact.name, artifact.description
-                )
+            elif not artifact.to_be_extracted and not any(
+                artifact.sha256 == previously_supplemented["sha256"]
+                for previously_supplemented in request.task.supplementary
+            ):
+                request.add_supplementary(artifact.path, artifact.name, artifact.description)
 
-        return (
-            artifacts_result_section if artifacts_result_section.subsections else None
-        )
+        return artifacts_result_section if artifacts_result_section.subsections else None
 
     def _get_guids(self) -> List[str]:
         """
@@ -2353,11 +2279,7 @@ class OntologyResults:
         :return: A boolean flag indicating that Process is valid
         """
         # Grab pids and guids to use for validation
-        pids: List[int] = [
-            process.pid
-            for process in self._guid_process_map.values()
-            if process.pid is not None
-        ]
+        pids: List[int] = [process.pid for process in self._guid_process_map.values() if process.pid is not None]
         guids: List[str] = list(self._guid_process_map.keys())
 
         if process.objectid.guid is None and process.pid is None:
@@ -2395,9 +2317,7 @@ class OntologyResults:
         valid_entry = False
         # We only care about processes that share process IDs
         processes_with_common_pids = [
-            validated_process
-            for validated_process in self.processes
-            if validated_process.pid == process.pid
+            validated_process for validated_process in self.processes if validated_process.pid == process.pid
         ]
 
         if not processes_with_common_pids:
@@ -2505,9 +2425,7 @@ class OntologyResults:
                     signature.add_subject(**subject)
         return signature
 
-    def _load_network_connection_from_json(
-        self, json: Dict[str, Any]
-    ) -> NetworkConnection:
+    def _load_network_connection_from_json(self, json: Dict[str, Any]) -> NetworkConnection:
         """
         This method takes a given json and sets the corresponding attributes to those values
         :param json: The the given json representation of the network connection
@@ -2566,7 +2484,6 @@ class OntologyResults:
             isinstance(thing_to_sort_by_time_observed, Dict)
             for thing_to_sort_by_time_observed in things_to_sort_by_time_observed
         ):
-
             if any(
                 thing_to_sort_by_time_observed["objectid"]["time_observed"] is None
                 for thing_to_sort_by_time_observed in things_to_sort_by_time_observed
@@ -2580,13 +2497,10 @@ class OntologyResults:
                 if isinstance(time_obs, str):
                     if time_obs == MIN_TIME:
                         time_obs = epoch_to_local_with_ms(0)
-                    time_obs = datetime.strptime(
-                        time_obs, LOCAL_FMT_WITH_MS
-                    ).timestamp()
+                    time_obs = datetime.strptime(time_obs, LOCAL_FMT_WITH_MS).timestamp()
                 return time_obs
 
         else:
-
             if any(
                 thing_to_sort_by_time_observed.objectid.time_observed is None
                 for thing_to_sort_by_time_observed in things_to_sort_by_time_observed
@@ -2600,9 +2514,7 @@ class OntologyResults:
                 if isinstance(time_obs, str):
                     if time_obs == MIN_TIME:
                         time_obs = epoch_to_local_with_ms(0)
-                    time_obs = datetime.strptime(
-                        time_obs, LOCAL_FMT_WITH_MS
-                    ).timestamp()
+                    time_obs = datetime.strptime(time_obs, LOCAL_FMT_WITH_MS).timestamp()
                 return time_obs
 
         sorted_things = sorted(things_to_sort_by_time_observed, key=time_observed)
@@ -2622,10 +2534,7 @@ class OntologyResults:
 
         recurse_again = False
         # If every item is a dictionary, then use key lookups
-        if all(
-            isinstance(thing_to_sort, Dict)
-            for thing_to_sort in things_to_sort_by_relationship
-        ):
+        if all(isinstance(thing_to_sort, Dict) for thing_to_sort in things_to_sort_by_relationship):
             for index, thing in enumerate(things_to_sort_by_relationship[:]):
                 # Confirm if we are working with an process or a network
                 if "pobjectid" in thing:
@@ -2644,17 +2553,12 @@ class OntologyResults:
                     continue
 
                 # If the parent object exists in the rest of the list
-                for parent_index, parent in enumerate(
-                    things_to_sort_by_relationship[index + 1 :]
-                ):
+                for parent_index, parent in enumerate(things_to_sort_by_relationship[index + 1 :]):
                     if (
                         pobjectid["guid"] == parent["objectid"]["guid"]
-                        and pobjectid["time_observed"]
-                        == parent["objectid"]["time_observed"]
+                        and pobjectid["time_observed"] == parent["objectid"]["time_observed"]
                     ):
-                        popped_item = things_to_sort_by_relationship.pop(
-                            index + 1 + parent_index
-                        )
+                        popped_item = things_to_sort_by_relationship.pop(index + 1 + parent_index)
                         things_to_sort_by_relationship.insert(index, popped_item)
                         recurse_again = True
                         break
@@ -2678,13 +2582,9 @@ class OntologyResults:
                 if thing.objectid.time_observed != thing.pobjectid.time_observed:
                     continue
                 # If the parent object exists in the rest of the list
-                for parent_index, parent in enumerate(
-                    things_to_sort_by_relationship[index + 1 :]
-                ):
+                for parent_index, parent in enumerate(things_to_sort_by_relationship[index + 1 :]):
                     if thing.pobjectid.guid == parent.objectid.guid:
-                        popped_item = things_to_sort_by_relationship.pop(
-                            index + 1 + parent_index
-                        )
+                        popped_item = things_to_sort_by_relationship.pop(index + 1 + parent_index)
                         things_to_sort_by_relationship.insert(index, popped_item)
                         recurse_again = True
                         break
@@ -2696,9 +2596,7 @@ class OntologyResults:
         return things_to_sort_by_relationship
 
     @staticmethod
-    def _convert_events_to_dict(
-        events: List[Union[Process, NetworkConnection]]
-    ) -> Dict[str, Any]:
+    def _convert_events_to_dict(events: List[Union[Process, NetworkConnection]]) -> Dict[str, Any]:
         """
         This method converts events to dictionaries
         :param events: A list of validated event objects
@@ -2731,9 +2629,7 @@ class OntologyResults:
         return 0
 
     @staticmethod
-    def _convert_events_dict_to_tree(
-        events_dict: Dict[str, Any] = None
-    ) -> List[Dict[str, Any]]:
+    def _convert_events_dict_to_tree(events_dict: Dict[str, Any] = None) -> List[Dict[str, Any]]:
         """
         This method converts a dictionary representing events into a tree by using pid/ppid or guid/pguid
         pairs for linking
@@ -2744,15 +2640,11 @@ class OntologyResults:
         root = {
             "children": [],
         }
-        sorted_events = OntologyResults._sort_things_by_time_observed(
-            list(events_dict.values())
-        )
+        sorted_events = OntologyResults._sort_things_by_time_observed(list(events_dict.values()))
         try:
             # If events all have the same time observed, but there are child-parent relationships between events,
             # we should order based on relationship
-            sorted_events_by_relationship_and_time = (
-                OntologyResults._sort_things_by_relationship(sorted_events)
-            )
+            sorted_events_by_relationship_and_time = OntologyResults._sort_things_by_relationship(sorted_events)
         except RecursionError:
             log.error("Unable to sort events by relationship due to recursion error.")
             sorted_events_by_relationship_and_time = sorted_events
@@ -2774,7 +2666,10 @@ class OntologyResults:
 
             if pguid and pguid in events_seen:
                 # Check if depth is too DEEP
-                if any(OntologyResults._depth(event_dict) >= PROCESS_TREE_DEPTH_LIMIT for event_dict in events_dict.values()):
+                if any(
+                    OntologyResults._depth(event_dict) >= PROCESS_TREE_DEPTH_LIMIT
+                    for event_dict in events_dict.values()
+                ):
                     # We still want to register the process in events_seen, so
                     # that they don't get added to the root children
                     pass
@@ -2817,13 +2712,9 @@ class OntologyResults:
         if event["objectid"]["treeid"] in safelist:
             e.safelist()
         else:
-            result_section.add_tag(
-                "dynamic.processtree_id", event["objectid"]["processtree"]
-            )
+            result_section.add_tag("dynamic.processtree_id", event["objectid"]["processtree"])
             if event["command_line"]:
-                result_section.add_tag(
-                    "dynamic.process.command_line", event["command_line"]
-                )
+                result_section.add_tag("dynamic.process.command_line", event["command_line"])
 
         for signature in self.get_signatures_by_pid(event["pid"]):
             if signature.score is None:
@@ -2836,9 +2727,7 @@ class OntologyResults:
                 # event is a NetworkConnection, we don't want this in the process tree result section, only the counts
                 pass
             else:
-                self._convert_event_tree_to_result_section(
-                    items, child, safelist, result_section, parent=e
-                )
+                self._convert_event_tree_to_result_section(items, child, safelist, result_section, parent=e)
             event["children"].remove(child)
 
         if not event["children"] and not parent:
@@ -2846,9 +2735,7 @@ class OntologyResults:
         elif not event["children"] and parent:
             parent.add_child_process(e)
 
-    def _create_hashed_node(
-        self, parent_treeid: str, parent_processtree: str, node: Dict[str, Any]
-    ) -> None:
+    def _create_hashed_node(self, parent_treeid: str, parent_processtree: str, node: Dict[str, Any]) -> None:
         """
         This method takes a single node and hashes node attributes.
         Recurses through children to do the same.
@@ -2875,9 +2762,7 @@ class OntologyResults:
         node["objectid"]["processtree"] = processtree
 
         if node["objectid"].get("guid"):
-            self.update_objectid(
-                guid=node["objectid"]["guid"], treeid=sha256sum, processtree=processtree
-            )
+            self.update_objectid(guid=node["objectid"]["guid"], treeid=sha256sum, processtree=processtree)
 
         for child in children:
             self._create_hashed_node(sha256sum, processtree, child)
@@ -2892,9 +2777,7 @@ class OntologyResults:
             self._create_hashed_node("", "", root)
 
     @staticmethod
-    def _remove_safe_leaves_helper(
-        node: Dict[str, Any], safe_treeids: List[str]
-    ) -> Union[str, None]:
+    def _remove_safe_leaves_helper(node: Dict[str, Any], safe_treeids: List[str]) -> Union[str, None]:
         """
         This method is used to recursively remove safe branches from the given node. It removes a branch from the leaf
         up until it is reaches a node that is not safelisted
@@ -2908,13 +2791,8 @@ class OntologyResults:
         len_of_children = len(children)
         for index in range(len_of_children):
             child_to_operate_on = children[index - num_removed]
-            hash_to_remove = OntologyResults._remove_safe_leaves_helper(
-                child_to_operate_on, safe_treeids
-            )
-            if (
-                hash_to_remove
-                and hash_to_remove == child_to_operate_on["objectid"]["treeid"]
-            ):
+            hash_to_remove = OntologyResults._remove_safe_leaves_helper(child_to_operate_on, safe_treeids)
+            if hash_to_remove and hash_to_remove == child_to_operate_on["objectid"]["treeid"]:
                 children.remove(child_to_operate_on)
                 num_removed += 1
                 # We need to overwrite the hash of the parent node with the hash to remove to that it will be
@@ -2930,9 +2808,7 @@ class OntologyResults:
                 return None
 
     @staticmethod
-    def _remove_safe_leaves(
-        process_tree: List[Dict[str, Any]], safe_treeids: List[str]
-    ) -> None:
+    def _remove_safe_leaves(process_tree: List[Dict[str, Any]], safe_treeids: List[str]) -> None:
         """
         This method checks each leaf's hash against the safe tree IDs and removes safe branches from the process tree
         :param process_tree: A list of dictionaries where each dictionary represents a root.
@@ -2959,9 +2835,7 @@ class OntologyResults:
         return event_tree
 
     @staticmethod
-    def _validate_artifacts(
-        artifact_list: List[Dict[str, Any]] = None
-    ) -> List[Artifact]:
+    def _validate_artifacts(artifact_list: List[Dict[str, Any]] = None) -> List[Artifact]:
         """
         This method validates a list of unvalidated artifacts
         :param artifact_list: A list of unvalidated artifacts
@@ -2977,7 +2851,7 @@ class OntologyResults:
                 path=artifact["path"],
                 description=artifact["description"],
                 to_be_extracted=artifact["to_be_extracted"],
-                sha256=artifact["sha256"] if artifact.get("sha256") else get_sha256_for_file(artifact["path"])
+                sha256=artifact["sha256"] if artifact.get("sha256") else get_sha256_for_file(artifact["path"]),
             )
             validated_artifacts.append(validated_artifact)
         return validated_artifacts
@@ -3014,28 +2888,17 @@ class OntologyResults:
             if artifact_result_section is None:
                 artifact_result_section = ResultSection(HOLLOWSHUNTER_TITLE)
                 artifact_result_section.set_heuristic(injection_heur_id)
-                artifact_result_section.add_line(
-                    "HollowsHunter dumped the following:"
-                )
+                artifact_result_section.add_line("HollowsHunter dumped the following:")
 
             artifact_result_section.add_line(f"\t- {artifact.name}")
-            artifact_result_section.add_tag(
-                "dynamic.process.file_name", artifact.name
-            )
+            artifact_result_section.add_tag("dynamic.process.file_name", artifact.name)
             # As of right now, heuristic ID 17 is associated with the Injection category in the Cuckoo service
             if OntologyResults._is_hollowshunter_exe_dump(artifact.name):
-                artifact_result_section.heuristic.add_signature_id(
-                    "hollowshunter_exe"
-                )
+                artifact_result_section.heuristic.add_signature_id("hollowshunter_exe")
             elif OntologyResults._is_hollowshunter_dll_dump(artifact.name):
-                artifact_result_section.heuristic.add_signature_id(
-                    "hollowshunter_dll"
-                )
+                artifact_result_section.heuristic.add_signature_id("hollowshunter_dll")
 
-        if (
-            artifact_result_section is not None
-            and artifact_result_section not in artifacts_result_section.subsections
-        ):
+        if artifact_result_section is not None and artifact_result_section not in artifacts_result_section.subsections:
             artifacts_result_section.add_subsection(artifact_result_section)
 
     def _set_item_times(self, item: Union[Process, ObjectID]) -> None:
@@ -3103,9 +2966,7 @@ class OntologyResults:
         else:
             log.warning(f"Given object {item} is neither Process or ObjectID...")
 
-    def _remove_safelisted_processes(
-        self, safelist: List[str], need_tree_id: bool = False
-    ) -> None:
+    def _remove_safelisted_processes(self, safelist: List[str], need_tree_id: bool = False) -> None:
         """
         This method removes all safelisted processes and all activities associated with those processes
         :param need_tree_id:
@@ -3114,29 +2975,19 @@ class OntologyResults:
         safelisted_processes = [
             process
             for process in self.get_processes()
-            if process.objectid.treeid in safelist
-            or (need_tree_id and process.objectid.treeid is None)
+            if process.objectid.treeid in safelist or (need_tree_id and process.objectid.treeid is None)
         ]
 
         safelisted_network_connections = [
-            nc
-            for nc in self.get_network_connections()
-            if nc.process in safelisted_processes
+            nc for nc in self.get_network_connections() if nc.process in safelisted_processes
         ]
-        safelisted_network_http = [
-            nc.http_details for nc in safelisted_network_connections if nc.http_details
-        ]
-        safelisted_network_dns = [
-            nc.dns_details for nc in safelisted_network_connections if nc.dns_details
-        ]
+        safelisted_network_http = [nc.http_details for nc in safelisted_network_connections if nc.http_details]
+        safelisted_network_dns = [nc.dns_details for nc in safelisted_network_connections if nc.dns_details]
         safelisted_signatures = [
             sig
             for sig in self.get_signatures()
             if any(
-                all(
-                    attribute.source == safelisted_process.objectid
-                    for attribute in sig.attributes
-                )
+                all(attribute.source == safelisted_process.objectid for attribute in sig.attributes)
                 for safelisted_process in safelisted_processes
             )
         ]
@@ -3153,9 +3004,7 @@ class OntologyResults:
         for safelisted_process in safelisted_processes:
             self._remove_process(safelisted_process)
 
-    def preprocess_ontology(
-        self, safelist: List[str] = None, from_main: bool = False, so_json: str = None
-    ) -> None:
+    def preprocess_ontology(self, safelist: List[str] = None, from_main: bool = False, so_json: str = None) -> None:
         """
         This method preprocesses the ontology before it gets validated by Assemblyline's base ODM
         :param from_main: A boolean flag that indicates if this method is being run from __main__
@@ -3187,8 +3036,14 @@ def attach_dynamic_ontology(service: ServiceBase, ontres: OntologyResults) -> No
     """
     [service.ontology.add_result_part(ProcessModel, process.as_primitives()) for process in ontres.get_processes()]
     [service.ontology.add_result_part(SandboxModel, sandbox.as_primitives()) for sandbox in ontres.get_sandboxes()]
-    [service.ontology.add_result_part(SignatureModel, signature.as_primitives()) for signature in ontres.get_signatures()]
-    [service.ontology.add_result_part(NetworkConnectionModel, network_connection.as_primitives()) for network_connection in ontres.get_network_connections()]
+    [
+        service.ontology.add_result_part(SignatureModel, signature.as_primitives())
+        for signature in ontres.get_signatures()
+    ]
+    [
+        service.ontology.add_result_part(NetworkConnectionModel, network_connection.as_primitives())
+        for network_connection in ontres.get_network_connections()
+    ]
 
 
 def extract_iocs_from_text_blob(
@@ -3199,7 +3054,7 @@ def extract_iocs_from_text_blob(
     enforce_char_min: bool = False,
     enforce_domain_char_max: bool = False,
     safelist: Dict[str, Dict[str, List[str]]] = None,
-    is_network_static: bool = False
+    is_network_static: bool = False,
 ) -> None:
     """
     This method searches for domains, IPs and URIs used in blobs of text and tags them
@@ -3257,7 +3112,16 @@ def extract_iocs_from_text_blob(
             if char in uri_to_add:
                 uri_to_add, _, remainder = uri_to_add.partition(char)
                 if remainder:
-                    extract_iocs_from_text_blob(remainder, result_section, so_sig, source, enforce_char_min, enforce_domain_char_max, safelist, is_network_static)
+                    extract_iocs_from_text_blob(
+                        remainder,
+                        result_section,
+                        so_sig,
+                        source,
+                        enforce_char_min,
+                        enforce_domain_char_max,
+                        safelist,
+                        is_network_static,
+                    )
 
         uris.add(uri_to_add)
 
@@ -3267,10 +3131,7 @@ def extract_iocs_from_text_blob(
         if add_tag(result_section, f"network.{network_tag_type}.ip", ip, safelist):
             if not result_section.section_body.body:
                 result_section.add_row(TableRow(ioc_type="ip", ioc=ip))
-            elif (
-                dumps({"ioc_type": "ip", "ioc": ip})
-                not in result_section.section_body.body
-            ):
+            elif dumps({"ioc_type": "ip", "ioc": ip}) not in result_section.section_body.body:
                 result_section.add_row(TableRow(ioc_type="ip", ioc=ip))
     for domain in sorted(domains):
         if enforce_char_min and len(domain) < MIN_DOMAIN_CHARS:
@@ -3298,17 +3159,14 @@ def extract_iocs_from_text_blob(
         if add_tag(result_section, f"network.{network_tag_type}.domain", domain, safelist):
             if not result_section.section_body.body:
                 result_section.add_row(TableRow(ioc_type="domain", ioc=domain))
-            elif (
-                dumps({"ioc_type": "domain", "ioc": domain})
-                not in result_section.section_body.body
-            ):
+            elif dumps({"ioc_type": "domain", "ioc": domain}) not in result_section.section_body.body:
                 result_section.add_row(TableRow(ioc_type="domain", ioc=domain))
 
     for uri in sorted(uris):
         if enforce_char_min and len(uri) < MIN_URI_CHARS:
             continue
-        if any(invalid_uri_char in uri for invalid_uri_char in ['"', "'", '<', '>', "(", ")"]):
-            for invalid_uri_char in ['"', "'", '<', '>', "(", ")"]:
+        if any(invalid_uri_char in uri for invalid_uri_char in ['"', "'", "<", ">", "(", ")"]):
+            for invalid_uri_char in ['"', "'", "<", ">", "(", ")"]:
                 for u in uri.split(invalid_uri_char):
                     if re_match(FULL_URI, u):
                         uri = u
@@ -3327,10 +3185,7 @@ def extract_iocs_from_text_blob(
         if add_tag(result_section, f"network.{network_tag_type}.uri", uri, safelist):
             if not result_section.section_body.body:
                 result_section.add_row(TableRow(ioc_type="uri", ioc=uri))
-            elif (
-                dumps({"ioc_type": "uri", "ioc": uri})
-                not in result_section.section_body.body
-            ):
+            elif dumps({"ioc_type": "uri", "ioc": uri}) not in result_section.section_body.body:
                 result_section.add_row(TableRow(ioc_type="uri", ioc=uri))
             if so_sig and source:
                 so_sig.add_attribute(so_sig.create_attribute(source=source, uri=uri))
@@ -3342,13 +3197,15 @@ def extract_iocs_from_text_blob(
         for uri_path in findall(URI_PATH, uri):
             if enforce_char_min and len(uri_path) < MIN_URI_PATH_CHARS:
                 continue
-            if add_tag(result_section, f"network.{network_tag_type}.uri_path", uri_path, safelist):
+            if add_tag(
+                result_section,
+                f"network.{network_tag_type}.uri_path",
+                uri_path,
+                safelist,
+            ):
                 if not result_section.section_body.body:
                     result_section.add_row(TableRow(ioc_type="uri_path", ioc=uri_path))
-                elif (
-                    dumps({"ioc_type": "uri_path", "ioc": uri_path})
-                    not in result_section.section_body.body
-                ):
+                elif dumps({"ioc_type": "uri_path", "ioc": uri_path}) not in result_section.section_body.body:
                     result_section.add_row(TableRow(ioc_type="uri_path", ioc=uri_path))
 
     # Now that we are performing recursion with this method, we need additional sorting
@@ -3357,7 +3214,9 @@ def extract_iocs_from_text_blob(
         if any(key.endswith(tag_extension) for tag_extension in [".uri", ".domain", ".ip", ".uri_path"]):
             result_section.tags[key] = sorted(values)
     # With rows
-    result_section.section_body._data = sorted(result_section.section_body._data, key=lambda x: (x["ioc_type"], x["ioc"]))
+    result_section.section_body._data = sorted(
+        result_section.section_body._data, key=lambda x: (x["ioc_type"], x["ioc"])
+    )
     # With signature attributes
     if so_sig:
         so_sig.attributes = sorted(so_sig.attributes, key=lambda x: x.uri)
