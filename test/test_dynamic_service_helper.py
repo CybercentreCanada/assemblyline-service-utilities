@@ -85,9 +85,7 @@ def dummy_request_class(dummy_task_class):
             self.extracted = self.task.extracted
 
         def add_supplementary(self, path, name, description):
-            self.task.supplementary.append(
-                {"path": path, "name": name, "description": description}
-            )
+            self.task.supplementary.append({"path": path, "name": name, "description": description})
 
         def add_extracted(self, path, name, description, parent_relation="EXTRACTED"):
             self.task.extracted.append(
@@ -134,9 +132,7 @@ class TestModule:
     @staticmethod
     def test_update_object_items(dummy_object_class):
         dummy = dummy_object_class()
-        update_object_items(
-            dummy, {"id": "blah", "something": "blah", "blah": None, "blahblah": ""}
-        )
+        update_object_items(dummy, {"id": "blah", "something": "blah", "blah": None, "blahblah": ""})
         assert dummy.id == "blah"
         assert dummy.__dict__ == {"id": "blah"}
         assert update_object_items(dummy, {"id": None}) is None
@@ -175,9 +171,7 @@ class TestArtifact:
 
     @staticmethod
     def test_artifact_as_primitives():
-        a = Artifact(
-            name="blah", path="blah", description="blah", to_be_extracted="blah", sha256="blah"
-        )
+        a = Artifact(name="blah", path="blah", description="blah", to_be_extracted="blah", sha256="blah")
         assert a.as_primitives() == {
             "name": "blah",
             "path": "blah",
@@ -290,9 +284,7 @@ class TestProcess:
         parent_image = "blah"
         parent_oid = "blah2"
 
-        current_objectid = ObjectID(
-            tag="blah", ontology_id=current_oid, service_name="blah"
-        )
+        current_objectid = ObjectID(tag="blah", ontology_id=current_oid, service_name="blah")
         current_p = Process(
             objectid=current_objectid,
             image=current_image,
@@ -373,9 +365,7 @@ class TestProcess:
         current_image = "blah"
         current_oid = "blah1"
 
-        current_objectid = ObjectID(
-            tag="blah", ontology_id=current_oid, service_name="blah"
-        )
+        current_objectid = ObjectID(tag="blah", ontology_id=current_oid, service_name="blah")
         p = Process(
             objectid=current_objectid,
             image=current_image,
@@ -411,9 +401,7 @@ class TestProcess:
         current_image = "blah"
         current_oid = "blah1"
 
-        current_objectid = ObjectID(
-            tag="blah", ontology_id=current_oid, service_name="blah"
-        )
+        current_objectid = ObjectID(tag="blah", ontology_id=current_oid, service_name="blah")
         p = Process(
             objectid=current_objectid,
             image=current_image,
@@ -487,15 +475,11 @@ class TestProcess:
     def test_set_parent():
         current_image = "blah"
         current_oid = "blah1"
-        current_objectid = ObjectID(
-            tag="blah", ontology_id=current_oid, service_name="blah"
-        )
+        current_objectid = ObjectID(tag="blah", ontology_id=current_oid, service_name="blah")
 
         parent_image = "blah"
         parent_oid = "blah2"
-        parent_objectid = ObjectID(
-            tag="blah", ontology_id=parent_oid, service_name="blah"
-        )
+        parent_objectid = ObjectID(tag="blah", ontology_id=parent_oid, service_name="blah")
         child_p1 = Process(
             objectid=current_objectid,
             image=current_image,
@@ -624,9 +608,7 @@ class TestProcess:
     @staticmethod
     def test_process_update_objectid():
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
-        p = Process(
-            objectid=current_objectid, image="blah", start_time="1970-01-01 00:00:00.000"
-        )
+        p = Process(objectid=current_objectid, image="blah", start_time="1970-01-01 00:00:00.000")
         p.update_objectid()
         assert p.objectid.tag == "blah"
         assert p.objectid.ontology_id == "blah"
@@ -658,9 +640,7 @@ class TestProcess:
     @staticmethod
     def test_process_update_pobjectid():
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
-        p = Process(
-            objectid=current_objectid, image="blah", start_time="1970-01-01 00:00:00.000"
-        )
+        p = Process(objectid=current_objectid, image="blah", start_time="1970-01-01 00:00:00.000")
         p.update_pobjectid()
         assert p.pobjectid is None
 
@@ -959,14 +939,9 @@ class TestNetworkConnection:
     def test_create_tag():
         assert NetworkConnection.create_tag() is None
         assert NetworkConnection.create_tag("blah.com") is None
+        assert NetworkConnection.create_tag(destination_ip="1.1.1.1", destination_port=123) == "1.1.1.1:123"
         assert (
-            NetworkConnection.create_tag(destination_ip="1.1.1.1", destination_port=123)
-            == "1.1.1.1:123"
-        )
-        assert (
-            NetworkConnection.create_tag(
-                domain="blah.com", destination_ip="1.1.1.1", destination_port=123
-            )
+            NetworkConnection.create_tag(domain="blah.com", destination_ip="1.1.1.1", destination_port=123)
             == "1.1.1.1:123"
         )
         assert (
@@ -1251,13 +1226,13 @@ class TestSignature:
         source = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
         assert Signature.create_attribute(source=source).as_primitives() == {
             "source": source.as_primitives(),
-            'action': None,
-            'domain': None,
-            'event_record_id': None,
-            'file_hash': None,
-            'meta': None,
-            'target': None,
-            'uri': None
+            "action": None,
+            "domain": None,
+            "event_record_id": None,
+            "file_hash": None,
+            "meta": None,
+            "target": None,
+            "uri": None,
         }
 
     @staticmethod
@@ -1445,9 +1420,7 @@ class TestSandbox:
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
         default_so = Sandbox(
             objectid=current_objectid,
-            analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:00.000"
-            ),
+            analysis_metadata=Sandbox.AnalysisMetadata(start_time="1970-01-01 00:00:00.000"),
             sandbox_name="blah",
         )
         assert default_so.analysis_metadata.task_id is None
@@ -1463,9 +1436,7 @@ class TestSandbox:
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
         default_so = Sandbox(
             objectid=current_objectid,
-            analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:00.000"
-            ),
+            analysis_metadata=Sandbox.AnalysisMetadata(start_time="1970-01-01 00:00:00.000"),
             sandbox_name="blah",
         )
         default_so.update_analysis_metadata(task_id=123)
@@ -1476,9 +1447,7 @@ class TestSandbox:
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
         default_so = Sandbox(
             objectid=current_objectid,
-            analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:00.000"
-            ),
+            analysis_metadata=Sandbox.AnalysisMetadata(start_time="1970-01-01 00:00:00.000"),
             sandbox_name="blah",
         )
 
@@ -1490,9 +1459,7 @@ class TestSandbox:
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
         default_so = Sandbox(
             objectid=current_objectid,
-            analysis_metadata=Sandbox.AnalysisMetadata(
-                start_time="1970-01-01 00:00:00.000"
-            ),
+            analysis_metadata=Sandbox.AnalysisMetadata(start_time="1970-01-01 00:00:00.000"),
             sandbox_name="blah",
         )
         assert default_so.as_primitives() == {
@@ -1513,7 +1480,7 @@ class TestSandbox:
                 "session": None,
                 "tag": "blah",
                 "time_observed": None,
-                "treeid": None
+                "treeid": None,
             },
         }
 
@@ -1744,10 +1711,7 @@ class TestOntologyResults:
             guid=default_or.processes[0].objectid.guid,
             pguid="{12345678-1234-5678-1234-567812345679}",
         )
-        assert (
-            default_or.processes[0].pobjectid.guid
-            == "{12345678-1234-5678-1234-567812345679}"
-        )
+        assert default_or.processes[0].pobjectid.guid == "{12345678-1234-5678-1234-567812345679}"
         assert default_or.processes[0].pimage == "C:\\Windows\\System32\\cmd.exe"
         assert default_or.processes[0].pobjectid.tag == "blah"
 
@@ -1755,10 +1719,7 @@ class TestOntologyResults:
             guid=default_or.processes[0].objectid.guid,
             pobjectid={"guid": "{12345678-1234-5678-1234-567812345679}"},
         )
-        assert (
-            default_or.processes[0].pobjectid.guid
-            == "{12345678-1234-5678-1234-567812345679}"
-        )
+        assert default_or.processes[0].pobjectid.guid == "{12345678-1234-5678-1234-567812345679}"
 
     @staticmethod
     def test_ontology_results_update_objectid():
@@ -1807,9 +1768,7 @@ class TestOntologyResults:
         assert nc.objectid.processtree is None
         assert nc.objectid.time_observed is None
 
-        default_or.update_objectid(
-            guid="{12345678-1234-5678-1234-567812345678}", tag="blah"
-        )
+        default_or.update_objectid(guid="{12345678-1234-5678-1234-567812345678}", tag="blah")
 
         assert p.objectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert p.objectid.tag == "blah"
@@ -2128,9 +2087,7 @@ class TestOntologyResults:
             ppid=2,
         )
         default_or.add_process(p)
-        assert default_or.get_processes_by_ppid_and_time(2, "1970-01-01 00:00:01.000") == [
-            p
-        ]
+        assert default_or.get_processes_by_ppid_and_time(2, "1970-01-01 00:00:01.000") == [p]
 
     @staticmethod
     def test_get_pguid_by_pid_and_time():
@@ -2351,13 +2308,13 @@ class TestOntologyResults:
         source = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
         assert OntologyResults.create_attribute(source=source).as_primitives() == {
             "source": source.as_primitives(),
-            'action': None,
-            'domain': None,
-            'event_record_id': None,
-            'file_hash': None,
-            'meta': None,
-            'target': None,
-            'uri': None
+            "action": None,
+            "domain": None,
+            "event_record_id": None,
+            "file_hash": None,
+            "meta": None,
+            "target": None,
+            "uri": None,
         }
 
     @staticmethod
@@ -2491,9 +2448,7 @@ class TestOntologyResults:
             ontology_id="blah",
             tag="blah",
         )
-        nc.update_process(
-            pid=1, objectid=p1_objectid, image="blah", start_time="1970-01-01 00:00:01.000"
-        )
+        nc.update_process(pid=1, objectid=p1_objectid, image="blah", start_time="1970-01-01 00:00:01.000")
         default_or.add_network_connection(nc)
         assert default_or.get_network_connection_by_pid(1) == []
 
@@ -2509,9 +2464,7 @@ class TestOntologyResults:
             end_time="1970-01-01 00:00:05",
         )
         default_or.add_process(p)
-        nc2_objectid = ObjectID(
-            ontology_id="blah", tag="blah", time_observed="1970-01-01 00:00:02.000"
-        )
+        nc2_objectid = ObjectID(ontology_id="blah", tag="blah", time_observed="1970-01-01 00:00:02.000")
         nc2 = default_or.create_network_connection(
             objectid=nc2_objectid,
             destination_ip="1.1.1.1",
@@ -2519,13 +2472,9 @@ class TestOntologyResults:
             transport_layer_protocol="tcp",
             direction="outbound",
         )
-        nc2.update_process(
-            objectid=p2_objectid, image="blah", pid=2, start_time="1970-01-01 00:00:02.000"
-        )
+        nc2.update_process(objectid=p2_objectid, image="blah", pid=2, start_time="1970-01-01 00:00:02.000")
         default_or.add_network_connection(nc2)
-        assert (
-            default_or.get_network_connection_by_pid(2)[0].destination_ip == "1.1.1.1"
-        )
+        assert default_or.get_network_connection_by_pid(2)[0].destination_ip == "1.1.1.1"
 
     @staticmethod
     def test_get_network_connection_by_guid():
@@ -2545,12 +2494,7 @@ class TestOntologyResults:
         default_or.add_network_connection(nc)
         assert default_or.get_network_connection_by_guid("blah") is None
 
-        assert (
-            default_or.get_network_connection_by_guid(
-                "{12345678-1234-5678-1234-567812345678}"
-            )
-            == nc
-        )
+        assert default_or.get_network_connection_by_guid("{12345678-1234-5678-1234-567812345678}") == nc
 
     @staticmethod
     def test_get_network_connection_by_details():
@@ -2589,18 +2533,14 @@ class TestOntologyResults:
     @staticmethod
     def test_set_dns_netflows():
         default_or = OntologyResults()
-        nd = default_or.create_network_dns(
-            domain="blah", resolved_ips=["1.1.1.1"], lookup_type="A"
-        )
+        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], lookup_type="A")
         default_or.set_dns_netflows([nd])
         assert default_or.dns_netflows == [nd]
 
     @staticmethod
     def test_create_network_dns():
         default_or = OntologyResults()
-        nd = default_or.create_network_dns(
-            domain="blah", resolved_ips=["1.1.1.1"], lookup_type="A"
-        )
+        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], lookup_type="A")
         assert nd.domain == "blah"
 
     @staticmethod
@@ -2608,9 +2548,7 @@ class TestOntologyResults:
         default_or = OntologyResults()
         assert default_or.dns_netflows == []
 
-        nd = default_or.create_network_dns(
-            domain="blah", resolved_ips=["1.1.1.1"], lookup_type="A"
-        )
+        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], lookup_type="A")
         default_or.add_network_dns(nd)
         nd_as_primitives = default_or.dns_netflows[0].as_primitives()
         assert nd_as_primitives == {
@@ -2622,9 +2560,7 @@ class TestOntologyResults:
     @staticmethod
     def test_get_network_dns():
         default_or = OntologyResults()
-        nd = default_or.create_network_dns(
-            domain="blah", resolved_ips=["1.1.1.1"], lookup_type="A"
-        )
+        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], lookup_type="A")
         default_or.add_network_dns(nd)
         assert default_or.get_network_dns() == [nd]
 
@@ -2633,15 +2569,11 @@ class TestOntologyResults:
         default_or = OntologyResults()
         assert default_or.get_domain_by_destination_ip("1.1.1.1") is None
 
-        nd1 = default_or.create_network_dns(
-            domain="blah.com", resolved_ips=["1.1.1.1"], lookup_type="A"
-        )
+        nd1 = default_or.create_network_dns(domain="blah.com", resolved_ips=["1.1.1.1"], lookup_type="A")
         default_or.add_network_dns(nd1)
         assert default_or.get_domain_by_destination_ip("1.1.1.1") == "blah.com"
 
-        nd2 = default_or.create_network_dns(
-            domain="blah.ca", resolved_ips=["1.1.1.1"], lookup_type="A"
-        )
+        nd2 = default_or.create_network_dns(domain="blah.ca", resolved_ips=["1.1.1.1"], lookup_type="A")
         default_or.add_network_dns(nd2)
         assert default_or.get_domain_by_destination_ip("1.1.1.1") == "blah.com"
 
@@ -2650,15 +2582,11 @@ class TestOntologyResults:
         default_or = OntologyResults()
         assert default_or.get_destination_ip_by_domain("blah.com") is None
 
-        nd1 = default_or.create_network_dns(
-            domain="blah.com", resolved_ips=["1.1.1.1"], lookup_type="A"
-        )
+        nd1 = default_or.create_network_dns(domain="blah.com", resolved_ips=["1.1.1.1"], lookup_type="A")
         default_or.add_network_dns(nd1)
         assert default_or.get_destination_ip_by_domain("blah.com") == "1.1.1.1"
 
-        nd2 = default_or.create_network_dns(
-            domain="blah.com", resolved_ips=["2.2.2.2"], lookup_type="A"
-        )
+        nd2 = default_or.create_network_dns(domain="blah.com", resolved_ips=["2.2.2.2"], lookup_type="A")
         default_or.add_network_dns(nd2)
         assert default_or.get_destination_ip_by_domain("blah.com") == "1.1.1.1"
 
@@ -2737,14 +2665,8 @@ class TestOntologyResults:
         )
         default_or.add_network_http(nh)
 
-        assert (
-            default_or.get_network_http_by_details("http://blah.com", "GET", {"a": "b"})
-            == nh
-        )
-        assert (
-            default_or.get_network_http_by_details("http://blah.ca", "GET", {"a": "b"})
-            is None
-        )
+        assert default_or.get_network_http_by_details("http://blah.com", "GET", {"a": "b"}) == nh
+        assert default_or.get_network_http_by_details("http://blah.ca", "GET", {"a": "b"}) is None
 
     @staticmethod
     def test_set_signature():
@@ -3924,9 +3846,7 @@ class TestOntologyResults:
             ),
         ],
     )
-    def test_get_process_tree_result_section(
-        event_list, signatures, safelist, correct_section_body
-    ):
+    def test_get_process_tree_result_section(event_list, signatures, safelist, correct_section_body):
         from assemblyline_v4_service.common.result import ResultProcessTreeSection
 
         default_or = OntologyResults(service_name="blah")
@@ -4270,29 +4190,15 @@ class TestOntologyResults:
         assert default_or.signatures[0].subjects[1].file is None
         assert default_or.signatures[0].subjects[1].registry is None
 
-        assert (
-            default_or.signatures[0].subjects[1].process.objectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert default_or.signatures[0].subjects[1].process.objectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert default_or.signatures[0].subjects[1].process.objectid.tag == "blah"
         assert default_or.signatures[0].subjects[1].process.objectid.treeid == "blah"
-        assert (
-            default_or.signatures[0].subjects[1].process.objectid.time_observed
-            == "blah"
-        )
-        assert (
-            default_or.signatures[0].subjects[1].process.pobjectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert default_or.signatures[0].subjects[1].process.objectid.time_observed == "blah"
+        assert default_or.signatures[0].subjects[1].process.pobjectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert default_or.signatures[0].subjects[1].process.pobjectid.tag == "blah"
         assert default_or.signatures[0].subjects[1].process.pobjectid.treeid == "blah"
-        assert (
-            default_or.signatures[0].subjects[1].process.pobjectid.processtree == "blah"
-        )
-        assert (
-            default_or.signatures[0].subjects[1].process.pobjectid.time_observed
-            == "blah"
-        )
+        assert default_or.signatures[0].subjects[1].process.pobjectid.processtree == "blah"
+        assert default_or.signatures[0].subjects[1].process.pobjectid.time_observed == "blah"
         assert default_or.signatures[0].subjects[1].process.pimage == "blah"
         assert default_or.signatures[0].subjects[1].process.pcommand_line == "blah"
         assert default_or.signatures[0].subjects[1].process.ppid == "blah"
@@ -4305,17 +4211,11 @@ class TestOntologyResults:
         assert default_or.signatures[0].subjects[1].process.image_hash == "blah"
         assert default_or.signatures[0].subjects[1].process.original_file_name == "blah"
 
-        assert (
-            default_or.signatures[0].process.objectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert default_or.signatures[0].process.objectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert default_or.signatures[0].process.objectid.tag == "blah"
         assert default_or.signatures[0].process.objectid.treeid == "blah"
         assert default_or.signatures[0].process.objectid.time_observed == "blah"
-        assert (
-            default_or.signatures[0].process.pobjectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert default_or.signatures[0].process.pobjectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert default_or.signatures[0].process.pobjectid.tag == "blah"
         assert default_or.signatures[0].process.pobjectid.treeid == "blah"
         assert default_or.signatures[0].process.pobjectid.processtree == "blah"
@@ -4344,26 +4244,16 @@ class TestOntologyResults:
         assert default_or.network_connections[0].transport_layer_protocol == "blah"
         assert default_or.network_connections[0].direction == "blah"
 
-        assert (
-            default_or.network_connections[0].process.objectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert default_or.network_connections[0].process.objectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert default_or.network_connections[0].process.objectid.tag == "blah"
         assert default_or.network_connections[0].process.objectid.treeid == "blah"
         assert default_or.network_connections[0].process.objectid.processtree == "blah"
-        assert (
-            default_or.network_connections[0].process.objectid.time_observed == "blah"
-        )
-        assert (
-            default_or.network_connections[0].process.pobjectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert default_or.network_connections[0].process.objectid.time_observed == "blah"
+        assert default_or.network_connections[0].process.pobjectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert default_or.network_connections[0].process.pobjectid.tag == "blah"
         assert default_or.network_connections[0].process.pobjectid.treeid == "blah"
         assert default_or.network_connections[0].process.pobjectid.processtree == "blah"
-        assert (
-            default_or.network_connections[0].process.pobjectid.time_observed == "blah"
-        )
+        assert default_or.network_connections[0].process.pobjectid.time_observed == "blah"
         assert default_or.network_connections[0].process.pimage == "blah"
         assert default_or.network_connections[0].process.pcommand_line == "blah"
         assert default_or.network_connections[0].process.ppid == "blah"
@@ -4383,82 +4273,42 @@ class TestOntologyResults:
         assert str(UUID(default_or.network_dns[0].connection_details.objectid.guid))
         assert default_or.network_dns[0].connection_details.objectid.tag == "blah"
         assert default_or.network_dns[0].connection_details.objectid.treeid == "blah"
-        assert (
-            default_or.network_dns[0].connection_details.objectid.processtree == "blah"
-        )
-        assert (
-            default_or.network_dns[0].connection_details.objectid.time_observed
-            == "blah"
-        )
+        assert default_or.network_dns[0].connection_details.objectid.processtree == "blah"
+        assert default_or.network_dns[0].connection_details.objectid.time_observed == "blah"
         assert default_or.network_dns[0].connection_details.source_ip == "blah"
         assert default_or.network_dns[0].connection_details.source_port == "blah"
         assert default_or.network_dns[0].connection_details.destination_ip == "blah"
         assert default_or.network_dns[0].connection_details.destination_port == "blah"
-        assert (
-            default_or.network_dns[0].connection_details.transport_layer_protocol
-            == "blah"
-        )
+        assert default_or.network_dns[0].connection_details.transport_layer_protocol == "blah"
         assert default_or.network_dns[0].connection_details.direction == "blah"
 
         assert (
             default_or.network_dns[0].connection_details.process.objectid.guid
             == "{12345678-1234-5678-1234-567812345678}"
         )
-        assert (
-            default_or.network_dns[0].connection_details.process.objectid.tag == "blah"
-        )
-        assert (
-            default_or.network_dns[0].connection_details.process.objectid.treeid
-            == "blah"
-        )
-        assert (
-            default_or.network_dns[0].connection_details.process.objectid.processtree
-            == "blah"
-        )
-        assert (
-            default_or.network_dns[0].connection_details.process.objectid.time_observed
-            == "blah"
-        )
+        assert default_or.network_dns[0].connection_details.process.objectid.tag == "blah"
+        assert default_or.network_dns[0].connection_details.process.objectid.treeid == "blah"
+        assert default_or.network_dns[0].connection_details.process.objectid.processtree == "blah"
+        assert default_or.network_dns[0].connection_details.process.objectid.time_observed == "blah"
         assert (
             default_or.network_dns[0].connection_details.process.pobjectid.guid
             == "{12345678-1234-5678-1234-567812345678}"
         )
-        assert (
-            default_or.network_dns[0].connection_details.process.pobjectid.tag == "blah"
-        )
-        assert (
-            default_or.network_dns[0].connection_details.process.pobjectid.treeid
-            == "blah"
-        )
-        assert (
-            default_or.network_dns[0].connection_details.process.pobjectid.processtree
-            == "blah"
-        )
-        assert (
-            default_or.network_dns[0].connection_details.process.pobjectid.time_observed
-            == "blah"
-        )
+        assert default_or.network_dns[0].connection_details.process.pobjectid.tag == "blah"
+        assert default_or.network_dns[0].connection_details.process.pobjectid.treeid == "blah"
+        assert default_or.network_dns[0].connection_details.process.pobjectid.processtree == "blah"
+        assert default_or.network_dns[0].connection_details.process.pobjectid.time_observed == "blah"
         assert default_or.network_dns[0].connection_details.process.pimage == "blah"
-        assert (
-            default_or.network_dns[0].connection_details.process.pcommand_line == "blah"
-        )
+        assert default_or.network_dns[0].connection_details.process.pcommand_line == "blah"
         assert default_or.network_dns[0].connection_details.process.ppid == "blah"
         assert default_or.network_dns[0].connection_details.process.pid == "blah"
         assert default_or.network_dns[0].connection_details.process.image == "blah"
-        assert (
-            default_or.network_dns[0].connection_details.process.command_line == "blah"
-        )
+        assert default_or.network_dns[0].connection_details.process.command_line == "blah"
         assert default_or.network_dns[0].connection_details.process.start_time == "blah"
         assert default_or.network_dns[0].connection_details.process.end_time == "blah"
-        assert (
-            default_or.network_dns[0].connection_details.process.integrity_level
-            == "blah"
-        )
+        assert default_or.network_dns[0].connection_details.process.integrity_level == "blah"
         assert default_or.network_dns[0].connection_details.process.image_hash == "blah"
-        assert (
-            default_or.network_dns[0].connection_details.process.original_file_name
-            == "blah"
-        )
+        assert default_or.network_dns[0].connection_details.process.original_file_name == "blah"
 
         assert default_or.network_http[0].request_uri == "blah"
         assert default_or.network_http[0].request_headers == {"a": "b"}
@@ -4471,103 +4321,49 @@ class TestOntologyResults:
         assert str(UUID(default_or.network_http[0].connection_details.objectid.guid))
         assert default_or.network_http[0].connection_details.objectid.tag == "blah"
         assert default_or.network_http[0].connection_details.objectid.treeid == "blah"
-        assert (
-            default_or.network_http[0].connection_details.objectid.processtree == "blah"
-        )
-        assert (
-            default_or.network_http[0].connection_details.objectid.time_observed
-            == "blah"
-        )
+        assert default_or.network_http[0].connection_details.objectid.processtree == "blah"
+        assert default_or.network_http[0].connection_details.objectid.time_observed == "blah"
         assert default_or.network_http[0].connection_details.source_ip == "blah"
         assert default_or.network_http[0].connection_details.source_port == "blah"
         assert default_or.network_http[0].connection_details.destination_ip == "blah"
         assert default_or.network_http[0].connection_details.destination_port == "blah"
-        assert (
-            default_or.network_http[0].connection_details.transport_layer_protocol
-            == "blah"
-        )
+        assert default_or.network_http[0].connection_details.transport_layer_protocol == "blah"
         assert default_or.network_http[0].connection_details.direction == "blah"
 
         assert (
             default_or.network_http[0].connection_details.process.objectid.guid
             == "{12345678-1234-5678-1234-567812345678}"
         )
-        assert (
-            default_or.network_http[0].connection_details.process.objectid.tag == "blah"
-        )
-        assert (
-            default_or.network_http[0].connection_details.process.objectid.treeid
-            == "blah"
-        )
-        assert (
-            default_or.network_http[0].connection_details.process.objectid.processtree
-            == "blah"
-        )
-        assert (
-            default_or.network_http[0].connection_details.process.objectid.time_observed
-            == "blah"
-        )
+        assert default_or.network_http[0].connection_details.process.objectid.tag == "blah"
+        assert default_or.network_http[0].connection_details.process.objectid.treeid == "blah"
+        assert default_or.network_http[0].connection_details.process.objectid.processtree == "blah"
+        assert default_or.network_http[0].connection_details.process.objectid.time_observed == "blah"
         assert (
             default_or.network_http[0].connection_details.process.pobjectid.guid
             == "{12345678-1234-5678-1234-567812345678}"
         )
-        assert (
-            default_or.network_http[0].connection_details.process.pobjectid.tag
-            == "blah"
-        )
-        assert (
-            default_or.network_http[0].connection_details.process.pobjectid.treeid
-            == "blah"
-        )
-        assert (
-            default_or.network_http[0].connection_details.process.pobjectid.processtree
-            == "blah"
-        )
-        assert (
-            default_or.network_http[
-                0
-            ].connection_details.process.pobjectid.time_observed
-            == "blah"
-        )
+        assert default_or.network_http[0].connection_details.process.pobjectid.tag == "blah"
+        assert default_or.network_http[0].connection_details.process.pobjectid.treeid == "blah"
+        assert default_or.network_http[0].connection_details.process.pobjectid.processtree == "blah"
+        assert default_or.network_http[0].connection_details.process.pobjectid.time_observed == "blah"
         assert default_or.network_http[0].connection_details.process.pimage == "blah"
-        assert (
-            default_or.network_http[0].connection_details.process.pcommand_line
-            == "blah"
-        )
+        assert default_or.network_http[0].connection_details.process.pcommand_line == "blah"
         assert default_or.network_http[0].connection_details.process.ppid == "blah"
         assert default_or.network_http[0].connection_details.process.pid == "blah"
         assert default_or.network_http[0].connection_details.process.image == "blah"
-        assert (
-            default_or.network_http[0].connection_details.process.command_line == "blah"
-        )
-        assert (
-            default_or.network_http[0].connection_details.process.start_time == "blah"
-        )
+        assert default_or.network_http[0].connection_details.process.command_line == "blah"
+        assert default_or.network_http[0].connection_details.process.start_time == "blah"
         assert default_or.network_http[0].connection_details.process.end_time == "blah"
-        assert (
-            default_or.network_http[0].connection_details.process.integrity_level
-            == "blah"
-        )
-        assert (
-            default_or.network_http[0].connection_details.process.image_hash == "blah"
-        )
-        assert (
-            default_or.network_http[0].connection_details.process.original_file_name
-            == "blah"
-        )
+        assert default_or.network_http[0].connection_details.process.integrity_level == "blah"
+        assert default_or.network_http[0].connection_details.process.image_hash == "blah"
+        assert default_or.network_http[0].connection_details.process.original_file_name == "blah"
 
-        assert (
-            default_or.processes[0].objectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert default_or.processes[0].objectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert default_or.processes[0].objectid.tag == "blah"
         assert default_or.processes[0].objectid.treeid == "blah"
         assert default_or.processes[0].objectid.processtree == "blah"
         assert default_or.processes[0].objectid.time_observed == "blah"
-        assert (
-            default_or.processes[0].pobjectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert default_or.processes[0].pobjectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert default_or.processes[0].pobjectid.tag == "blah"
         assert default_or.processes[0].pobjectid.treeid == "blah"
         assert default_or.processes[0].pobjectid.processtree == "blah"
@@ -4646,15 +4442,15 @@ class TestOntologyResults:
             hh_sec.heuristic.add_signature_id("hollowshunter_exe")
             hh_sec.add_line("HollowsHunter dumped the following:")
             hh_sec.add_line("\t- 123_hollowshunter/hh_process_12345_blah123.something.exe")
-            hh_sec.add_tag("dynamic.process.file_name", '123_hollowshunter/hh_process_12345_blah123.something.exe')
+            hh_sec.add_tag("dynamic.process.file_name", "123_hollowshunter/hh_process_12345_blah123.something.exe")
             expected_result.add_subsection(hh_sec)
             assert check_section_equality(actual_result, expected_result)
             assert r.extracted == [
                 {
-                    'description': 'blah',
-                    'name': '123_hollowshunter/hh_process_12345_blah123.something.exe',
-                    'parent_relation': 'MEMDUMP',
-                    'path': 'blah'
+                    "description": "blah",
+                    "name": "123_hollowshunter/hh_process_12345_blah123.something.exe",
+                    "parent_relation": "MEMDUMP",
+                    "path": "blah",
                 },
             ]
 
@@ -4845,14 +4641,10 @@ class TestOntologyResults:
     @staticmethod
     def test_remove_network_http():
         default_or = OntologyResults()
-        nh = default_or.create_network_http(
-            request_uri="blah.com", request_method="GET"
-        )
+        nh = default_or.create_network_http(request_uri="blah.com", request_method="GET")
         default_or.add_network_http(nh)
         assert default_or.get_network_http() == [nh]
-        nh1 = default_or.create_network_http(
-            request_uri="blah.com", request_method="GET"
-        )
+        nh1 = default_or.create_network_http(request_uri="blah.com", request_method="GET")
         default_or._remove_network_http(nh1)
         assert default_or.get_network_http() == [nh]
         default_or._remove_network_http(nh)
@@ -4861,14 +4653,10 @@ class TestOntologyResults:
     @staticmethod
     def test_remove_network_dns():
         default_or = OntologyResults()
-        nd = default_or.create_network_dns(
-            domain="blah.com", resolved_ips=["1.1.1.1"], lookup_type="A"
-        )
+        nd = default_or.create_network_dns(domain="blah.com", resolved_ips=["1.1.1.1"], lookup_type="A")
         default_or.add_network_dns(nd)
         assert default_or.get_network_dns() == [nd]
-        nd1 = default_or.create_network_dns(
-            domain="blah.com", resolved_ips=["1.1.1.1"], lookup_type="A"
-        )
+        nd1 = default_or.create_network_dns(domain="blah.com", resolved_ips=["1.1.1.1"], lookup_type="A")
         default_or._remove_network_dns(nd1)
         assert default_or.get_network_dns() == [nd]
         default_or._remove_network_dns(nd)
@@ -4904,15 +4692,11 @@ class TestOntologyResults:
     def test_remove_signature():
         default_or = OntologyResults(service_name="blah")
         sig_objectid = ObjectID(tag="blah", ontology_id="blah")
-        signature = default_or.create_signature(
-            objectid=sig_objectid, name="blah", type="CUCKOO"
-        )
+        signature = default_or.create_signature(objectid=sig_objectid, name="blah", type="CUCKOO")
         default_or.add_signature(signature)
         assert default_or.get_signatures() == [signature]
         sig1_objectid = ObjectID(tag="blah", ontology_id="blah")
-        signature1 = default_or.create_signature(
-            objectid=sig1_objectid, name="blah", type="CUCKOO"
-        )
+        signature1 = default_or.create_signature(objectid=sig1_objectid, name="blah", type="CUCKOO")
         default_or._remove_signature(signature1)
         assert default_or.get_signatures() == [signature]
         default_or._remove_signature(signature)
@@ -5069,18 +4853,12 @@ class TestOntologyResults:
         assert s.subjects[1].uri is None
         assert s.subjects[1].file is None
         assert s.subjects[1].registry is None
-        assert (
-            s.subjects[1].process.objectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert s.subjects[1].process.objectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert s.subjects[1].process.objectid.tag == "blah"
         assert s.subjects[1].process.objectid.treeid == "blah"
         assert s.subjects[1].process.objectid.processtree == "blah"
         assert s.subjects[1].process.objectid.time_observed == "blah"
-        assert (
-            s.subjects[1].process.pobjectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert s.subjects[1].process.pobjectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert s.subjects[1].process.pobjectid.tag == "blah"
         assert s.subjects[1].process.pobjectid.treeid == "blah"
         assert s.subjects[1].process.pobjectid.processtree == "blah"
@@ -5258,18 +5036,12 @@ class TestOntologyResults:
         assert nd.connection_details.destination_port == "blah"
         assert nd.connection_details.transport_layer_protocol == "blah"
         assert nd.connection_details.direction == "blah"
-        assert (
-            nd.connection_details.process.objectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert nd.connection_details.process.objectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert nd.connection_details.process.objectid.tag == "blah"
         assert nd.connection_details.process.objectid.treeid == "blah"
         assert nd.connection_details.process.objectid.processtree == "blah"
         assert nd.connection_details.process.objectid.time_observed == "blah"
-        assert (
-            nd.connection_details.process.pobjectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert nd.connection_details.process.pobjectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert nd.connection_details.process.pobjectid.tag == "blah"
         assert nd.connection_details.process.pobjectid.treeid == "blah"
         assert nd.connection_details.process.pobjectid.processtree == "blah"
@@ -5358,18 +5130,12 @@ class TestOntologyResults:
         assert nh.connection_details.destination_port == "blah"
         assert nh.connection_details.transport_layer_protocol == "blah"
         assert nh.connection_details.direction == "blah"
-        assert (
-            nh.connection_details.process.objectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert nh.connection_details.process.objectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert nh.connection_details.process.objectid.tag == "blah"
         assert nh.connection_details.process.objectid.treeid == "blah"
         assert nh.connection_details.process.objectid.processtree == "blah"
         assert nh.connection_details.process.objectid.time_observed == "blah"
-        assert (
-            nh.connection_details.process.pobjectid.guid
-            == "{12345678-1234-5678-1234-567812345678}"
-        )
+        assert nh.connection_details.process.pobjectid.guid == "{12345678-1234-5678-1234-567812345678}"
         assert nh.connection_details.process.pobjectid.tag == "blah"
         assert nh.connection_details.process.pobjectid.treeid == "blah"
         assert nh.connection_details.process.pobjectid.processtree == "blah"
@@ -5464,18 +5230,14 @@ class TestOntologyResults:
             ),
         ],
     )
-    def test_sort_things_by_time_observed(
-        things_to_sort_by_time_observed, expected_result, dummy_timestamp_class
-    ):
+    def test_sort_things_by_time_observed(things_to_sort_by_time_observed, expected_result, dummy_timestamp_class):
         dummy_things = []
         dummy_results = []
         if things_to_sort_by_time_observed is None:
             assert OntologyResults._sort_things_by_time_observed(dummy_things) == []
             return
 
-        actual_result = OntologyResults._sort_things_by_time_observed(
-            things_to_sort_by_time_observed
-        )
+        actual_result = OntologyResults._sort_things_by_time_observed(things_to_sort_by_time_observed)
         for index, item in enumerate(actual_result):
             assert item == expected_result[index]
 
@@ -5487,10 +5249,7 @@ class TestOntologyResults:
             dummy_results.append(dummy_timestamp_class(result))
         actual_result = OntologyResults._sort_things_by_time_observed(dummy_things)
         for index, item in enumerate(actual_result):
-            assert (
-                item.__dict__["objectid"].__dict__
-                == dummy_results[index].__dict__["objectid"].__dict__
-            )
+            assert item.__dict__["objectid"].__dict__ == dummy_results[index].__dict__["objectid"].__dict__
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -5982,9 +5741,7 @@ class TestOntologyResults:
             ),
         ],
     )
-    def test_sort_things_by_relationship(
-        things_to_sort, expected_result, dummy_timestamp_class
-    ):
+    def test_sort_things_by_relationship(things_to_sort, expected_result, dummy_timestamp_class):
         dummy_things = []
         dummy_results = []
         if things_to_sort is None:
@@ -6003,10 +5760,7 @@ class TestOntologyResults:
             dummy_results.append(dummy_timestamp_class(result))
         actual_result = OntologyResults._sort_things_by_relationship(dummy_things)
         for index, item in enumerate(actual_result):
-            assert (
-                item.__dict__["objectid"].__dict__
-                == dummy_results[index].__dict__["objectid"].__dict__
-            )
+            assert item.__dict__["objectid"].__dict__ == dummy_results[index].__dict__["objectid"].__dict__
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -6142,10 +5896,7 @@ class TestOntologyResults:
             )
             for event in events
         ]
-        assert (
-            OntologyResults._convert_events_to_dict(event_objects)
-            == expected_events_dict
-        )
+        assert OntologyResults._convert_events_to_dict(event_objects) == expected_events_dict
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -7380,8 +7131,18 @@ class TestOntologyResults:
 
     @staticmethod
     def test_depth():
-        dict_1 = { "children": [ {"children": [{"children": []}]}, {"children": []}, ], }
-        dict_2 = { "children": [ {"children": []}, {"children": [{"children": []}]}, ], }
+        dict_1 = {
+            "children": [
+                {"children": [{"children": []}]},
+                {"children": []},
+            ],
+        }
+        dict_2 = {
+            "children": [
+                {"children": []},
+                {"children": [{"children": []}]},
+            ],
+        }
         assert OntologyResults._depth(dict_1) == 3
         assert OntologyResults._depth(dict_2) == 3
 
@@ -7392,7 +7153,7 @@ class TestOntologyResults:
         events_dict = {}
         for i in range(1001):
             events_dict[f"blah_{i+1}"] = {
-                "pid": i+1,
+                "pid": i + 1,
                 "ppid": i,
                 "image": "blah",
                 "command_line": "blah",
@@ -7402,7 +7163,7 @@ class TestOntologyResults:
                     "tag": "blah",
                     "treeid": None,
                     "processtree": None,
-                    "time_observed": i+1,
+                    "time_observed": i + 1,
                 },
                 "pobjectid": {
                     "guid": f"blah_{i}",
@@ -7473,9 +7234,7 @@ class TestOntologyResults:
         }
         safelist = ["blahblah"]
         p_objectid = ObjectID(tag="blah", ontology_id="blah")
-        p = so.create_process(
-            objectid=p_objectid, image="blah", pid=2, start_time="1970-01-01 00:00:01.000"
-        )
+        p = so.create_process(objectid=p_objectid, image="blah", pid=2, start_time="1970-01-01 00:00:01.000")
         so.add_process(p)
         sig_objectid = ObjectID(tag="blah", ontology_id="blah")
         sig = so.create_signature(
@@ -7496,9 +7255,7 @@ class TestOntologyResults:
             direction="outbound",
         )
         so.add_network_connection(nc)
-        so._convert_event_tree_to_result_section(
-            actual_items, event, safelist, result_section
-        )
+        so._convert_event_tree_to_result_section(actual_items, event, safelist, result_section)
         assert actual_items[0].as_primitives() == {
             "process_name": "blah",
             "command_line": "blah",
@@ -7522,7 +7279,10 @@ class TestOntologyResults:
             "registry_count": 0,
             "safelisted": True,
         }
-        assert result_section.tags == {"dynamic.processtree_id": ["blahblahblahblah"], "dynamic.process.command_line": ["blah"]}
+        assert result_section.tags == {
+            "dynamic.processtree_id": ["blahblahblahblah"],
+            "dynamic.process.command_line": ["blah"],
+        }
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -7703,12 +7463,8 @@ class TestOntologyResults:
 
         default_or._create_hashed_node(parent_treeid, parent_processtree, node)
         assert node == expected_node
-        assert [
-            proc.objectid.treeid for proc in default_or.get_processes()
-        ] == expected_treeids
-        assert [
-            proc.objectid.processtree for proc in default_or.get_processes()
-        ] == expected_processtrees
+        assert [proc.objectid.treeid for proc in default_or.get_processes()] == expected_treeids
+        assert [proc.objectid.processtree for proc in default_or.get_processes()] == expected_processtrees
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -7717,9 +7473,7 @@ class TestOntologyResults:
             (
                 [
                     {
-                        "objectid": {
-                            "tag": "?pf86\\microsoft office\\office14\\excel.exe"
-                        },
+                        "objectid": {"tag": "?pf86\\microsoft office\\office14\\excel.exe"},
                         "children": [
                             {
                                 "objectid": {"tag": "?sys32\\wbem\\wmic1.exe"},
@@ -7728,9 +7482,7 @@ class TestOntologyResults:
                                         "objectid": {"tag": "?sys32\\wbem\\wmic11.exe"},
                                         "children": [
                                             {
-                                                "objectid": {
-                                                    "tag": "?sys32\\wbem\\wmic111.exe"
-                                                },
+                                                "objectid": {"tag": "?sys32\\wbem\\wmic111.exe"},
                                                 "children": [],
                                             }
                                         ],
@@ -7877,26 +7629,20 @@ class TestOntologyResults:
                 {
                     "image": "a",
                     "objectid": {"treeid": "a"},
-                    "children": [
-                        {"image": "b", "objectid": {"treeid": "b"}, "children": []}
-                    ],
+                    "children": [{"image": "b", "objectid": {"treeid": "b"}, "children": []}],
                 },
                 [],
                 {
                     "image": "a",
                     "objectid": {"treeid": "a"},
-                    "children": [
-                        {"image": "b", "objectid": {"treeid": "b"}, "children": []}
-                    ],
+                    "children": [{"image": "b", "objectid": {"treeid": "b"}, "children": []}],
                 },
             ),
             (
                 {
                     "image": "a",
                     "objectid": {"treeid": "a"},
-                    "children": [
-                        {"image": "b", "objectid": {"treeid": "b"}, "children": []}
-                    ],
+                    "children": [{"image": "b", "objectid": {"treeid": "b"}, "children": []}],
                 },
                 ["b"],
                 {"children": [], "image": "a", "objectid": {"treeid": "b"}},
@@ -7905,15 +7651,11 @@ class TestOntologyResults:
                 {
                     "image": "a",
                     "objectid": {"treeid": "a"},
-                    "children": [
-                        {"image": "b", "objectid": {"treeid": "b"}, "children": []}
-                    ],
+                    "children": [{"image": "b", "objectid": {"treeid": "b"}, "children": []}],
                 },
                 ["a"],
                 {
-                    "children": [
-                        {"children": [], "image": "b", "objectid": {"treeid": "b"}}
-                    ],
+                    "children": [{"children": [], "image": "b", "objectid": {"treeid": "b"}}],
                     "image": "a",
                     "objectid": {"treeid": "a"},
                 },
@@ -7948,9 +7690,7 @@ class TestOntologyResults:
                 },
                 ["b"],
                 {
-                    "children": [
-                        {"children": [], "image": "c", "objectid": {"treeid": "c"}}
-                    ],
+                    "children": [{"children": [], "image": "c", "objectid": {"treeid": "c"}}],
                     "image": "a",
                     "objectid": {"treeid": "a"},
                 },
@@ -7966,9 +7706,7 @@ class TestOntologyResults:
                 },
                 ["c"],
                 {
-                    "children": [
-                        {"children": [], "image": "b", "objectid": {"treeid": "b"}}
-                    ],
+                    "children": [{"children": [], "image": "b", "objectid": {"treeid": "b"}}],
                     "image": "a",
                     "objectid": {"treeid": "a"},
                 },
@@ -8032,9 +7770,7 @@ class TestOntologyResults:
                 },
                 ["d"],
                 {
-                    "children": [
-                        {"children": [], "image": "c", "objectid": {"treeid": "c"}}
-                    ],
+                    "children": [{"children": [], "image": "c", "objectid": {"treeid": "c"}}],
                     "image": "a",
                     "objectid": {"treeid": "a"},
                 },
@@ -8062,9 +7798,7 @@ class TestOntologyResults:
                 {
                     "image": "a",
                     "objectid": {"treeid": "a"},
-                    "children": [
-                        {"image": "b", "objectid": {"treeid": "b"}, "children": []}
-                    ],
+                    "children": [{"image": "b", "objectid": {"treeid": "b"}, "children": []}],
                 },
             ),
             (
@@ -8145,16 +7879,12 @@ class TestOntologyResults:
                 [
                     {
                         "image": "a",
-                        "children": [
-                            {"image": "b", "children": [], "objectid": {"treeid": "b"}}
-                        ],
+                        "children": [{"image": "b", "children": [], "objectid": {"treeid": "b"}}],
                         "objectid": {"treeid": "a"},
                     },
                     {
                         "image": "c",
-                        "children": [
-                            {"image": "d", "children": [], "objectid": {"treeid": "d"}}
-                        ],
+                        "children": [{"image": "d", "children": [], "objectid": {"treeid": "d"}}],
                         "objectid": {"treeid": "c"},
                     },
                 ],
@@ -8162,16 +7892,12 @@ class TestOntologyResults:
                 [
                     {
                         "image": "a",
-                        "children": [
-                            {"image": "b", "children": [], "objectid": {"treeid": "b"}}
-                        ],
+                        "children": [{"image": "b", "children": [], "objectid": {"treeid": "b"}}],
                         "objectid": {"treeid": "a"},
                     },
                     {
                         "image": "c",
-                        "children": [
-                            {"image": "d", "children": [], "objectid": {"treeid": "d"}}
-                        ],
+                        "children": [{"image": "d", "children": [], "objectid": {"treeid": "d"}}],
                         "objectid": {"treeid": "c"},
                     },
                 ],
@@ -8180,16 +7906,12 @@ class TestOntologyResults:
                 [
                     {
                         "image": "a",
-                        "children": [
-                            {"image": "b", "children": [], "objectid": {"treeid": "b"}}
-                        ],
+                        "children": [{"image": "b", "children": [], "objectid": {"treeid": "b"}}],
                         "objectid": {"treeid": "a"},
                     },
                     {
                         "image": "c",
-                        "children": [
-                            {"image": "d", "children": [], "objectid": {"treeid": "d"}}
-                        ],
+                        "children": [{"image": "d", "children": [], "objectid": {"treeid": "d"}}],
                         "objectid": {"treeid": "c"},
                     },
                 ],
@@ -8197,16 +7919,12 @@ class TestOntologyResults:
                 [
                     {
                         "image": "a",
-                        "children": [
-                            {"image": "b", "children": [], "objectid": {"treeid": "b"}}
-                        ],
+                        "children": [{"image": "b", "children": [], "objectid": {"treeid": "b"}}],
                         "objectid": {"treeid": "a"},
                     },
                     {
                         "image": "c",
-                        "children": [
-                            {"image": "d", "children": [], "objectid": {"treeid": "d"}}
-                        ],
+                        "children": [{"image": "d", "children": [], "objectid": {"treeid": "d"}}],
                         "objectid": {"treeid": "c"},
                     },
                 ],
@@ -8215,16 +7933,12 @@ class TestOntologyResults:
                 [
                     {
                         "image": "a",
-                        "children": [
-                            {"image": "b", "children": [], "objectid": {"treeid": "b"}}
-                        ],
+                        "children": [{"image": "b", "children": [], "objectid": {"treeid": "b"}}],
                         "objectid": {"treeid": "a"},
                     },
                     {
                         "image": "c",
-                        "children": [
-                            {"image": "d", "children": [], "objectid": {"treeid": "d"}}
-                        ],
+                        "children": [{"image": "d", "children": [], "objectid": {"treeid": "d"}}],
                         "objectid": {"treeid": "c"},
                     },
                 ],
@@ -8232,9 +7946,7 @@ class TestOntologyResults:
                 [
                     {
                         "image": "c",
-                        "children": [
-                            {"image": "d", "children": [], "objectid": {"treeid": "d"}}
-                        ],
+                        "children": [{"image": "d", "children": [], "objectid": {"treeid": "d"}}],
                         "objectid": {"treeid": "c"},
                     }
                 ],
@@ -8255,9 +7967,7 @@ class TestOntologyResults:
                     {
                         "image": "a",
                         "children": [],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     }
                 ],
                 [],
@@ -8265,9 +7975,7 @@ class TestOntologyResults:
                     {
                         "image": "a",
                         "children": [],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     }
                 ],
             ),
@@ -8276,9 +7984,7 @@ class TestOntologyResults:
                     {
                         "image": "a",
                         "children": [],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     }
                 ],
                 ["ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"],
@@ -8297,9 +8003,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     }
                 ],
                 [],
@@ -8315,9 +8019,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     }
                 ],
             ),
@@ -8334,9 +8036,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     }
                 ],
                 ["d107b7d075043599f95950cf82591afa47c4dce9b4d343dc6fbecb1b051ee3ef"],
@@ -8355,9 +8055,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     }
                 ],
                 ["ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"],
@@ -8373,9 +8071,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     }
                 ],
             ),
@@ -8392,9 +8088,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     },
                     {
                         "image": "c",
@@ -8407,9 +8101,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"
-                        },
+                        "objectid": {"treeid": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"},
                     },
                 ],
                 ["d107b7d075043599f95950cf82591afa47c4dce9b4d343dc6fbecb1b051ee3ef"],
@@ -8425,9 +8117,7 @@ class TestOntologyResults:
                             }
                         ],
                         "image": "c",
-                        "objectid": {
-                            "treeid": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"
-                        },
+                        "objectid": {"treeid": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"},
                     }
                 ],
             ),
@@ -8444,9 +8134,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     },
                     {
                         "image": "c",
@@ -8459,9 +8147,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"
-                        },
+                        "objectid": {"treeid": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"},
                     },
                 ],
                 ["2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"],
@@ -8477,9 +8163,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     },
                     {
                         "image": "c",
@@ -8492,9 +8176,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"
-                        },
+                        "objectid": {"treeid": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"},
                     },
                 ],
             ),
@@ -8511,9 +8193,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     },
                     {
                         "image": "c",
@@ -8526,9 +8206,7 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"
-                        },
+                        "objectid": {"treeid": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"},
                     },
                 ],
                 ["c986d8a25b16022d5da642e622d15252820421dade338015cb8a7efe558d6d04"],
@@ -8544,20 +8222,14 @@ class TestOntologyResults:
                                 },
                             }
                         ],
-                        "objectid": {
-                            "treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
-                        },
+                        "objectid": {"treeid": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"},
                     }
                 ],
             ),
         ],
     )
-    def test_filter_event_tree_against_safe_treeids(
-        event_tree, safe_treeids, expected_event_tree
-    ):
-        filtered_event_tree = OntologyResults._filter_event_tree_against_safe_treeids(
-            event_tree, safe_treeids
-        )
+    def test_filter_event_tree_against_safe_treeids(event_tree, safe_treeids, expected_event_tree):
+        filtered_event_tree = OntologyResults._filter_event_tree_against_safe_treeids(event_tree, safe_treeids)
         assert filtered_event_tree == expected_event_tree
 
     @staticmethod
@@ -8578,9 +8250,7 @@ class TestOntologyResults:
         ],
     )
     def test_validate_artifacts(artifact_list):
-        actual_validated_artifact_list = OntologyResults._validate_artifacts(
-            artifact_list
-        )
+        actual_validated_artifact_list = OntologyResults._validate_artifacts(artifact_list)
         if artifact_list is None:
             artifact_list = []
         for index, artifact in enumerate(artifact_list):
@@ -8591,9 +8261,7 @@ class TestOntologyResults:
                 to_be_extracted=artifact["to_be_extracted"],
                 sha256=artifact["sha256"],
             )
-            assert expected_artifact.as_primitives(), actual_validated_artifact_list[
-                index
-            ].as_primitives()
+            assert expected_artifact.as_primitives(), actual_validated_artifact_list[index].as_primitives()
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -8651,9 +8319,7 @@ class TestOntologyResults:
             expected_result_section = ResultSection(expected_result_section_title)
             expected_result_section.add_line("HollowsHunter dumped the following:")
             expected_result_section.add_line(f"\t- {artifact['name']}")
-            expected_result_section.add_tag(
-                "dynamic.process.file_name", artifact["name"]
-            )
+            expected_result_section.add_tag("dynamic.process.file_name", artifact["name"])
             if expected_result_section_title == HOLLOWSHUNTER_TITLE:
                 heur = Heuristic(17)
                 if ".exe" in artifact["name"]:
@@ -8678,9 +8344,7 @@ class TestOntologyResults:
         if expected_result_section is None and actual_result_section is None:
             assert True
         else:
-            assert check_section_equality(
-                actual_result_section, expected_result_section
-            )
+            assert check_section_equality(actual_result_section, expected_result_section)
 
             additional_artifact = Artifact(
                 name="321_hollowshunter/hh_process_321_blah.dll",
@@ -8690,14 +8354,10 @@ class TestOntologyResults:
             )
             OntologyResults._handle_artifact(additional_artifact, parent_result_section)
             expected_result_section.add_line(f"\t- {additional_artifact.name}")
-            expected_result_section.add_tag(
-                "dynamic.process.file_name", additional_artifact.name
-            )
+            expected_result_section.add_tag("dynamic.process.file_name", additional_artifact.name)
             expected_result_section.heuristic.add_signature_id("hollowshunter_dll")
 
-            assert check_section_equality(
-                actual_result_section, expected_result_section
-            )
+            assert check_section_equality(actual_result_section, expected_result_section)
 
     @staticmethod
     def test_set_item_times():
@@ -8711,9 +8371,7 @@ class TestOntologyResults:
         )
         default_or.add_sandbox(sandbox)
         p_objectid = ObjectID(tag="blah", ontology_id="blah", session="blah")
-        p = default_or.create_process(
-            objectid=p_objectid, image="blah", start_time="1-01-01 00:00:00.000000", pid=1
-        )
+        p = default_or.create_process(objectid=p_objectid, image="blah", start_time="1-01-01 00:00:00.000000", pid=1)
         default_or._set_item_times(p)
         assert p.start_time == "1970-01-01 00:00:01.000"
         assert p.end_time == "1970-01-01 00:00:02.000"
@@ -8727,15 +8385,11 @@ class TestOntologyResults:
     def test_remove_safelisted_processes():
         default_or = OntologyResults(service_name="blah")
         p_objectid = ObjectID(tag="blah", ontology_id="blah", treeid="blah")
-        p = default_or.create_process(
-            objectid=p_objectid, image="blah", start_time="1-01-01 00:00:00.000000", pid=1
-        )
+        p = default_or.create_process(objectid=p_objectid, image="blah", start_time="1-01-01 00:00:00.000000", pid=1)
         default_or.add_process(p)
 
         nc_objectid = ObjectID(tag="blah", ontology_id="blah")
-        nh = default_or.create_network_http(
-            request_uri="blah.com", request_method="GET"
-        )
+        nh = default_or.create_network_http(request_uri="blah.com", request_method="GET")
         default_or.add_network_http(nh)
         nc = default_or.create_network_connection(
             objectid=nc_objectid,
@@ -8785,6 +8439,7 @@ class TestOntologyResults:
         assert p.start_time == "1970-01-01 00:00:01.000"
         assert p.end_time == "1970-01-01 00:00:02.000"
         assert p.objectid.time_observed == "1970-01-01 00:00:01.000"
+
 
 @pytest.mark.parametrize(
     "blob, enforce_min, enforce_max, correct_tags, expected_iocs",
@@ -8872,38 +8527,20 @@ class TestOntologyResults:
             {
                 "network.dynamic.domain": ["blah.link"],
                 "network.dynamic.uri": ["https://blah.link/blah/blah?filename=blah.js"],
-                "network.dynamic.uri_path": ['/blah/blah?filename=blah.js']
+                "network.dynamic.uri_path": ["/blah/blah?filename=blah.js"],
             },
-            [{"uri": "https://blah.link/blah/blah?filename=blah.js"}]
+            [{"uri": "https://blah.link/blah/blah?filename=blah.js"}],
         ),
         (
             "POST abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcde.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijk.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijk.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijk.com ...(Truncated)",
             True,
             True,
             {},
-            [{}]
+            [{}],
         ),
-        (
-            "POST blah.adobe.com)",
-            True,
-            True,
-            {},
-            [{}]
-        ),
-        (
-            "Wscript.Shell.Run(blah.py)",
-            True,
-            True,
-            {},
-            [{}]
-        ),
-        (
-            "blah microsoft.net blah",
-            True,
-            True,
-            {},
-            [{}]
-        ),
+        ("POST blah.adobe.com)", True, True, {}, [{}]),
+        ("Wscript.Shell.Run(blah.py)", True, True, {}, [{}]),
+        ("blah microsoft.net blah", True, True, {}, [{}]),
         (
             "blah blahhttps://microsoft.net blah",
             True,
@@ -8912,7 +8549,7 @@ class TestOntologyResults:
                 "network.dynamic.domain": ["microsoft.net"],
                 "network.dynamic.uri": ["https://microsoft.net"],
             },
-            [{"uri": "https://microsoft.net"}]
+            [{"uri": "https://microsoft.net"}],
         ),
         # Upper case examples
         (
@@ -8940,7 +8577,7 @@ class TestOntologyResults:
             {
                 "network.dynamic.domain": ["bad1.com", "bad2.com", "bad3.com"],
                 "network.dynamic.uri": ["https://bad1.com/blah", "https://bad2.com/blah", "https://bad3.com/blah"],
-                "network.dynamic.uri_path": ["/blah"]
+                "network.dynamic.uri_path": ["/blah"],
             },
             [{"uri": "https://bad1.com/blah"}, {"uri": "https://bad2.com/blah"}, {"uri": "https://bad3.com/blah"}],
         ),

@@ -8,12 +8,13 @@ from typing import Dict, List, Tuple
 
 import regex as re
 
-HTML_ESCAPE_RE = rb'&#(?:x[a-fA-F0-9]{1,4}|\d{1,4});'
-BASE64_RE = rb'(?:[A-Za-z0-9+/]{4,}(?:<\x00  \x00)?(?:&#13;|&#xD;)?(?:&#10;|&#xA)?\r?\n?){5,}' \
-            rb'[A-Za-z0-9+/]{2,}={0,2}'
+HTML_ESCAPE_RE = rb"&#(?:x[a-fA-F0-9]{1,4}|\d{1,4});"
+BASE64_RE = (
+    rb"(?:[A-Za-z0-9+/]{4,}(?:<\x00  \x00)?(?:&#13;|&#xD;)?(?:&#10;|&#xA)?\r?\n?){5,}" rb"[A-Za-z0-9+/]{2,}={0,2}"
+)
 
-CAMEL_RE = rb'(?i)[a-z]+'
-HEX_RE = rb'(?i)[a-f0-9]+'
+CAMEL_RE = rb"(?i)[a-z]+"
+HEX_RE = rb"(?i)[a-f0-9]+"
 MIN_B64_CHARS = 6
 
 
@@ -31,8 +32,9 @@ def base64_search(text: bytes) -> Dict[bytes, bytes]:
     for b64_match in re.findall(BASE64_RE, text):
         if b64_match in b64_matches:
             continue
-        b64_string = re.sub(HTML_ESCAPE_RE, b'', b64_match).replace(b'\n', b'').replace(b'\r', b'') \
-            .replace(b'<\x00  \x00', b'')
+        b64_string = (
+            re.sub(HTML_ESCAPE_RE, b"", b64_match).replace(b"\n", b"").replace(b"\r", b"").replace(b"<\x00  \x00", b"")
+        )
         if re.fullmatch(HEX_RE, b64_string):
             # Hexadecimal characters are a subset of base64
             # Hashes commonly are hex and have multiple of 4 lengths
@@ -63,8 +65,12 @@ def find_base64(data: bytes) -> List[Tuple[bytes, int, int]]:
     """
     b64_matches = []
     for b64_match in re.finditer(BASE64_RE, data):
-        b64_string = re.sub(HTML_ESCAPE_RE, b'', b64_match.group()).replace(b'\n', b'').replace(b'\r', b'') \
-            .replace(b'<\x00  \x00', b'')
+        b64_string = (
+            re.sub(HTML_ESCAPE_RE, b"", b64_match.group())
+            .replace(b"\n", b"")
+            .replace(b"\r", b"")
+            .replace(b"<\x00  \x00", b"")
+        )
         if len(b64_string) % 4 != 0 or len(set(b64_string)) <= MIN_B64_CHARS:
             continue
         if re.fullmatch(HEX_RE, b64_string):
@@ -75,7 +81,7 @@ def find_base64(data: bytes) -> List[Tuple[bytes, int, int]]:
             # Camel case text can be confused for base64
             # It is common in scripts as names
             continue
-        if b64_string.count(b'/')/len(b64_string) > 3/32:
+        if b64_string.count(b"/") / len(b64_string) > 3 / 32:
             # If there are a lot of / it as more likely a path
             continue
         try:

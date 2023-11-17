@@ -35,12 +35,7 @@ def convert_url_to_https(method: str, url: str) -> str:
     if parsed_path.endswith(":443"):
         parsed_path, _, _ = parsed_path.partition(":443")
 
-    https_url = urlunparse((
-        "https",
-        parsed_netloc,
-        parsed_path,
-        parsed_url.params,
-        parsed_url.query,
-        parsed_url.fragment
-    ))
+    https_url = urlunparse(
+        ("https", parsed_netloc, parsed_path, parsed_url.params, parsed_url.query, parsed_url.fragment)
+    )
     return https_url

@@ -5,7 +5,7 @@ from typing import List
 from assemblyline.common.str_utils import safe_str
 
 
-class Certificate():
+class Certificate:
     def __init__(self):
         self.raw = ""
         self.issuer = ""
@@ -22,8 +22,7 @@ def keytool_printcert(cert_path: str) -> None:
     :param cert_path: A path to a certificate
     :return: the string output of 'keytool -printcert' or None
     """
-    stdout, _ = Popen(["keytool", "-printcert", "-file", cert_path],
-                      stderr=PIPE, stdout=PIPE).communicate()
+    stdout, _ = Popen(["keytool", "-printcert", "-file", cert_path], stderr=PIPE, stdout=PIPE).communicate()
     stdout = safe_str(stdout)
 
     if stdout and "keytool error" not in stdout:
@@ -43,8 +42,8 @@ def certificate_chain_from_printcert(printcert: str) -> List[Certificate]:
     """
     certs: List[Certificate] = []
 
-    for cert_str in split(r'Certificate\[\d+\]:', printcert):  # split printcert output in case of certificate chain
-        if cert_str == '':
+    for cert_str in split(r"Certificate\[\d+\]:", printcert):  # split printcert output in case of certificate chain
+        if cert_str == "":
             continue
         cert = Certificate()
         cert.raw = cert_str.strip()

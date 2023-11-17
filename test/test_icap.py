@@ -1,7 +1,6 @@
 from io import BytesIO
 
 import pytest
-
 from assemblyline_service_utilities.common.icap import IcapClient
 
 # It is allowed to simply not include any headers.
