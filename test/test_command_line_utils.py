@@ -1,5 +1,4 @@
 import pytest
-
 from assemblyline_service_utilities.common.command_line_utils import (
     _determine_arch,
     _pattern_substitution,
@@ -32,6 +31,7 @@ def test_determine_arch(path, expected_result):
 def test_pattern_substitution(path, rule, expected_result):
     assert _pattern_substitution(path, rule) == expected_result
 
+
 @pytest.mark.parametrize(
     "path, rule, expected_result",
     [
@@ -43,6 +43,7 @@ def test_pattern_substitution(path, rule, expected_result):
 )
 def test_regex_substitution(path, rule, expected_result):
     assert _regex_substitution(path, rule) == expected_result
+
 
 @pytest.mark.parametrize(
     "path, arch, expected_result",

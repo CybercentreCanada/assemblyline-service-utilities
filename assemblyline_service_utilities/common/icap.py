@@ -5,7 +5,7 @@ from typing import Generator, Optional
 
 from assemblyline.common.str_utils import safe_str
 
-ICAP_OK = b'ICAP/1.0 200 OK'
+ICAP_OK = b"ICAP/1.0 200 OK"
 
 
 # noinspection PyBroadException
@@ -32,11 +32,11 @@ class IcapClient(object):
         self.successful_connection = False
 
     def scan_data(self, data: io.BufferedIOBase, name: Optional[str] = None) -> Optional[bytes]:
-        return self._do_respmod(name or 'filetoscan', data)
+        return self._do_respmod(name or "filetoscan", data)
 
     def scan_local_file(self, filepath: str) -> Optional[bytes]:
         filename = os.path.basename(filepath)
-        with open(filepath, 'rb') as handle:
+        with open(filepath, "rb") as handle:
             return self.scan_data(handle, filename)
 
     def options_respmod(self) -> Optional[bytes]:
@@ -66,7 +66,7 @@ class IcapClient(object):
                 except Exception:
                     pass
                 self.socket = None
-                if i == (self.number_of_retries-1):
+                if i == (self.number_of_retries - 1):
                     raise
 
         raise Exception("Icap server refused to respond.")
@@ -79,12 +79,12 @@ class IcapClient(object):
         while True:
             read = stream.readinto(buffer)
 
-            out = b''
+            out = b""
 
             if read > 0:
                 out = b"%X\r\n" % read
                 out += buffer[:read]
-                out += b'\r\n'
+                out += b"\r\n"
 
             if read < chunk_size:
                 out += b"0\r\n\r\n"
@@ -100,7 +100,7 @@ class IcapClient(object):
         while True:
             # Read the head of the chunk and parse the length out
             line = stream.readline().strip()
-            length_string, _, _ = line.partition(b';')
+            length_string, _, _ = line.partition(b";")
             length = int(length_string, 16)
             if length == 0:
                 break
@@ -111,16 +111,14 @@ class IcapClient(object):
 
             # Read the newline that follows the data, should be nothing but a \r\n in this read
             eol = stream.readline().strip()
-            assert eol == b'', b'unexpected content: ' + eol
+            assert eol == b"", b"unexpected content: " + eol
 
     def _do_respmod(self, filename: str, data: io.BufferedIOBase) -> Optional[bytes]:
         # ICAP RESPMOD req-hdr is the start of the original (in this case fake) HTTP request.
         respmod_req_hdr = "GET /{FILENAME} HTTP/1.1\r\n\r\n".format(FILENAME=safe_str(filename))
 
         # ICAP RESPMOD res-hdr is the start of the HTTP response for above request.
-        respmod_res_hdr = (
-            "HTTP/1.1 200 OK\r\n"
-            "Transfer-Encoding: chunked\r\n\r\n")
+        respmod_res_hdr = "HTTP/1.1 200 OK\r\n" "Transfer-Encoding: chunked\r\n\r\n"
 
         res_hdr_offset = len(respmod_req_hdr)
         res_bdy_offset = len(respmod_res_hdr) + res_hdr_offset
@@ -136,8 +134,11 @@ class IcapClient(object):
             f"Encapsulated: req-hdr=0, res-hdr={res_hdr_offset}, res-body={res_bdy_offset}\r\n\r\n"
         )
 
-        serialized_head_and_prefix = b"%s%s%s" % (respmod_icap_hdr.encode(), respmod_req_hdr.encode(),
-                                                  respmod_res_hdr.encode())
+        serialized_head_and_prefix = b"%s%s%s" % (
+            respmod_icap_hdr.encode(),
+            respmod_req_hdr.encode(),
+            respmod_res_hdr.encode(),
+        )
 
         for i in range(self.number_of_retries):
             if self.kill:
@@ -187,7 +188,7 @@ class IcapClient(object):
                 self.socket = None
                 # Issue with the connection? Let's try reading file data again...
                 data.seek(0)
-                if i == (self.number_of_retries-1):
+                if i == (self.number_of_retries - 1):
                     raise
 
         raise Exception("Icap server refused to respond.")
@@ -202,21 +203,21 @@ class IcapClient(object):
 
         def next_line():
             nonlocal body
-            line, _, body = body.partition(b'\n')
-            return line.strip(b'\r')
+            line, _, body = body.partition(b"\n")
+            return line.strip(b"\r")
 
         # Only override status line checking if body starts with the ICAP protocol string
-        if not no_status_line_in_headers or body.strip().startswith(b'ICAP/1.0'):
+        if not no_status_line_in_headers or body.strip().startswith(b"ICAP/1.0"):
             # Handle the status line
             status_line = next_line()
 
             if not status_line.strip():
                 raise ValueError(f"No status line in server response body: '{initial_body}'")
 
-            protocol, _, status_line = status_line.strip().partition(b' ')
-            if protocol != b'ICAP/1.0':
+            protocol, _, status_line = status_line.strip().partition(b" ")
+            if protocol != b"ICAP/1.0":
                 raise ValueError("Unknown protocol: " + protocol.decode())
-            status_code_string, _, status_message = status_line.partition(b' ')
+            status_code_string, _, status_message = status_line.partition(b" ")
             status_code = int(status_code_string)
         else:
             # If there is no status line in the server response body, then do not try to parse first line as such
@@ -228,7 +229,7 @@ class IcapClient(object):
         headers: dict[str, str] = {}
         while len(pending) > 0:
             # Handle the first line of a header, which must have the name in it
-            header_name, _, content = pending.partition(b':')
+            header_name, _, content = pending.partition(b":")
             content = content.lstrip()
 
             # Handle when the content is wrapped in quotes
@@ -242,8 +243,8 @@ class IcapClient(object):
             pending = next_line()
 
             # Handle a header extended over multiple lines
-            while len(pending) > 0 and pending[0] in (ord(b' '), ord(b'\t')):
-                content = content + b' ' + pending[1:].lstrip()
+            while len(pending) > 0 and pending[0] in (ord(b" "), ord(b"\t")):
+                content = content + b" " + pending[1:].lstrip()
                 pending = next_line()  # Move the cursor to the next line if we consume the current one
 
             # The name is case insensitive and should be a single token

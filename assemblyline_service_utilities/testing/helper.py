@@ -5,13 +5,14 @@ import shutil
 from pathlib import Path
 
 import pytest
+from assemblyline_v4_service.common import helper
+from assemblyline_v4_service.common.request import ServiceRequest
+from assemblyline_v4_service.common.task import Task
+
 from assemblyline.common import forge
 from assemblyline.common.dict_utils import flatten
 from assemblyline.common.uid import get_random_id
 from assemblyline.odm.messages.task import Task as ServiceTask
-from assemblyline_v4_service.common import helper
-from assemblyline_v4_service.common.request import ServiceRequest
-from assemblyline_v4_service.common.task import Task
 from cart import unpack_file
 
 

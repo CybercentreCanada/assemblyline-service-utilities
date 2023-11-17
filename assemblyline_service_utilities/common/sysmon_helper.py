@@ -3,12 +3,12 @@ from re import findall
 from re import match as re_match
 from typing import Any, Dict, List
 
+from assemblyline_service_utilities.common.dynamic_service_helper import MIN_TIME, OntologyResults, Process
+from assemblyline_service_utilities.common.safelist_helper import is_tag_safelisted
+
 from assemblyline.common.isotime import LOCAL_FMT_WITH_MS, ensure_time_format
 from assemblyline.odm.base import IPV4_REGEX
 from assemblyline.odm.models.ontology.results import Process as ProcessModel
-
-from assemblyline_service_utilities.common.dynamic_service_helper import MIN_TIME, OntologyResults, Process
-from assemblyline_service_utilities.common.safelist_helper import is_tag_safelisted
 
 # Possible Sysmon image name value
 UNKNOWN_PROCESS = "<unknown process>"
@@ -62,18 +62,14 @@ def convert_sysmon_processes(
             elif name in ["image", "targetimage"]:
                 # This is a Linux-specific behaviour in Sysmon
                 if text.endswith(" (deleted)"):
-                    text = text[:text.index(" (deleted)")]
+                    text = text[: text.index(" (deleted)")]
                 if not is_tag_safelisted(text, ["dynamic.process.file_name"], safelist):
                     process["image"] = text
             elif name in ["parentcommandline"]:
-                if not is_tag_safelisted(
-                    text, ["dynamic.process.command_line"], safelist
-                ):
+                if not is_tag_safelisted(text, ["dynamic.process.command_line"], safelist):
                     process["pcommand_line"] = text
             elif name in ["commandline"]:
-                if not is_tag_safelisted(
-                    text, ["dynamic.process.command_line"], safelist
-                ):
+                if not is_tag_safelisted(text, ["dynamic.process.command_line"], safelist):
                     process["command_line"] = text
             elif name == "originalfilename":
                 process["original_file_name"] = text
@@ -85,11 +81,7 @@ def convert_sysmon_processes(
                     _, hash_value = split_hash
                     process["image_hash"] = hash_value
 
-        if (
-            not process.get("pid")
-            or not process.get("image")
-            or not process.get("start_time")
-        ):
+        if not process.get("pid") or not process.get("image") or not process.get("start_time"):
             continue
 
         if ontres.is_guid_in_gpm(process["guid"]):
@@ -160,7 +152,7 @@ def convert_sysmon_network(
                 elif name == "Image":
                     # Sysmon for Linux adds this to the image if the file is deleted.
                     if text.endswith(" (deleted)"):
-                        text = text[:len(text)-len(" (deleted)")]
+                        text = text[: len(text) - len(" (deleted)")]
                     network_conn["image"] = text
                 elif name == "Protocol":
                     protocol = text.lower()
@@ -174,10 +166,7 @@ def convert_sysmon_network(
                         network_conn["dst"] = text
                 elif name == "DestinationPort":
                     network_conn["dport"] = int(text)
-            if (
-                any(network_conn[key] is None for key in network_conn.keys())
-                or not protocol
-            ):
+            if any(network_conn[key] is None for key in network_conn.keys()) or not protocol:
                 continue
             elif any(
                 req["dst"] == network_conn["dst"]
@@ -223,9 +212,7 @@ def convert_sysmon_network(
                 elif name == "ProcessId":
                     dns_query["pid"] = int(text)
                 elif name == "QueryName":
-                    if not is_tag_safelisted(
-                        text, ["network.dynamic.domain"], safelist
-                    ):
+                    if not is_tag_safelisted(text, ["network.dynamic.domain"], safelist):
                         dns_query["request"] = text
                 elif name == "QueryResults":
                     ip = findall(IPV4_REGEX, text)
@@ -234,7 +221,7 @@ def convert_sysmon_network(
                 elif name == "Image":
                     # Sysmon for Linux adds this to the image if the file is deleted.
                     if text.endswith(" (deleted)"):
-                        text = text[:len(text)-len(" (deleted)")]
+                        text = text[: len(text) - len(" (deleted)")]
                     dns_query["image"] = text
 
             if any(dns_query[key] is None for key in dns_query.keys()):
@@ -247,10 +234,7 @@ def convert_sysmon_network(
                             if key not in query:
                                 query[key] = dns_query[key]
                         break
-            elif any(
-                query["request"] == dns_query["request"]
-                for query in network.get("dns", [])
-            ):
+            elif any(query["request"] == dns_query["request"] for query in network.get("dns", [])):
                 # Replace record since we have more info from Sysmon
                 for query in network.get("dns", [])[:]:
                     if query["request"] == dns_query["request"]:

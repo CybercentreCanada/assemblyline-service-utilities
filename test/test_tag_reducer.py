@@ -1,6 +1,4 @@
 import pytest
-from regex import compile
-
 from assemblyline_service_utilities.common.tag_reducer import (
     ALPHA_REGEX,
     ALPHANUM_REGEX,
@@ -11,6 +9,7 @@ from assemblyline_service_utilities.common.tag_reducer import (
     _turn_back_into_uri,
     reduce_uri_tags,
 )
+from regex import compile
 
 
 class TestTagReducer:

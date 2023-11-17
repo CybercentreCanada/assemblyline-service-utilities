@@ -2,19 +2,19 @@ from re import match, search
 from typing import Any, Dict, List, Optional, Tuple, Union
 from urllib.parse import quote_plus, urlparse, urlunparse
 
+from assemblyline_service_utilities.common.safelist_helper import is_tag_safelisted
+from assemblyline_v4_service.common.result import ResultSection
+
 from assemblyline.common.net import is_valid_domain, is_valid_ip
 from assemblyline.common.str_utils import safe_str
-from assemblyline.odm.base import (DOMAIN_ONLY_REGEX, DOMAIN_REGEX, FULL_URI,
-                                   IP_REGEX, URI_PATH)
-from assemblyline_service_utilities.common.safelist_helper import \
-    is_tag_safelisted
-from assemblyline_v4_service.common.result import ResultSection
+from assemblyline.odm.base import DOMAIN_ONLY_REGEX, DOMAIN_REGEX, FULL_URI, IP_REGEX, URI_PATH
 
 
 def add_tag(
     result_section: ResultSection,
-    tag: str, value: Union[Any, List[Any]],
-    safelist: Dict[str, Dict[str, List[str]]] = None
+    tag: str,
+    value: Union[Any, List[Any]],
+    safelist: Dict[str, Dict[str, List[str]]] = None,
 ) -> bool:
     """
     This method adds the value(s) as a tag to the ResultSection. Can take a list of values or a single value.
@@ -60,10 +60,7 @@ def _get_regex_for_tag(tag: str) -> str:
 
 
 def _validate_tag(
-    result_section: ResultSection,
-    tag: str,
-    value: Any,
-    safelist: Dict[str, Dict[str, List[str]]] = None
+    result_section: ResultSection, tag: str, value: Any, safelist: Dict[str, Dict[str, List[str]]] = None
 ) -> Tuple[bool, bool]:
     """
     This method validates the value relative to the tag type before adding the value as a tag to the ResultSection.
@@ -111,7 +108,8 @@ def _validate_tag(
         if domain:
             domain = domain.group()
             valid_domain, tag_is_safelisted = _validate_tag(
-                result_section, f"network.{network_tag_type}.domain", domain, safelist)
+                result_section, f"network.{network_tag_type}.domain", domain, safelist
+            )
         # Then try to get the IP
         valid_ip = False
         ip = search(IP_REGEX, value)
@@ -133,8 +131,12 @@ def _validate_tag(
     return (True, False)
 
 
-def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "dynamic",
-             safelist: Dict[str, Dict[str, List[str]]] = None) -> Tuple[bool, bool]:
+def _tag_uri(
+    url: str,
+    result_section: ResultSection,
+    network_tag_type: str = "dynamic",
+    safelist: Dict[str, Dict[str, List[str]]] = None,
+) -> Tuple[bool, bool]:
     """
     This method tags components of a URI
     :param url: The url to be analyzed
@@ -152,8 +154,12 @@ def _tag_uri(url: str, result_section: ResultSection, network_tag_type: str = "d
         parsed_url = urlparse(url)
         url_encoded = urlunparse(
             [
-                parsed_url.scheme, parsed_url.netloc, parsed_url.path,
-                parsed_url.params, quote_plus(parsed_url.query), parsed_url.fragment
+                parsed_url.scheme,
+                parsed_url.netloc,
+                parsed_url.path,
+                parsed_url.params,
+                quote_plus(parsed_url.query),
+                parsed_url.fragment,
             ]
         )
         uri_match = match(FULL_URI, url_encoded)

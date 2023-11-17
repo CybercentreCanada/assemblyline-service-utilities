@@ -115,8 +115,7 @@ class DecoderWrapper:
                 magic_type = magic.Magic().from_buffer(node.value)
                 mime_type = magic.Magic(mime=True).from_buffer(node.value)
                 if any(
-                    (file_type in mime_type and "octet-stream" not in mime_type)
-                    or file_type in magic_type
+                    (file_type in mime_type and "octet-stream" not in mime_type) or file_type in magic_type
                     for file_type in EXTRACT_FILETYPES
                 ):
                     with open(file_path, "wb") as f:

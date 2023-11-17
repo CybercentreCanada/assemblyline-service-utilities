@@ -1,9 +1,8 @@
 import os
 
 import pytest
-from assemblyline_v4_service.common.result import Result, ResultSection
-
 from assemblyline_service_utilities.common.section_reducer import _reduce_specific_tags, _section_traverser, reduce
+from assemblyline_v4_service.common.result import Result, ResultSection
 
 SERVICE_CONFIG_NAME = "service_manifest.yml"
 TEMP_SERVICE_CONFIG_PATH = os.path.join("/tmp", SERVICE_CONFIG_NAME)

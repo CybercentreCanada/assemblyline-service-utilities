@@ -32,6 +32,7 @@ def _determine_arch(path: str) -> str:
         return X86_64
     return X86
 
+
 def _pattern_substitution(path: str, rule: Dict[str, str]) -> str:
     """
     This method applies pattern rules for explicit string substitution
@@ -42,6 +43,7 @@ def _pattern_substitution(path: str, rule: Dict[str, str]) -> str:
     if path.startswith(rule["pattern"]):
         path = path.replace(rule["pattern"], rule["replacement"])
     return path
+
 
 def _regex_substitution(path: str, rule: Dict[str, str]) -> str:
     """
@@ -55,6 +57,7 @@ def _regex_substitution(path: str, rule: Dict[str, str]) -> str:
     rule["regex"] = "[^\\\\]+".join(rule["regex"])
     path = sub(rf"{rule['regex']}", rule["replacement"], path)
     return path
+
 
 def normalize_path(path: str, arch: Optional[str] = None) -> str:
     """
@@ -91,17 +94,12 @@ def normalize_path(path: str, arch: Optional[str] = None) -> str:
     if arch == X86_64:
         rules.append(
             {
-                "pattern": SYSTEM_DRIVE
-                + ARCH_SPECIFIC_DEFAULTS[arch]["szProgFiles64"],
+                "pattern": SYSTEM_DRIVE + ARCH_SPECIFIC_DEFAULTS[arch]["szProgFiles64"],
                 "replacement": "?pf64",
             }
         )
-    rules.append(
-        {"regex": f"{SYSTEM_DRIVE}{SZ_USR_TEMP_PATH}", "replacement": "?usrtmp\\\\"}
-    )
-    rules.append(
-        {"regex": f"{SYSTEM_DRIVE}{SZ_USR_PATH}", "replacement": "?usr\\\\"}
-    )
+    rules.append({"regex": f"{SYSTEM_DRIVE}{SZ_USR_TEMP_PATH}", "replacement": "?usrtmp\\\\"})
+    rules.append({"regex": f"{SYSTEM_DRIVE}{SZ_USR_PATH}", "replacement": "?usr\\\\"})
     rules.append({"pattern": SYSTEM_ROOT, "replacement": "?win\\"})
     rules.append({"pattern": SYSTEM_DRIVE, "replacement": "?c\\"})
     rules.append({"pattern": WINDIR_ENV_VARIABLE, "replacement": "?win"})

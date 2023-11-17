@@ -3,8 +3,8 @@ from typing import List, Tuple
 import pefile
 import regex as re
 
-EXEDOS_RE = rb'(?s)This program cannot be run in DOS mode'
-EXEHEADER_RE = rb'(?s)MZ.{32,1024}PE\000\000'
+EXEDOS_RE = rb"(?s)This program cannot be run in DOS mode"
+EXEHEADER_RE = rb"(?s)MZ.{32,1024}PE\000\000"
 
 
 def _find_pe_files_with_offset(data: bytes) -> List[Tuple[bytes, int, int]]:
@@ -30,7 +30,7 @@ def _find_pe_files_with_offset(data: bytes) -> List[Tuple[bytes, int, int]]:
             size = max(section.PointerToRawData + section.SizeOfRawData for section in pe.sections)
             if size == 0:
                 return pe_files
-            end = offset+size
+            end = offset + size
             pe_files.append((data[offset:end], offset, end))
             offset = end
         except Exception:

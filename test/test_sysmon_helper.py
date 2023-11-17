@@ -1,5 +1,4 @@
 import pytest
-
 from assemblyline_service_utilities.common.dynamic_service_helper import OntologyResults
 from assemblyline_service_utilities.common.sysmon_helper import convert_sysmon_network, convert_sysmon_processes
 
