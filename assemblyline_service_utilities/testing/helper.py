@@ -472,14 +472,13 @@ class TestHelper:
                     )
                 elif isinstance(v, list) and all(isinstance(item, dict) for item in v):
                     for index, item in enumerate(v):
-                        root = f"{root}[{index}]"
                         TestHelper._data_compare(
                             ih,
                             item,
                             new[k][index],
                             data_type,
                             ignore_new_extra_fields=ignore_new_extra_fields,
-                            root=root,
+                            root=f"{root}[{index}]",
                         )
                 else:
                     ih.add_issue(
