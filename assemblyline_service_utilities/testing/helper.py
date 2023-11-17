@@ -325,7 +325,7 @@ class TestHelper:
                     original_results.get("extra", {}),
                     results.get("extra", None),
                     ih.TYPE_EXTRA,
-                    ignore_new_extra_fields,
+                    ignore_new_extra_fields=ignore_new_extra_fields,
                 )
 
             # Extracted files
@@ -467,11 +467,20 @@ class TestHelper:
                 )
             elif v != new[k]:
                 if isinstance(v, dict):
-                    TestHelper._data_compare(ih, v, new[k], data_type, root)
+                    TestHelper._data_compare(
+                        ih, v, new[k], data_type, ignore_new_extra_fields=ignore_new_extra_fields, root=root
+                    )
                 elif isinstance(v, list) and all(isinstance(item, dict) for item in v):
                     for index, item in enumerate(v):
                         root = f"{root}[{index}]"
-                        TestHelper._data_compare(ih, item, new[k][index], data_type, ignore_new_extra_fields, root)
+                        TestHelper._data_compare(
+                            ih,
+                            item,
+                            new[k][index],
+                            data_type,
+                            ignore_new_extra_fields=ignore_new_extra_fields,
+                            root=root,
+                        )
                 else:
                     ih.add_issue(
                         data_type,
