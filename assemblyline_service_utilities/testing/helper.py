@@ -319,10 +319,14 @@ class TestHelper:
 
             # Compile the list of issues between the two results
             # Test extra results
-            if (test_extra or self.test_options.get("test_extra", False)) and not self.are_extras_equal(
-                ih, original_results.get("extra", {}), results.get("extra", None), ignore_new_extra_fields
-            ):
-                ih.add_issue(ih.TYPE_EXTRA, ih.ACTION_CHANGED, "Extra results have changed.")
+            if test_extra or self.test_options.get("test_extra", False):
+                self._data_compare(
+                    ih,
+                    original_results.get("extra", {}),
+                    results.get("extra", None),
+                    ih.TYPE_EXTRA,
+                    ignore_new_extra_fields,
+                )
 
             # Extracted files
             self._file_compare(
@@ -448,25 +452,31 @@ class TestHelper:
                     )
 
     @staticmethod
-    def _data_compare(ih: IssueHelper, original, new, data_type, ignore_new_extra_fields=True):
+    def _data_compare(ih: IssueHelper, original, new, data_type, ignore_new_extra_fields=True, root=""):
         for k, v in original.items():
+            if root:
+                root = f"{root}.{k}"
+            else:
+                root = k
+
             if k not in new:
                 ih.add_issue(
                     data_type,
                     ih.ACTION_MISSING,
-                    f"{data_type} with key '{k}' is missing from the results.",
+                    f"@{root} - {data_type} with key '{k}' is missing from the results.",
                 )
             elif v != new[k]:
                 if isinstance(v, dict):
-                    TestHelper._data_compare(ih, v, new[k], data_type)
+                    TestHelper._data_compare(ih, v, new[k], data_type, root)
                 elif isinstance(v, list) and all(isinstance(item, dict) for item in v):
                     for index, item in enumerate(v):
-                        TestHelper._data_compare(ih, item, new[k][index], data_type, ignore_new_extra_fields)
+                        root = f"{root}[{index}]"
+                        TestHelper._data_compare(ih, item, new[k][index], data_type, ignore_new_extra_fields, root)
                 else:
                     ih.add_issue(
                         data_type,
                         ih.ACTION_CHANGED,
-                        f"Value of {data_type} with key '{k}' has changed.",
+                        f"@{root} - Value of {data_type} with key '{k}' has changed from {v} to {new[k]}.",
                     )
 
         # Only ignore new files in the "extra" data
@@ -478,7 +488,7 @@ class TestHelper:
                     ih.add_issue(
                         data_type,
                         ih.ACTION_ADDED,
-                        f"{data_type} with key '{k}' was added to the results.",
+                        f"@{root} - {data_type} with key '{k}' was added to the results.",
                     )
 
     @staticmethod
@@ -524,15 +534,6 @@ class TestHelper:
                 self._execute_sample(f, save=True, save_files=save_files)
             except FileMissing:
                 print(f"[W] File {f} was not found in any of the following locations: {', '.join(self.locations)}")
-
-    def are_extras_equal(self, ih, original_extra, actual_extra, ignore_new_extra_fields=True) -> bool:
-        for key in original_extra.keys():
-            # An original extra key should always be in the new extra key to ensure backwards-compatibility
-            if key not in actual_extra:
-                return False
-
-            self._data_compare(ih, original_extra, actual_extra, ih.TYPE_EXTRA, ignore_new_extra_fields)
-        return True
 
 
 def check_section_equality(this, that) -> bool:
