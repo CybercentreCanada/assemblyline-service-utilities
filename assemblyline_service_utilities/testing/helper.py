@@ -469,7 +469,10 @@ class TestHelper:
                         f"Value of {data_type} with key '{k}' has changed.",
                     )
 
-        if not ignore_new_extra_fields:
+        # Only ignore new files in the "extra" data
+        if data_type == ih.TYPE_EXTRA and ignore_new_extra_fields:
+            pass
+        else:
             for k, v in new.items():
                 if k not in original:
                     ih.add_issue(
