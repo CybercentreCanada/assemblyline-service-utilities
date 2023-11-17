@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from assemblyline.common import forge
 from assemblyline.common.dict_utils import flatten
+from assemblyline.common.str_utils import truncate
 from assemblyline.common.uid import get_random_id
 from assemblyline.odm.messages.task import Task as ServiceTask
 from assemblyline_v4_service.common import helper
@@ -484,7 +485,7 @@ class TestHelper:
                     ih.add_issue(
                         data_type,
                         ih.ACTION_CHANGED,
-                        f"@{root} - Value of {data_type} with key '{k}' has changed from {v} to {new[k]}.",
+                        f"@{root} - Value of {data_type} with key '{k}' has changed from {truncate(v)} to {truncate(new[k])}.",
                     )
 
         # Only ignore new files in the "extra" data
