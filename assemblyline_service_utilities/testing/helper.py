@@ -11,6 +11,7 @@ from assemblyline_v4_service.common.task import Task
 
 from assemblyline.common import forge
 from assemblyline.common.dict_utils import flatten
+from assemblyline.common.str_utils import truncate
 from assemblyline.common.uid import get_random_id
 from assemblyline.odm.messages.task import Task as ServiceTask
 from cart import unpack_file
@@ -310,7 +311,7 @@ class TestHelper:
             if len(f.split("_")[0]) == 64 and os.path.isdir(os.path.join(self.result_folder, f))
         ]
 
-    def compare_sample_results(self, sample, test_extra=False):
+    def compare_sample_results(self, sample, test_extra=False, ignore_new_extra_fields=True):
         ih = IssueHelper()
         original_results_file = os.path.join(self.result_folder, sample, "result.json")
 
@@ -320,10 +321,14 @@ class TestHelper:
 
             # Compile the list of issues between the two results
             # Test extra results
-            if (test_extra or self.test_options.get("test_extra", False)) and original_results.get(
-                "extra", None
-            ) != results.get("extra", None):
-                ih.add_issue(ih.TYPE_EXTRA, ih.ACTION_CHANGED, "Extra results have changed.")
+            if test_extra or self.test_options.get("test_extra", False):
+                self._data_compare(
+                    ih,
+                    original_results.get("extra", {}),
+                    results.get("extra", None),
+                    ih.TYPE_EXTRA,
+                    ignore_new_extra_fields=ignore_new_extra_fields,
+                )
 
             # Extracted files
             self._file_compare(
@@ -341,17 +346,21 @@ class TestHelper:
                 self._tag_compare(ih, original_results["results"]["tags"], results["results"]["tags"])
 
             # Temp submission data generated
-            self._temp_data_compare(
-                ih, original_results["results"]["temp_submission_data"], results["results"]["temp_submission_data"]
+            self._data_compare(
+                ih,
+                original_results["results"]["temp_submission_data"],
+                results["results"]["temp_submission_data"],
+                ih.TYPE_TEMP,
+                ignore_new_extra_fields=ignore_new_extra_fields,
             )
         else:
             ih.add_issue(ih.TYPE_TEST, ih.ACTION_MISSING, f"Original result file missing for sample: {sample}")
 
         return ih
 
-    def run_test_comparison(self, sample, test_extra=False):
+    def run_test_comparison(self, sample, test_extra=False, ignore_new_extra_fields=True):
         # WARNING: This function is only to be run into a pytest context!
-        ih = self.compare_sample_results(sample, test_extra=test_extra)
+        ih = self.compare_sample_results(sample, test_extra=test_extra, ignore_new_extra_fields=ignore_new_extra_fields)
         if ih.has_issues():
             issues = ih.get_issue_list()
             issues.insert(0, "")
@@ -445,24 +454,52 @@ class TestHelper:
                     )
 
     @staticmethod
-    def _temp_data_compare(ih: IssueHelper, original, new):
+    def _data_compare(ih: IssueHelper, original, new, data_type, ignore_new_extra_fields=True, root=""):
         for k, v in original.items():
+            if root:
+                root = f"{root}.{k}"
+            else:
+                root = k
+
             if k not in new:
                 ih.add_issue(
-                    ih.TYPE_TEMP,
+                    data_type,
                     ih.ACTION_MISSING,
-                    f"Temporary submission data with key '{k}' is missing from the results.",
+                    f"@{root} - {data_type} with key '{k}' is missing from the results.",
                 )
             elif v != new[k]:
-                ih.add_issue(
-                    ih.TYPE_TEMP, ih.ACTION_CHANGED, f"Value of temporary submission data with key '{k}' has changed."
-                )
+                if isinstance(v, dict):
+                    TestHelper._data_compare(
+                        ih, v, new[k], data_type, ignore_new_extra_fields=ignore_new_extra_fields, root=root
+                    )
+                elif isinstance(v, list) and all(isinstance(item, dict) for item in v):
+                    for index, item in enumerate(v):
+                        TestHelper._data_compare(
+                            ih,
+                            item,
+                            new[k][index],
+                            data_type,
+                            ignore_new_extra_fields=ignore_new_extra_fields,
+                            root=f"{root}[{index}]",
+                        )
+                else:
+                    ih.add_issue(
+                        data_type,
+                        ih.ACTION_CHANGED,
+                        f"@{root} - Value of {data_type} with key '{k}' has changed from {truncate(v)} to {truncate(new[k])}.",
+                    )
 
-        for k, v in new.items():
-            if k not in original:
-                ih.add_issue(
-                    ih.TYPE_TEMP, ih.ACTION_ADDED, f"Temporary submission data with key '{k}' was added to the results."
-                )
+        # Only ignore new files in the "extra" data
+        if data_type == ih.TYPE_EXTRA and ignore_new_extra_fields:
+            pass
+        else:
+            for k, v in new.items():
+                if k not in original:
+                    ih.add_issue(
+                        data_type,
+                        ih.ACTION_ADDED,
+                        f"@{root} - {data_type} with key '{k}' was added to the results.",
+                    )
 
     @staticmethod
     def _file_compare(ih: IssueHelper, f_type, original, new):
