@@ -94,26 +94,26 @@ SERVICE_NAME = None
 # The following lists of domains and top-level domains are used for finding false-positives
 # when extracting domains from text blobs
 COMMON_FP_DOMAINS = ["example.com"]
-COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".one", ".pub", ".py", ".sh", ".zip", ".js"]
+COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".js", ".one", ".pub", ".py", ".sh", ".zip"]
 COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS = [
-    ".test",
-    ".id",
     ".call",
-    ".top",
-    ".map",
-    ".support",
-    ".run",
-    ".shell",
-    ".net",
-    ".stream",
-    ".in",
     ".cl",
-    ".xmlhttp",
-    ".runincontext",
-    ".target",
+    ".id",
+    ".in",
+    ".map",
     ".name",
     ".nc",
+    ".net",
+    ".run",
+    ".runincontext",
+    ".shell",
+    ".stream",
+    ".support",
+    ".target",
+    ".test",
+    ".top",
     ".tt",
+    ".xmlhttp",
 ]
 COMMON_FP_TLDS = COMMON_FP_TLDS_THAT_ARE_FILE_EXTS + COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS
 
