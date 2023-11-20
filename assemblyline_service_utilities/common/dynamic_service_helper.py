@@ -2042,7 +2042,7 @@ class OntologyResults:
         processes: List[Process] = [
             process
             for process in self.get_processes()
-            if process.pid == pid and timestamp <= process.end_time and timestamp >= process.start_time
+            if process.pid == pid and timestamp <= str(process.end_time) and timestamp >= str(process.start_time)
         ]
         if not processes:
             return None
