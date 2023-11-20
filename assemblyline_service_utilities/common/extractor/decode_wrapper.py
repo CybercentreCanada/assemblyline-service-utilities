@@ -72,7 +72,7 @@ def get_tree_tags(tree: Node, *, dynamic: object = False) -> dict[str, set[bytes
     """Get Assemblyline tags from Multidecoder tree."""
     tags: dict[str, set[bytes]] = defaultdict(set)
     for node in tree:
-        if tag_type := map_tag_type(node.type, dynamic):
+        if tag_type := map_tag_type(node.type, dynamic=dynamic):
             tags[tag_type].add(node.value)
     return tags
 
@@ -92,7 +92,7 @@ class DecoderWrapper:
         otherwise they are tagged network.static.
         """
         tree = self.multidecoder.scan(data)
-        return get_tree_tags(tree, dynamic)
+        return get_tree_tags(tree, dynamic=dynamic)
 
     def extract_files(self, tree: Node, min_size: int) -> set[str]:
         """Extract node values with a good filetype if the size is at least min_size."""
