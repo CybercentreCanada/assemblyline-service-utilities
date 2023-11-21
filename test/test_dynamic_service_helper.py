@@ -2221,7 +2221,16 @@ class TestOntologyResults:
         )
         default_or.add_process(p)
         assert default_or.get_process_by_pid_and_time(1, "1970-01-01 00:00:01.000") == p
-
+        p2 = default_or.create_process(
+            objectid=objectid,
+            image="blah",
+            pid=2,
+            start_time=1.0,
+            end_time=2.0,
+        )
+        default_or.add_process(p2)
+        assert default_or.get_process_by_pid_and_time(2, "1.0") == p2
+       
     @staticmethod
     def test_get_processes_by_pguid():
         default_or = OntologyResults(service_name="blah")
