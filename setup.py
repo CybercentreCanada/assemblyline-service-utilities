@@ -53,6 +53,7 @@ setup(
         "": [
             "*.xml",
             "VERSION",
-        ]
+        ],
+        "assemblyline_service_utilities": ["py.typed"],
     },
 )
