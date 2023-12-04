@@ -325,7 +325,7 @@ class TestHelper:
                 self._data_compare(
                     ih,
                     original_results.get("extra", {}),
-                    results.get("extra", None),
+                    results.get("extra", {}),
                     ih.TYPE_EXTRA,
                     ignore_new_extra_fields=ignore_new_extra_fields,
                 )
@@ -461,7 +461,7 @@ class TestHelper:
             else:
                 root = k
 
-            if k not in new:
+            if (new is None and k) or (k not in new):
                 ih.add_issue(
                     data_type,
                     ih.ACTION_MISSING,
