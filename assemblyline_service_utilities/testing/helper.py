@@ -472,7 +472,7 @@ class TestHelper:
                     TestHelper._data_compare(
                         ih, v, new[k], data_type, ignore_new_extra_fields=ignore_new_extra_fields, root=root
                     )
-                elif isinstance(v, list) and all(isinstance(item, dict) for item in v):
+                elif isinstance(v, list) and all(isinstance(item, dict) for item in v) and len(v) == len(new[k]):
                     for index, item in enumerate(v):
                         TestHelper._data_compare(
                             ih,
