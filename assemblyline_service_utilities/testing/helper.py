@@ -461,7 +461,7 @@ class TestHelper:
             else:
                 root = k
 
-            if (new is None and k) or (k not in new):
+            if (new is None) or (k not in new):
                 ih.add_issue(
                     data_type,
                     ih.ACTION_MISSING,
