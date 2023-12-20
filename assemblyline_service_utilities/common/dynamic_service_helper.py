@@ -94,7 +94,7 @@ SERVICE_NAME = None
 # The following lists of domains and top-level domains are used for finding false-positives
 # when extracting domains from text blobs
 COMMON_FP_DOMAINS = ["example.com"]
-COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".js", ".one", ".pub", ".py", ".sh", ".zip"]
+COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".dot", ".js", ".one", ".pub", ".py", ".sh", ".zip"]
 COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS = [
     ".as",
     ".author",
