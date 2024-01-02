@@ -2256,7 +2256,7 @@ class OntologyResults:
         for artifact in validated_artifacts:
             OntologyResults._handle_artifact(artifact, artifacts_result_section, injection_heur_id)
 
-            # We will be setting the parent relation to memory dump based on artifact description and/orfile name
+            # We will be setting the parent relation to memory dump based on artifact description and/or file name
             if OntologyResults._is_memory_dump(artifact.name, artifact.description):
                 parent_relation = PARENT_RELATION.MEMDUMP
 
