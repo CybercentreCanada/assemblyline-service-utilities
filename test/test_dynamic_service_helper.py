@@ -4399,7 +4399,7 @@ class TestOntologyResults:
                         "sha256": "blah",
                     }
                 ],
-                None,
+                {"extracted": [{'path': 'blah', 'name': 'blah', 'description': 'blah', 'parent_relation': 'EXTRACTED'}]},
             ),
             (
                 [
@@ -4413,6 +4413,7 @@ class TestOntologyResults:
                 ],
                 None,
             ),
+            # HollowsHunter-specific memory dump handling
             (
                 [
                     {
@@ -4423,7 +4424,45 @@ class TestOntologyResults:
                         "sha256": "blah",
                     }
                 ],
-                True,
+                {
+                    "title": "Sandbox Artifacts",
+                    "body": "HollowsHunter dumped the following:\n\t- 123_hollowshunter/hh_process_12345_blah123.something.exe",
+                    "sub_heur_id": 17,
+                    "sub_sig_id": "hollowshunter_exe",
+                    "sub_title": "HollowsHunter Injected Portable Executable",
+                    "sub_body": "a",
+                    "sub_tags": {"value": "123_hollowshunter/hh_process_12345_blah123.something.exe", "tag_type": "dynamic.process.file_name"},
+                    "extracted": [
+                        {
+                            "description": "blah",
+                            "name": "123_hollowshunter/hh_process_12345_blah123.something.exe",
+                            "parent_relation": "MEMDUMP",
+                            "path": "blah",
+                        },
+                    ]
+                },
+            ),
+            # CAPE-specific memory dump handling
+            (
+                [
+                    {
+                        "name": "CAPE_something.exe",
+                        "path": "blah",
+                        "description": "Memory Dump",
+                        "to_be_extracted": True,
+                        "sha256": "blah",
+                    }
+                ],
+                {
+                    "extracted": [
+                        {
+                            "description": "Memory Dump",
+                            "name": "CAPE_something.exe",
+                            "parent_relation": "MEMDUMP",
+                            "path": "blah",
+                        },
+                    ]
+                },
             ),
         ],
     )
@@ -4436,23 +4475,17 @@ class TestOntologyResults:
         if expected_result is None:
             assert actual_result is None
         else:
-            expected_result = ResultSection("Sandbox Artifacts")
-            hh_sec = ResultSection(HOLLOWSHUNTER_TITLE)
-            hh_sec.set_heuristic(17)
-            hh_sec.heuristic.add_signature_id("hollowshunter_exe")
-            hh_sec.add_line("HollowsHunter dumped the following:")
-            hh_sec.add_line("\t- 123_hollowshunter/hh_process_12345_blah123.something.exe")
-            hh_sec.add_tag("dynamic.process.file_name", "123_hollowshunter/hh_process_12345_blah123.something.exe")
-            expected_result.add_subsection(hh_sec)
-            assert check_section_equality(actual_result, expected_result)
-            assert r.extracted == [
-                {
-                    "description": "blah",
-                    "name": "123_hollowshunter/hh_process_12345_blah123.something.exe",
-                    "parent_relation": "MEMDUMP",
-                    "path": "blah",
-                },
-            ]
+            # We only expect a result section if a hollowshunter dump is found
+            if expected_result.get("title"):
+                parent_sec = ResultSection(expected_result["title"])
+                hh_sec = ResultSection(expected_result["sub_title"])
+                hh_sec.set_heuristic(expected_result["sub_heur_id"])
+                hh_sec.heuristic.add_signature_id(expected_result["sub_sig_id"])
+                hh_sec.add_line(expected_result["body"])
+                hh_sec.add_tag(**expected_result["sub_tags"])
+                parent_sec.add_subsection(hh_sec)
+                assert check_section_equality(actual_result, parent_sec)
+            assert r.extracted == expected_result.get("extracted", [])
 
     @staticmethod
     def test_get_guids():
@@ -8342,6 +8375,7 @@ class TestOntologyResults:
             actual_result_section = None
 
         if expected_result_section is None and actual_result_section is None:
+            print(a.as_primitives())
             assert True
         else:
             assert check_section_equality(actual_result_section, expected_result_section)
