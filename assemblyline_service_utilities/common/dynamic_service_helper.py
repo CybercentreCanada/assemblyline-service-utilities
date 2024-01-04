@@ -20,7 +20,7 @@ from assemblyline_v4_service.common.result import (
     ResultTableSection,
     TableRow,
 )
-from assemblyline_v4_service.common.task import MaxExtractedExceeded
+from assemblyline_v4_service.common.task import PARENT_RELATION, MaxExtractedExceeded
 
 from assemblyline.common import log as al_log
 from assemblyline.common.attack_map import attack_map, group_map, revoke_map, software_map
@@ -2199,15 +2199,20 @@ class OntologyResults:
         self.sandbox_version = json["sandbox_version"]
 
     @staticmethod
-    def _is_hollowshunter_exe_dump(artifact_name: str) -> True:
+    def _is_hollowshunter_exe_dump(artifact_name: str) -> bool:
         return HOLLOWSHUNTER_EXE_REGEX.match(artifact_name)
 
     @staticmethod
-    def _is_hollowshunter_dll_dump(artifact_name: str) -> True:
+    def _is_hollowshunter_dll_dump(artifact_name: str) -> bool:
         return HOLLOWSHUNTER_DLL_REGEX.match(artifact_name)
 
     @staticmethod
-    def _is_hollowshunter_dump(artifact_name: str) -> True:
+    def _is_description_indicative_of_memdump(artifact_description: str) -> bool:
+        if any(item in artifact_description.lower() for item in ["memory dump", "memdump"]):
+            return True
+
+    @staticmethod
+    def _is_hollowshunter_dump(artifact_name: str) -> bool:
         if OntologyResults._is_hollowshunter_exe_dump(artifact_name):
             return True
 
@@ -2218,12 +2223,22 @@ class OntologyResults:
             return False
 
     @staticmethod
+    def _is_memory_dump(artifact_name: str, artifact_description: str = None) -> bool:
+        # First check by name
+        if OntologyResults._is_hollowshunter_dump(artifact_name):
+            return True
+        # Then check by description
+        elif artifact_description and OntologyResults._is_description_indicative_of_memdump(artifact_description):
+            return True
+        return False
+
+    @staticmethod
     def handle_artifacts(
         artifact_list: List[Dict[str, Any]],
         request: ServiceRequest,
         collapsed: bool = False,
         injection_heur_id: int = 17,
-        parent_relation: str = "EXTRACTED",
+        parent_relation: str = PARENT_RELATION.EXTRACTED,
     ) -> ResultSection:
         """
         Goes through each artifact in artifact_list, uploading them and adding result sections accordingly
@@ -2241,8 +2256,9 @@ class OntologyResults:
         for artifact in validated_artifacts:
             OntologyResults._handle_artifact(artifact, artifacts_result_section, injection_heur_id)
 
-            if OntologyResults._is_hollowshunter_dump(artifact.name):
-                parent_relation = "MEMDUMP"
+            # We will be setting the parent relation to memory dump based on artifact description and/or file name
+            if OntologyResults._is_memory_dump(artifact.name, artifact.description):
+                parent_relation = PARENT_RELATION.MEMDUMP
 
             if artifact.to_be_extracted and not any(
                 artifact.sha256 == previously_extracted["sha256"] for previously_extracted in request.extracted
