@@ -57,7 +57,6 @@ MIN_DOMAIN_CHARS = 8
 # Choosing an arbitrary number, based on https://webmasters.stackexchange.com/questions/16996/maximum-domain-name-length
 MAX_DOMAIN_CHARS = 100
 MIN_URI_CHARS = 11
-MIN_URI_PATH_CHARS = 4
 
 # There are samples that inject themselves for the entire analysis time
 # and have the potential to exceed depths of 1000. Also, the assumption with 10 is that no process
@@ -3150,13 +3149,13 @@ def extract_iocs_from_text_blob(
             elif dumps({"ioc_type": "ip", "ioc": ip}) not in result_section.section_body.body:
                 result_section.add_row(TableRow(ioc_type="ip", ioc=ip))
     for domain in sorted(domains):
-        if enforce_char_min and len(domain) < MIN_DOMAIN_CHARS:
-            continue
-        if enforce_domain_char_max and len(domain) > MAX_DOMAIN_CHARS:
-            continue
-
-        # Check if the domain ends with a TLD that is frequently a false positive
-        if any(domain.lower().endswith(tld) for tld in COMMON_FP_TLDS):
+        # If a domain matches one of the following criteria, ensure that it is the hostname of a URI, otherwise
+        # we don't want it
+        if (
+            any(domain.lower().endswith(tld) for tld in COMMON_FP_TLDS)
+            or (enforce_char_min and len(domain) < MIN_DOMAIN_CHARS)
+            or (enforce_domain_char_max and len(domain) > MAX_DOMAIN_CHARS)
+        ):
             is_domain_present_in_uri = False
             for uri in uris:
                 parsed_uri = urlparse(uri.lower())
@@ -3211,8 +3210,7 @@ def extract_iocs_from_text_blob(
         if "//" in uri:
             uri = uri.split("//")[1]
         for uri_path in findall(URI_PATH, uri):
-            if enforce_char_min and len(uri_path) < MIN_URI_PATH_CHARS:
-                continue
+            # Since the URI is valid at this point, then we should tag the URI path regardless
             if add_tag(
                 result_section,
                 f"network.{network_tag_type}.uri_path",
