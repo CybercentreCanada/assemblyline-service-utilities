@@ -4399,7 +4399,11 @@ class TestOntologyResults:
                         "sha256": "blah",
                     }
                 ],
-                {"extracted": [{'path': 'blah', 'name': 'blah', 'description': 'blah', 'parent_relation': 'EXTRACTED'}]},
+                {
+                    "extracted": [
+                        {"path": "blah", "name": "blah", "description": "blah", "parent_relation": "EXTRACTED"}
+                    ]
+                },
             ),
             (
                 [
@@ -4431,7 +4435,10 @@ class TestOntologyResults:
                     "sub_sig_id": "hollowshunter_exe",
                     "sub_title": "HollowsHunter Injected Portable Executable",
                     "sub_body": "a",
-                    "sub_tags": {"value": "123_hollowshunter/hh_process_12345_blah123.something.exe", "tag_type": "dynamic.process.file_name"},
+                    "sub_tags": {
+                        "value": "123_hollowshunter/hh_process_12345_blah123.something.exe",
+                        "tag_type": "dynamic.process.file_name",
+                    },
                     "extracted": [
                         {
                             "description": "blah",
@@ -4439,7 +4446,7 @@ class TestOntologyResults:
                             "parent_relation": "MEMDUMP",
                             "path": "blah",
                         },
-                    ]
+                    ],
                 },
             ),
             # CAPE-specific memory dump handling
@@ -8623,6 +8630,17 @@ class TestOntologyResults:
                 "network.dynamic.domain": ["blah.com"],
             },
             [],
+        ),
+        (
+            "blah https://microsoft.net/ blah",
+            True,
+            True,
+            {
+                "network.dynamic.domain": ["microsoft.net"],
+                "network.dynamic.uri": ["https://microsoft.net/"],
+                "network.dynamic.uri_path": ["/"],
+            },
+            [{"uri": "https://microsoft.net/"}],
         ),
     ],
 )
