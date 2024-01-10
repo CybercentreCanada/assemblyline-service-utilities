@@ -21,6 +21,7 @@ from assemblyline_v4_service.common.result import (
     TableRow,
 )
 from assemblyline_v4_service.common.task import PARENT_RELATION, MaxExtractedExceeded
+from multidecoder.decoders.network import find_domains, find_ips, find_urls
 
 from assemblyline.common import log as al_log
 from assemblyline.common.attack_map import attack_map, group_map, revoke_map, software_map
@@ -35,7 +36,7 @@ from assemblyline.common.isotime import (
     local_to_epoch,
 )
 from assemblyline.common.uid import get_random_id
-from assemblyline.odm.base import DOMAIN_REGEX, FULL_URI, IP_REGEX, URI_PATH, URI_REGEX
+from assemblyline.odm.base import DOMAIN_REGEX, FULL_URI, URI_PATH
 from assemblyline.odm.models.ontology.results import NetworkConnection as NetworkConnectionModel
 from assemblyline.odm.models.ontology.results import Process as ProcessModel
 from assemblyline.odm.models.ontology.results import Sandbox as SandboxModel
@@ -3093,9 +3094,9 @@ def extract_iocs_from_text_blob(
     else:
         network_tag_type = "dynamic"
 
-    ips = set(findall(IP_REGEX, blob))
+    ips = set([ip.value.decode() for ip in find_ips(blob.encode())])
     # There is overlap here between regular expressions, so we want to isolate domains that are not ips
-    domains = set(findall(DOMAIN_REGEX, blob))
+    domains = set([domain.value.decode() for domain in find_domains(blob.encode())])
 
     # When extracting domains from byte blobs, we need to be careful
     if any(domain.startswith("x") for domain in domains):
@@ -3114,7 +3115,7 @@ def extract_iocs_from_text_blob(
     # TODO: Are we missing IOCs to the point where we need a different regex?
     # uris = {uri.decode() for uri in set(findall(PatternMatch.PAT_URI_NO_PROTOCOL, blob.encode()))} - domains - ips
 
-    uri_results = findall(URI_REGEX, blob)
+    uri_results = set([url.value.decode() for url in find_urls(blob.encode())])
     uris = set()
     for uri in uri_results:
         if isinstance(uri, tuple):
