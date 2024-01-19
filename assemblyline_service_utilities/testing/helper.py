@@ -503,6 +503,23 @@ class TestHelper:
 
     @staticmethod
     def _file_compare(ih: IssueHelper, f_type, original, new):
+        # Create a set of maps for lookups between sha256 and names
+        oh_map, on_map, nh_map, nn_map = {}, {}, {}, {}
+        [
+            (
+                oh_map.setdefault(x["sha256"], []).append(x["name"]),
+                on_map.setdefault(x["name"], []).append(x["sha256"])
+            )
+            for x in original
+        ]
+        [
+            (
+                nh_map.setdefault(x["sha256"], []).append(x["name"]),
+                nn_map.setdefault(x["name"], []).append(x["sha256"])
+            )
+            for x in new
+        ]
+
         oh_map = {x["sha256"]: x["name"] for x in original}
         on_map = {x["name"]: x["sha256"] for x in original}
         nh_map = {x["sha256"]: x["name"] for x in new}
@@ -514,7 +531,7 @@ class TestHelper:
                     ih.add_issue(f_type, ih.ACTION_MISSING, f"File '{name} [{sha256}]' missing from the file list.")
                     continue
 
-                if sha256 != nn_map[name]:
+                if sha256 not in nn_map[name]:
                     ih.add_issue(
                         f_type,
                         ih.ACTION_CHANGED,
@@ -522,7 +539,7 @@ class TestHelper:
                     )
                     continue
 
-            if name != nh_map[sha256]:
+            if name not in nh_map[sha256]:
                 ih.add_issue(
                     f_type,
                     ih.ACTION_CHANGED,
