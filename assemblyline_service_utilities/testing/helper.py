@@ -5,15 +5,14 @@ import shutil
 from pathlib import Path
 
 import pytest
-from assemblyline_v4_service.common import helper
-from assemblyline_v4_service.common.request import ServiceRequest
-from assemblyline_v4_service.common.task import Task
-
 from assemblyline.common import forge
 from assemblyline.common.dict_utils import flatten
 from assemblyline.common.str_utils import truncate
 from assemblyline.common.uid import get_random_id
 from assemblyline.odm.messages.task import Task as ServiceTask
+from assemblyline_v4_service.common import helper
+from assemblyline_v4_service.common.request import ServiceRequest
+from assemblyline_v4_service.common.task import Task
 from cart import unpack_file
 
 
@@ -503,53 +502,63 @@ class TestHelper:
 
     @staticmethod
     def _file_compare(ih: IssueHelper, f_type, original, new):
-        # Create a set of maps for lookups between sha256 and names
-        oh_map, on_map, nh_map, nn_map = {}, {}, {}, {}
-        [
-            (
-                oh_map.setdefault(x["sha256"], []).append(x["name"]),
-                on_map.setdefault(x["name"], []).append(x["sha256"])
-            )
-            for x in original
-        ]
-        [
-            (
-                nh_map.setdefault(x["sha256"], []).append(x["name"]),
-                nn_map.setdefault(x["name"], []).append(x["sha256"])
-            )
-            for x in new
-        ]
+        if original == new:
+            # These file lists are exactly identical, no need to process for differences
+            return
+        elif len(new) == len(original) and all(n in original for n in new):
+            # The file lists, although the contents might be out of order, are the same
+            return
 
-        oh_map = {x["sha256"]: x["name"] for x in original}
-        on_map = {x["name"]: x["sha256"] for x in original}
-        nh_map = {x["sha256"]: x["name"] for x in new}
-        nn_map = {x["name"]: x["sha256"] for x in new}
+        # Prune out items in the lists where nothing changed
+        for file in list(original + new):
+            if file in original and file in new:
+                original.remove(file)
+                new.remove(file)
 
-        for sha256, name in oh_map.items():
-            if sha256 not in nh_map:
-                if name not in nn_map:
-                    ih.add_issue(f_type, ih.ACTION_MISSING, f"File '{name} [{sha256}]' missing from the file list.")
-                    continue
+        # All remaining files in the orignal file list are assumed to have been removed in the new list
+        change_record = [(ih.ACTION_MISSING, o["name"], o["sha256"]) for o in original]
 
-                if sha256 not in nn_map[name]:
-                    ih.add_issue(
-                        f_type,
-                        ih.ACTION_CHANGED,
-                        f"The sha256 of the file '{name}' has changed. {sha256} -> {nn_map[name]}",
-                    )
-                    continue
+        # Check to see if any of the files in the new list (assumed to be added) are actually changes to original items
+        for n in new:
+            name, sha256 = n["name"], n["sha256"]
+            change_action = None
+            for r in [c for c in change_record if c[0] == ih.ACTION_MISSING]:
+                if r[1] == name and r[2] != sha256:
+                    # The filename is the same but the hashes are different
+                    change_action = (ih.ACTION_CHANGED, "hash_change", name, r[2], sha256)
+                elif r[1] != name and r[2] == sha256:
+                    # The hash is the same but the filenames are different
+                    change_action = (ih.ACTION_CHANGED, "name_change", sha256, r[1], name)
 
-            if name not in nh_map[sha256]:
-                ih.add_issue(
-                    f_type,
-                    ih.ACTION_CHANGED,
-                    f"The name of the file '{sha256}' has changed. {name} -> {nh_map[sha256]}",
-                )
-                continue
+                if change_action:
+                    change_record.insert(change_record.index(r), change_action)
+                    change_record.remove(r)
+                    break
+            if not change_action:
+                # Assume this is a new file added in the output
+                change_record.append((ih.ACTION_ADDED, name, sha256))
 
-        for sha256, name in nh_map.items():
-            if sha256 not in oh_map and name not in on_map:
-                ih.add_issue(f_type, ih.ACTION_ADDED, f"File '{name} [{sha256}]' added to the file list.")
+        sha256_change_msg = "The sha256 of the file '{}' has changed. {} -> {}"
+        name_change_msg = "The name of the file '{}' has changed. {} -> {}"
+        file_added_msg = "File '{} [{}]' added to the file list."
+        file_missing_msg = "File '{} [{}]' missing from the file list."
+
+        # Process the change record for issue handling
+        for record in change_record:
+            message = None
+            if record[0] == ih.ACTION_CHANGED:
+                if record[1] == "hash_change":
+                    message = sha256_change_msg.format(*record[2:])
+
+                elif record[1] == "name_change":
+                    message = name_change_msg.format(*record[2:])
+
+            elif record[0] == ih.ACTION_ADDED:
+                message = file_added_msg.format(*record[1:])
+            elif record[0] == ih.ACTION_MISSING:
+                message = file_missing_msg.format(*record[1:])
+
+            ih.add_issue(f_type, record[0], message)
 
     def regenerate_results(self, save_files=False, sample_sha256=""):
         for f in self.result_list():
