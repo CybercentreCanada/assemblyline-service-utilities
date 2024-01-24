@@ -313,3 +313,163 @@ def test_file_compare_duplicate_names():
         (ih.ACTION_MISSING, "File 'name-b [hash-b]' missing from the file list."),
         (ih.ACTION_ADDED, "File 'name-a [hash-d]' added to the file list."),
     ]
+
+
+def test_file_compare_identical_hash_added():
+    ih = IssueHelper()
+    original = [
+        {"name": "name-a", "sha256": "hash-a"},
+        {"name": "name-b", "sha256": "hash-a"},
+    ]
+    new = [
+        {"name": "name-a", "sha256": "hash-a"},
+        {"name": "name-b", "sha256": "hash-a"},
+        {"name": "name-c", "sha256": "hash-a"},
+    ]
+    TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
+    assert ih.TYPE_EXTRACTED in ih.get_issues()
+    assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
+        (ih.ACTION_ADDED, "File 'name-c [hash-a]' added to the file list."),
+    ]
+
+
+def test_file_compare_identical_hash_removed():
+    ih = IssueHelper()
+    original = [
+        {"name": "name-a", "sha256": "hash-a"},
+        {"name": "name-b", "sha256": "hash-a"},
+    ]
+    new = [
+        {"name": "name-a", "sha256": "hash-a"},
+    ]
+    TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
+    assert ih.TYPE_EXTRACTED in ih.get_issues()
+    assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
+        (ih.ACTION_MISSING, "File 'name-b [hash-a]' missing from the file list."),
+    ]
+
+
+def test_file_compare_identical_name_added():
+    ih = IssueHelper()
+    original = [
+        {"name": "name-a", "sha256": "hash-a"},
+        {"name": "name-a", "sha256": "hash-b"},
+    ]
+    new = [
+        {"name": "name-a", "sha256": "hash-a"},
+        {"name": "name-a", "sha256": "hash-b"},
+        {"name": "name-a", "sha256": "hash-c"},
+    ]
+    TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
+    assert ih.TYPE_EXTRACTED in ih.get_issues()
+    assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
+        (ih.ACTION_ADDED, "File 'name-a [hash-c]' added to the file list."),
+    ]
+
+
+def test_file_compare_identical_name_removed():
+    ih = IssueHelper()
+    original = [
+        {"name": "name-a", "sha256": "hash-a"},
+        {"name": "name-a", "sha256": "hash-b"},
+    ]
+    new = [
+        {"name": "name-a", "sha256": "hash-a"},
+    ]
+    TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
+    assert ih.TYPE_EXTRACTED in ih.get_issues()
+    assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
+        (ih.ACTION_MISSING, "File 'name-a [hash-b]' missing from the file list."),
+    ]
+
+
+def test_file_compare_identical_added():
+    ih = IssueHelper()
+    original = [
+        {"name": "name-a", "sha256": "hash-a"},
+    ]
+    new = [
+        {"name": "name-a", "sha256": "hash-a"},
+        {"name": "name-a", "sha256": "hash-a"},
+    ]
+    TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
+    assert ih.TYPE_EXTRACTED in ih.get_issues()
+    assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
+        (ih.ACTION_ADDED, "File 'name-a [hash-a]' added to the file list."),
+    ]
+
+
+def test_file_compare_identical_removed():
+    ih = IssueHelper()
+    original = [
+        {"name": "name-a", "sha256": "hash-a"},
+        {"name": "name-a", "sha256": "hash-a"},
+    ]
+    new = [
+        {"name": "name-a", "sha256": "hash-a"},
+    ]
+    TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
+    assert ih.TYPE_EXTRACTED in ih.get_issues()
+    assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
+        (ih.ACTION_MISSING, "File 'name-a [hash-a]' missing from the file list."),
+    ]
+
+
+def test_file_compare_from_empty():
+    ih = IssueHelper()
+    original = []
+    new = [
+        {"name": "name-a", "sha256": "hash-a"},
+    ]
+    TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
+    assert ih.TYPE_EXTRACTED in ih.get_issues()
+    assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
+        (ih.ACTION_ADDED, "File 'name-a [hash-a]' added to the file list."),
+    ]
+
+
+def test_file_compare_to_empty():
+    ih = IssueHelper()
+    original = [
+        {"name": "name-a", "sha256": "hash-a"},
+    ]
+    new = []
+    TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
+    assert ih.TYPE_EXTRACTED in ih.get_issues()
+    assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
+        (ih.ACTION_MISSING, "File 'name-a [hash-a]' missing from the file list."),
+    ]
+
+
+def test_file_compare_split_a():
+    ih = IssueHelper()
+    original = [
+        {"name": "name-a", "sha256": "hash-a"},
+    ]
+    new = [
+        {"name": "name-a", "sha256": "hash-b"},
+        {"name": "name-b", "sha256": "hash-a"},
+    ]
+    TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
+    assert ih.TYPE_EXTRACTED in ih.get_issues()
+    assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
+        (ih.ACTION_ADDED, "File 'name-a [hash-b]' added to the file list."),
+        (ih.ACTION_CHANGED, "The name of the file 'hash-a' has changed. name-a -> name-b"),
+    ]
+
+
+def test_file_compare_split_b():
+    ih = IssueHelper()
+    original = [
+        {"name": "name-b", "sha256": "hash-b"},
+    ]
+    new = [
+        {"name": "name-a", "sha256": "hash-b"},
+        {"name": "name-b", "sha256": "hash-a"},
+    ]
+    TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
+    assert ih.TYPE_EXTRACTED in ih.get_issues()
+    assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
+        (ih.ACTION_CHANGED, "The name of the file 'hash-b' has changed. name-b -> name-a"),
+        (ih.ACTION_ADDED, "File 'name-b [hash-a]' added to the file list."),
+    ]
