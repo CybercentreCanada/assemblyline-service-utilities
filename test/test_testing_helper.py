@@ -508,3 +508,43 @@ def test_file_compare_split_b_reversed():
         (ih.ACTION_CHANGED, "The sha256 of the file 'name-b' has changed. hash-b -> hash-a"),
         (ih.ACTION_ADDED, "File 'name-a [hash-b]' added to the file list."),
     ]
+
+
+def test_file_compare_all_hashes_changed():
+    ih = IssueHelper()
+    original = [
+        {"name": "name-a", "sha256": "hash-a"},
+        {"name": "name-a", "sha256": "hash-b"},
+    ]
+    new = [
+        {"name": "name-a", "sha256": "hash-c"},
+        {"name": "name-a", "sha256": "hash-d"},
+        {"name": "name-a", "sha256": "hash-e"},
+    ]
+    TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
+    assert ih.TYPE_EXTRACTED in ih.get_issues()
+    assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
+        (ih.ACTION_CHANGED, "The sha256 of the file 'name-a' has changed. hash-a -> hash-c"),
+        (ih.ACTION_CHANGED, "The sha256 of the file 'name-a' has changed. hash-b -> hash-d"),
+        (ih.ACTION_ADDED, "File 'name-a [hash-e]' added to the file list."),
+    ]
+
+
+def test_file_compare_all_names_changed():
+    ih = IssueHelper()
+    original = [
+        {"name": "name-a", "sha256": "hash-a"},
+        {"name": "name-b", "sha256": "hash-a"},
+    ]
+    new = [
+        {"name": "name-c", "sha256": "hash-a"},
+        {"name": "name-d", "sha256": "hash-a"},
+        {"name": "name-e", "sha256": "hash-a"},
+    ]
+    TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
+    assert ih.TYPE_EXTRACTED in ih.get_issues()
+    assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
+        (ih.ACTION_CHANGED, "The name of the file 'hash-a' has changed. name-a -> name-c"),
+        (ih.ACTION_CHANGED, "The name of the file 'hash-a' has changed. name-b -> name-d"),
+        (ih.ACTION_ADDED, "File 'name-e [hash-a]' added to the file list."),
+    ]
