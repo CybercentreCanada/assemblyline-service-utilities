@@ -251,8 +251,8 @@ def test_file_compare_duplicate_hashes():
     TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
     assert ih.TYPE_EXTRACTED in ih.get_issues()
     assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
-        (ih.ACTION_CHANGED, "The name of the file 'hash-a' has changed. name-a -> name-b"),
         (ih.ACTION_MISSING, "File 'name-b [hash-b]' missing from the file list."),
+        (ih.ACTION_CHANGED, "The name of the file 'hash-a' has changed. name-a -> name-b"),
         (ih.ACTION_ADDED, "File 'name-d [hash-a]' added to the file list."),
     ]
 
@@ -290,9 +290,10 @@ def test_file_compare_duplicate_names():
     TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
     assert ih.TYPE_EXTRACTED in ih.get_issues()
     assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
-        (ih.ACTION_CHANGED, "The name of the file 'hash-a' has changed. name-a -> name-d"),
-        (ih.ACTION_CHANGED, "The name of the file 'hash-b' has changed. name-b -> name-a"),
+        (ih.ACTION_MISSING, "File 'name-b [hash-b]' missing from the file list."),
+        (ih.ACTION_CHANGED, "The sha256 of the file 'name-a' has changed. hash-a -> hash-b"),
         (ih.ACTION_CHANGED, "The name of the file 'hash-c' has changed. name-a -> name-c"),
+        (ih.ACTION_ADDED, "File 'name-d [hash-a]' added to the file list."),
     ]
 
     ih = IssueHelper()
@@ -309,8 +310,8 @@ def test_file_compare_duplicate_names():
     TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
     assert ih.TYPE_EXTRACTED in ih.get_issues()
     assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
-        (ih.ACTION_CHANGED, "The sha256 of the file 'name-a' has changed. hash-a -> hash-b"),
         (ih.ACTION_MISSING, "File 'name-b [hash-b]' missing from the file list."),
+        (ih.ACTION_CHANGED, "The sha256 of the file 'name-a' has changed. hash-a -> hash-b"),
         (ih.ACTION_ADDED, "File 'name-a [hash-d]' added to the file list."),
     ]
 
@@ -453,8 +454,8 @@ def test_file_compare_split_a():
     TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
     assert ih.TYPE_EXTRACTED in ih.get_issues()
     assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
-        (ih.ACTION_ADDED, "File 'name-a [hash-b]' added to the file list."),
-        (ih.ACTION_CHANGED, "The name of the file 'hash-a' has changed. name-a -> name-b"),
+        (ih.ACTION_CHANGED, "The sha256 of the file 'name-a' has changed. hash-a -> hash-b"),
+        (ih.ACTION_ADDED, "File 'name-b [hash-a]' added to the file list."),
     ]
 
 
@@ -470,8 +471,8 @@ def test_file_compare_split_a_reversed():
     TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
     assert ih.TYPE_EXTRACTED in ih.get_issues()
     assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
-        (ih.ACTION_CHANGED, "The name of the file 'hash-a' has changed. name-a -> name-b"),
-        (ih.ACTION_ADDED, "File 'name-a [hash-b]' added to the file list."),
+        (ih.ACTION_CHANGED, "The sha256 of the file 'name-a' has changed. hash-a -> hash-b"),
+        (ih.ACTION_ADDED, "File 'name-b [hash-a]' added to the file list."),
     ]
 
 
@@ -487,8 +488,8 @@ def test_file_compare_split_b():
     TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
     assert ih.TYPE_EXTRACTED in ih.get_issues()
     assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
-        (ih.ACTION_CHANGED, "The name of the file 'hash-b' has changed. name-b -> name-a"),
-        (ih.ACTION_ADDED, "File 'name-b [hash-a]' added to the file list."),
+        (ih.ACTION_CHANGED, "The sha256 of the file 'name-b' has changed. hash-b -> hash-a"),
+        (ih.ACTION_ADDED, "File 'name-a [hash-b]' added to the file list."),
     ]
 
 
@@ -504,6 +505,6 @@ def test_file_compare_split_b_reversed():
     TestHelper._file_compare(ih, ih.TYPE_EXTRACTED, original, new)
     assert ih.TYPE_EXTRACTED in ih.get_issues()
     assert ih.get_issues()[ih.TYPE_EXTRACTED] == [
-        (ih.ACTION_ADDED, "File 'name-b [hash-a]' added to the file list."),
-        (ih.ACTION_CHANGED, "The name of the file 'hash-b' has changed. name-b -> name-a"),
+        (ih.ACTION_CHANGED, "The sha256 of the file 'name-b' has changed. hash-b -> hash-a"),
+        (ih.ACTION_ADDED, "File 'name-a [hash-b]' added to the file list."),
     ]

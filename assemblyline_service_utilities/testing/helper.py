@@ -510,41 +510,54 @@ class TestHelper:
             return
 
         # Prune out items in the lists where nothing changed
-        for file in list(original + new):
+        for file in list(original):
             if file in original and file in new:
                 original.remove(file)
                 new.remove(file)
 
-        # All remaining files in the orignal file list are assumed to have been removed in the new list
-        change_record = [(ih.ACTION_MISSING, o["name"], o["sha256"]) for o in original]
+        # All remaining files in the new file list are assumed to have been additions to the original
+        change_record = [(ih.ACTION_ADDED, x["name"], x["sha256"]) for x in new]
 
-        # Check to see if any of the files in the new list (assumed to be added) are actually changes to original items
-        for n in new:
-            name, sha256 = n["name"], n["sha256"]
+        # Check to see if any of the files in the old list have been changed when comparing against the new files
+        for x in original:
+            name, sha256 = x["name"], x["sha256"]
+
+            # We assume that if there's any change, it only applies to one file at a time
             change_action = None
-            for r in [c for c in change_record if c[0] == ih.ACTION_MISSING]:
-                if r[1] == name and r[2] != sha256:
-                    # The filename is the same but the hashes are different
-                    change_action = (ih.ACTION_CHANGED, "hash_change", name, r[2], sha256)
-                elif r[1] != name and r[2] == sha256:
-                    # The hash is the same but the filenames are different
-                    change_action = (ih.ACTION_CHANGED, "name_change", sha256, r[1], name)
 
-                if change_action:
-                    change_record.insert(change_record.index(r), change_action)
-                    change_record.remove(r)
-                    break
-            if not change_action:
-                # Assume this is a new file added in the output
-                change_record.append((ih.ACTION_ADDED, name, sha256))
+            # During this check, we are going to priorize changes that involve hash for the same filename
+            hash_changes = [c for c in change_record if c[0] == ih.ACTION_ADDED and c[1] == name and c[2] != sha256]
+            for r in hash_changes:
+                # The filename is the same but the hashes are different
+                change_action = (ih.ACTION_CHANGED, "hash_change", name, sha256, r[2])
+                change_record.insert(change_record.index(r), change_action)
+                change_record.remove(r)
+                break
+
+            if change_action:
+                continue
+
+            name_changes = [c for c in change_record if c[0] == ih.ACTION_ADDED and c[1] != name and c[2] == sha256]
+            for r in name_changes:
+                # The hash is the same but the filenames are different
+                change_action = (ih.ACTION_CHANGED, "name_change", sha256, name, r[1])
+                change_record.insert(change_record.index(r), change_action)
+                change_record.remove(r)
+                break
+
+            if change_action:
+                continue
+
+            # Assume this is a old file that's missing in the output
+            change_record.append((ih.ACTION_MISSING, name, sha256))
 
         sha256_change_msg = "The sha256 of the file '{}' has changed. {} -> {}"
         name_change_msg = "The name of the file '{}' has changed. {} -> {}"
         file_added_msg = "File '{} [{}]' added to the file list."
         file_missing_msg = "File '{} [{}]' missing from the file list."
 
-        # Process the change record for issue handling
-        for record in change_record:
+        # Process the change record for issue handling in the given order: ACTION_MISSING, ACTION_CHANGED, ACTION_ADDED
+        for record in sorted(change_record, key=lambda x: ["--", "-+", "++"].index(x[0])):
             message = None
             if record[0] == ih.ACTION_CHANGED:
                 if record[1] == "hash_change":
