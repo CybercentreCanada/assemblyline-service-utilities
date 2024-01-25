@@ -511,7 +511,7 @@ class TestHelper:
 
         # Prune out items in the lists where nothing changed
         for file in list(original):
-            if file in original and file in new:
+            if file in new:
                 original.remove(file)
                 new.remove(file)
 
