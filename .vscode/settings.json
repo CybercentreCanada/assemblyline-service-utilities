@@ -28,5 +28,10 @@
         "--max-line-length=120",
         //Added the ignore of E203 for now : https://github.com/PyCQA/pycodestyle/issues/373
         "--ignore=E203,W503"
-    ]
+    ],
+    "python.testing.pytestArgs": [
+      "test"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }
