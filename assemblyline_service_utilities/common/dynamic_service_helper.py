@@ -94,7 +94,7 @@ SERVICE_NAME = None
 # The following lists of domains and top-level domains are used for finding false-positives
 # when extracting domains from text blobs
 COMMON_FP_DOMAINS = ["example.com"]
-COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".dot", ".js", ".one", ".pub", ".py", ".sh", ".zip"]
+COMMON_FP_TLDS_THAT_ARE_FILE_EXTS = [".dot", ".js", ".one", ".ps", ".pub", ".py", ".sh", ".win", ".zip"]
 COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS = [
     ".as",
     ".author",
@@ -873,14 +873,16 @@ class NetworkConnection:
         :return: The dictionary representation of the object
         """
         return {
-            key: value
-            if (
-                not isinstance(value, Process)
-                and not isinstance(value, ObjectID)
-                and not isinstance(value, NetworkDNS)
-                and not isinstance(value, NetworkHTTP)
+            key: (
+                value
+                if (
+                    not isinstance(value, Process)
+                    and not isinstance(value, ObjectID)
+                    and not isinstance(value, NetworkDNS)
+                    and not isinstance(value, NetworkHTTP)
+                )
+                else value.as_primitives()
             )
-            else value.as_primitives()
             for key, value in self.__dict__.items()
         }
 
