@@ -225,7 +225,7 @@ class PatternMatch(object):
         rb"(?i)(?:ftp|https?)://"  # scheme
         rb"(?:[\w!$-.:;=~@]{,2000}@)?"  # userinfo
         rb"(?:[A-Z0-9.-]{4,253}|\[[0-9A-F:]{3,39}\])"  # hostname
-        rb"(?::[0-9]{0,5})?"  # port
+        rb"(?::[0-6]?[0-9]{0,4})?"  # port
         rb"(?:[/?#](?:[\w!#$-/:;=@?~]{,2000}[\w!#$%&(*+\-/:;=@?~])?)?"  # path, query and fragment
     )
     PAT_ANYHTTP = (
