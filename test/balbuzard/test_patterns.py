@@ -1,6 +1,7 @@
 import re
 
 import pytest
+
 from assemblyline_service_utilities.common.balbuzard.patterns import PatternMatch
 
 
@@ -23,15 +24,22 @@ def test_PAT_IP(data, ip):
     "data,domain",
     [
         (b"config.edge.skype.com0", b"config.edge.skype.com"),
-        (b"domain.com-", None),
     ],
 )
 def test_PAT_DOMAIN(data, domain):
-    match = re.search(PatternMatch.PAT_DOMAIN, data)
-    if domain is None:
-        assert match is None
-    else:
-        assert match.group() == domain
+    assert re.search(PatternMatch.PAT_DOMAIN, data).group() == domain
+
+
+@pytest.mark.parametrize(
+    "domain",
+    [
+        b"domain.com-",
+        b"C:\\path\\looks-like-a-domain.com",
+        b"C:\\path\\looks.like.a.domain.com",
+    ],
+)
+def test_PAT_DOMAIN_false_positives(domain):
+    assert not re.search(PatternMatch.PAT_DOMAIN, domain)
 
 
 @pytest.mark.parametrize(

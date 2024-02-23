@@ -3097,20 +3097,13 @@ def extract_iocs_from_text_blob(
         network_tag_type = "dynamic"
 
     ips = set([ip.value.decode() for ip in find_ips(blob.encode())])
+
+    # Remove all byte characters from blob, then check if domain exists
+    # Commas cannot exist in a domain so let's replace with that for now
+    modified_blob = sub(BYTE_STRING, ",", blob)
+
     # There is overlap here between regular expressions, so we want to isolate domains that are not ips
-    domains = set([domain.value.decode() for domain in find_domains(blob.encode())])
-
-    # When extracting domains from byte blobs, we need to be careful
-    if any(domain.startswith("x") for domain in domains):
-        # Remove all byte characters from blob, then check if domain exists
-        # Commas cannot exist in a domain so let's replace with that for now
-        modified_blob = sub(BYTE_STRING, ",", blob)
-        domains_from_mod_blob = set(findall(DOMAIN_REGEX, modified_blob))
-        for domain in domains.copy():
-            if domain[3:] in domains_from_mod_blob:
-                _ = domains.remove(domain)
-                domains.add(domain[3:])
-
+    domains = set([domain.value.decode() for domain in find_domains(modified_blob.encode())])
     domains = domains - ips
 
     # There is overlap here between regular expressions, so we want to isolate uris that are not domains
