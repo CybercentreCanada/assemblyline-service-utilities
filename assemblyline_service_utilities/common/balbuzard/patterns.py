@@ -194,7 +194,7 @@ class PatternMatch(object):
 
     # --- Regex Patterns -----------------------------------------------------------------------------------------------
 
-    PAT_DOMAIN = rb"(?i)\b(?:[A-Z0-9-]+\.)+(?:XN--[A-Z0-9]{4,18}|[A-Z]{2,12})(?![A-Z.-])"
+    PAT_DOMAIN = rb"(?i)(?<![-\w.\\])(?:[A-Z0-9-]+\.)+(?:XN--[A-Z0-9]{4,18}|[A-Z]{2,12})(?![A-Z.-])"
     PAT_FILECOM = (
         rb"(?i)(?:\b[a-z]?[:]?[- _A-Z0-9.\\~]{0,75}[%]?"
         rb"(?:ALLUSERPROFILE|APPDATA|commonappdata|CommonProgramFiles|HOMEPATH|LOCALAPPDATA|"
