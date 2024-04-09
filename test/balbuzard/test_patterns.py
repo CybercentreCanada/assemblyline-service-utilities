@@ -1,7 +1,6 @@
 import re
 
 import pytest
-
 from assemblyline_service_utilities.common.balbuzard.patterns import PatternMatch
 
 
@@ -70,6 +69,8 @@ def test_PAT_URL_basic_auth(url):
         (b"barefunction(https://example.com)", 1),
         (b'in a string content "https://example.com"works.', 7),
         (b"whitespaceless('https://example.com'){script;}", 11),
+        (b"'https://example.com/';", 2),
+        (b"('https://example.com'); ", 4),
     ],
 )
 def test_PAT_URL_in_context(url, suffix_len):
