@@ -102,6 +102,7 @@ COMMON_FP_TLDS_THAT_ARE_JS_COMMANDS = [
     ".bar",
     ".bf",
     ".box",
+    ".broker",
     ".call",
     ".cf",
     ".cl",
