@@ -3,9 +3,9 @@ from uuid import UUID
 
 import pytest
 
-SERVICE_CONFIG_NAME = "service_manifest.yml"
-TEMP_SERVICE_CONFIG_PATH = os.path.join("/tmp", SERVICE_CONFIG_NAME)
+from . import setup_module, teardown_module
 
+setup_module()
 
 from assemblyline_service_utilities.common.dynamic_service_helper import (
     HOLLOWSHUNTER_TITLE,
@@ -25,22 +25,6 @@ from assemblyline_service_utilities.common.dynamic_service_helper import (
     update_object_items,
 )
 from assemblyline_service_utilities.testing.helper import check_section_equality
-
-
-def setup_module():
-    if not os.path.exists(TEMP_SERVICE_CONFIG_PATH):
-        open_manifest = open(TEMP_SERVICE_CONFIG_PATH, "w")
-        open_manifest.write(
-            "name: Sample\nversion: sample\ndocker_config: \n  image: sample\nheuristics:\n  - heur_id: 17\n"
-            "    name: blah\n    description: blah\n    filetype: '*'\n    score: 250"
-        )
-        open_manifest.close()
-
-
-def teardown_module():
-    if os.path.exists(TEMP_SERVICE_CONFIG_PATH):
-        os.remove(TEMP_SERVICE_CONFIG_PATH)
-
 
 @pytest.fixture
 def dummy_object_class():
@@ -8673,3 +8657,5 @@ def test_extract_iocs_from_text_blob(blob, enforce_min, enforce_max, correct_tag
                 default_ioc[key] = value
             default_iocs.append(default_ioc)
         assert so_sig.as_primitives()["attributes"] == default_iocs
+
+teardown_module()
