@@ -4,21 +4,9 @@ import pytest
 from assemblyline_service_utilities.common.section_reducer import _reduce_specific_tags, _section_traverser, reduce
 from assemblyline_v4_service.common.result import Result, ResultSection
 
-SERVICE_CONFIG_NAME = "service_manifest.yml"
-TEMP_SERVICE_CONFIG_PATH = os.path.join("/tmp", SERVICE_CONFIG_NAME)
+from . import setup_module, teardown_module
 
-
-def setup_module():
-    if not os.path.exists(TEMP_SERVICE_CONFIG_PATH):
-        open_manifest = open(TEMP_SERVICE_CONFIG_PATH, "w")
-        open_manifest.write("name: Sample\nversion: sample\ndocker_config: \n  image: sample")
-
-
-def teardown_module():
-    if os.path.exists(TEMP_SERVICE_CONFIG_PATH):
-        os.remove(TEMP_SERVICE_CONFIG_PATH)
-
-
+setup_module()
 class TestSectionReducer:
     @staticmethod
     def test_reduce():
@@ -66,3 +54,5 @@ class TestSectionReducer:
                                {"attribution.actor": ["MALICIOUS_ACTOR"]}), ])
     def test_reduce_specific_tags(tags, correct_reduced_tags):
         assert _reduce_specific_tags(tags) == correct_reduced_tags
+
+teardown_module()
