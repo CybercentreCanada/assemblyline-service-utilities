@@ -1430,7 +1430,7 @@ class OntologyResults:
         """
         if not (kwargs.get("objectid") and kwargs.get("name") and kwargs.get("type")):
             raise ValueError("The signature needs its required arguments")
-        signature = Signature(kwargs["objectid"], kwargs["name"], kwargs["type"])
+        signature = Signature(kwargs["objectid"], kwargs["name"], kwargs["type"], kwargs["classification"])
         if "description" in kwargs:
             kwargs["description"] = kwargs["description"].lower()
         update_object_items(signature, kwargs)
