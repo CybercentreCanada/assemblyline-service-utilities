@@ -1428,7 +1428,7 @@ class OntologyResults:
         :param kwargs: Key word arguments to be used for updating the Signature object's attributes
         :return: Signature object
         """
-        if not (kwargs.get("objectid") and kwargs.get("name") and kwargs.get("type")):
+        if not (kwargs.get("objectid") and kwargs.get("name") and kwargs.get("type") and kwargs.get("classification")):
             raise ValueError("The signature needs its required arguments")
         signature = Signature(kwargs["objectid"], kwargs["name"], kwargs["type"], kwargs["classification"])
         if "description" in kwargs:
