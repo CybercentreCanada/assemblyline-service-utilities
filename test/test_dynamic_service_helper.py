@@ -23,6 +23,7 @@ from assemblyline_service_utilities.common.dynamic_service_helper import (
     set_optional_argument,
     set_required_argument,
     update_object_items,
+    Classification,
 )
 from assemblyline_service_utilities.testing.helper import check_section_equality
 
@@ -2678,10 +2679,12 @@ class TestOntologyResults:
             objectid=objectid,
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
         )
         assert s.name == "blah"
         assert s.type == "CUCKOO"
         assert s.objectid == objectid
+        assert s.classification == Classification.UNRESTRICTED 
 
     @staticmethod
     def test_add_signature():
