@@ -3685,7 +3685,7 @@ class TestOntologyResults:
                         "process_pid": 1,
                         "process_name": "blah",
                         "command_line": "blah",
-                        "signatures": {"blah": 1},
+                        "signatures": {},
                         "children": [],
                         "file_count": 0,
                         "network_count": 0,
