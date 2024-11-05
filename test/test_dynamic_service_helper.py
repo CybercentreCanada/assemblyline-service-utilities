@@ -2886,7 +2886,9 @@ class TestOntologyResults:
                             "session": None,
                         },
                         "ppid": 1,
+                        'services_involved': None,
                         "integrity_level": None,
+                        'loaded_modules': None,
                         "image_hash": None,
                         "original_file_name": None,
                         "command_line": "blah",
@@ -2968,10 +2970,12 @@ class TestOntologyResults:
                             "session": None,
                         },
                         "ppid": 1,
+                        'services_involved': None,
                         "command_line": "blah",
                         "pimage": None,
                         "pcommand_line": None,
                         "integrity_level": None,
+                        'loaded_modules': None,
                         "image_hash": None,
                         "original_file_name": None,
                         "children": [
@@ -3132,6 +3136,8 @@ class TestOntologyResults:
                         "pimage": None,
                         "pcommand_line": None,
                         "integrity_level": None,
+                        'loaded_modules': None,
+                        'services_involved': None,
                         "image_hash": None,
                         "original_file_name": None,
                         "children": [
@@ -3166,6 +3172,8 @@ class TestOntologyResults:
                                 "pimage": "blah",
                                 "pcommand_line": "blah",
                                 "integrity_level": None,
+                                'loaded_modules': None,
+                                'services_involved': None,
                                 "image_hash": None,
                                 "original_file_name": None,
                             }
@@ -3329,6 +3337,8 @@ class TestOntologyResults:
                         "pimage": None,
                         "pcommand_line": None,
                         "integrity_level": None,
+                        'loaded_modules': None,
+                        'services_involved': None,
                         "image_hash": None,
                         "original_file_name": None,
                         "children": [
@@ -3359,6 +3369,8 @@ class TestOntologyResults:
                                     "pimage": None,
                                     "pcommand_line": None,
                                     "integrity_level": None,
+                                    'loaded_modules': None,
+                                    'services_involved': None,
                                     "image_hash": None,
                                     "original_file_name": None,
                                     "objectid": {
