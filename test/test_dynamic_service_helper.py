@@ -3010,6 +3010,8 @@ class TestOntologyResults:
                                 "pcommand_line": "blah",
                                 "children": [],
                                 "integrity_level": None,
+                                'loaded_modules': None,
+                                'services_involved': None,
                                 "image_hash": None,
                                 "original_file_name": None,
                             }
