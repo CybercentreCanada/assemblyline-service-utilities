@@ -402,6 +402,8 @@ class Process:
         integrity_level: Optional[str] = None,
         image_hash: Optional[str] = None,
         original_file_name: Optional[str] = None,
+        loaded_modules: Optional[List[str]] = None,
+        services_involved: Optional[List[str]] = None,
     ) -> None:
         """
         This method initializes a process object
@@ -448,6 +450,8 @@ class Process:
 
         set_optional_argument(self, "image_hash", image_hash, str)
         set_optional_argument(self, "original_file_name", original_file_name, str)
+        set_optional_argument(self, "loaded_modules", loaded_modules, List[str])
+        set_optional_argument(self, "services_involved", services_involved, List[str])
 
     def as_primitives(self) -> Dict[str, Any]:
         """
