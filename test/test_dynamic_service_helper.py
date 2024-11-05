@@ -3885,10 +3885,6 @@ class TestOntologyResults:
             ),
         )
         default_or.add_network_connection(nc)
-        if signatures:
-            for signature in signatures:
-                s = default_or.create_signature(**signature)
-                default_or.add_signature(s)
         actual_result = default_or.get_process_tree_result_section(safelist=safelist)
         assert isinstance(actual_result, ResultProcessTreeSection)
         assert actual_result.section_body.__dict__["_data"] == correct_section_body
