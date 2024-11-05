@@ -1139,6 +1139,7 @@ class Signature:
             "objectid": self.objectid.as_primitives(),
             "name": self.name,
             "type": self.type,
+            "classification": self.classification,
             "attributes": [attribute.as_primitives() for attribute in self.attributes],
             "attacks": self.attacks,
             "actors": self.actors,
