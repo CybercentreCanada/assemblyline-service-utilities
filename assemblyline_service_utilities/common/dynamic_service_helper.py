@@ -1003,6 +1003,7 @@ class Signature:
         set_required_argument(self, "objectid", objectid, ObjectID)
         set_required_argument(self, "name", name, str)
         set_required_argument(self, "type", type, str)
+        set_required_argument(self, "classification", classification, str)
         if self.type not in self.types:
             raise ValueError(f"The type {self.type} is not a valid type")
 
