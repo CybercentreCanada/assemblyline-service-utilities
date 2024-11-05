@@ -6,7 +6,7 @@ import pytest
 from . import setup_module, teardown_module
 
 setup_module()
-
+from assemblyline.common import forge
 from assemblyline_service_utilities.common.dynamic_service_helper import (
     HOLLOWSHUNTER_TITLE,
     Artifact,
@@ -23,7 +23,6 @@ from assemblyline_service_utilities.common.dynamic_service_helper import (
     set_optional_argument,
     set_required_argument,
     update_object_items,
-    Classification,
 )
 from assemblyline_service_utilities.testing.helper import check_section_equality
 
@@ -2664,12 +2663,14 @@ class TestOntologyResults:
             objectid=objectid,
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
         )
         default_or.set_signatures([s])
         assert default_or.signatures == [s]
 
     @staticmethod
     def test_create_signature():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         objectid = ObjectID(
             tag="blah",
@@ -2699,6 +2700,7 @@ class TestOntologyResults:
             objectid=objectid,
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
         )
         default_or.add_signature(s)
         sig_as_prims = default_or.signatures[0].as_primitives()
@@ -2719,6 +2721,7 @@ class TestOntologyResults:
                 "treeid": None,
             },
             "type": "CUCKOO",
+            "classification": Classification.UNRESTRICTED,
         }
 
     @staticmethod
@@ -2732,6 +2735,7 @@ class TestOntologyResults:
             objectid=objectid,
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
         )
         default_or.add_signature(sig)
         assert default_or.get_signatures()[0].name == "blah"
@@ -2760,6 +2764,7 @@ class TestOntologyResults:
             objectid=sig_objectid,
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
             attributes=[Attribute(source=p_objectid)],
         )
         default_or.add_signature(sig)
@@ -4719,11 +4724,11 @@ class TestOntologyResults:
     def test_remove_signature():
         default_or = OntologyResults(service_name="blah")
         sig_objectid = ObjectID(tag="blah", ontology_id="blah")
-        signature = default_or.create_signature(objectid=sig_objectid, name="blah", type="CUCKOO")
+        signature = default_or.create_signature(objectid=sig_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         default_or.add_signature(signature)
         assert default_or.get_signatures() == [signature]
         sig1_objectid = ObjectID(tag="blah", ontology_id="blah")
-        signature1 = default_or.create_signature(objectid=sig1_objectid, name="blah", type="CUCKOO")
+        signature1 = default_or.create_signature(objectid=sig1_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         default_or._remove_signature(signature1)
         assert default_or.get_signatures() == [signature]
         default_or._remove_signature(signature)
@@ -7270,6 +7275,7 @@ class TestOntologyResults:
             name="bad",
             score=99,
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
         )
         so.add_signature(sig)
         nc_objectid = ObjectID(tag="blah", ontology_id="blah")
@@ -8436,6 +8442,7 @@ class TestOntologyResults:
             attributes=[Attribute(source=p_objectid)],
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
         )
         default_or.add_signature(sig)
 
