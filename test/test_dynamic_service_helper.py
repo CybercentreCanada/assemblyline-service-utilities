@@ -1137,12 +1137,13 @@ class TestAttribute:
 class TestSignature:
     @staticmethod
     def test_signature_init():
+        Classification = forge.get_classification()
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
 
         with pytest.raises(ValueError):
             Signature(objectid=current_objectid, name="blah", type="blah")
 
-        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO")
+        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         assert sig.objectid == current_objectid
         assert sig.name == "blah"
         assert sig.type == "CUCKOO"
