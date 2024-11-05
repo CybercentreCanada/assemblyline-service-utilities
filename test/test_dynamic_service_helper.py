@@ -1960,9 +1960,11 @@ class TestOntologyResults:
             "pid": 1,
             "image": "blah.exe",
             "command_line": None,
+            'services_involved': None,
             "start_time": "1970-01-01 00:00:02.000",
             "end_time": "1970-01-01 00:00:03.000",
             "integrity_level": None,
+            'loaded_modules': None,
             "image_hash": None,
             "original_file_name": None,
         }
