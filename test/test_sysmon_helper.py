@@ -36,7 +36,7 @@ class TestModule:
             'processtree': None, 'service_name': 'CAPE',},
            'pobjectid': None,
            'pimage': None, 'pcommand_line': None, 'ppid': 2, 'pid': 1, 'image': 'blah.exe', 'command_line': './blah',
-           'integrity_level': None, 'image_hash': None, 'original_file_name': None}),
+           'integrity_level': None, 'image_hash': None, 'original_file_name': None, 'services_involved': None, 'loaded_modules': None,}),
          ([{"System": {"EventID": 1},
             "EventData":
             {
@@ -57,7 +57,7 @@ class TestModule:
             'processtree': None, 'service_name': 'CAPE'},
            'pobjectid': None,
            'pimage': None, 'pcommand_line': None, 'ppid': 2, 'pid': 1, 'image': 'blah.exe', 'command_line': './blah',
-           'integrity_level': None, 'image_hash': None, 'original_file_name': None}),
+           'integrity_level': None, 'image_hash': None, 'original_file_name': None, 'loaded_modules': None, 'services_involved': None}),
          ([{"System": {"EventID": 1},
             "EventData":
             {
@@ -72,7 +72,7 @@ class TestModule:
             'time_observed': '1970-01-01 12:40:30.123', 'ontology_id': 'process_5FPZdIxfHmzxsWKUlsSNGl', 'service_name': 'CAPE'},
            'pobjectid': None,
            'pimage': None, 'pcommand_line': None, 'ppid': None, 'pid': 123, 'image': 'blah', 'command_line': None,
-           'integrity_level': None, 'image_hash': None, 'original_file_name': None}),
+           'integrity_level': None, 'image_hash': None, 'original_file_name': None, 'loaded_modules': None, 'services_involved': None}),
          ([{"System": {"EventID": 1},
             "EventData":
             {
