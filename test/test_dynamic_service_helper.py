@@ -2665,6 +2665,7 @@ class TestOntologyResults:
             name="blah",
             type="CUCKOO",
             classification= Classification.UNRESTRICTED,
+            attributes= [],
         )
         default_or.set_signatures([s])
         assert default_or.signatures == [s]
