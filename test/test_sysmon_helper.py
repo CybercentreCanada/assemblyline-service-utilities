@@ -95,7 +95,7 @@ class TestModule:
             'time_observed': '1970-01-01 12:40:30.123', 'ontology_id': 'process_5FPZdIxfHmzxsWKUlsSNGl', 'service_name': 'CAPE'},
            'pobjectid': None,
            'pimage': None, 'pcommand_line': None, 'ppid': None, 'pid': 123, 'image': 'blah', 'command_line': None,
-           'integrity_level': None, 'image_hash': None, 'original_file_name': None}), ])
+           'integrity_level': None, 'image_hash': None, 'original_file_name': None, 'services_involved': None, 'loaded_modules': None}), ])
     def test_convert_sysmon_processes(sysmon, expected_process, mocker):
         so = OntologyResults(service_name="CAPE")
         mocker.patch.object(so, "sandboxes", return_value="blah")
