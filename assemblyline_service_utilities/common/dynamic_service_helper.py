@@ -981,6 +981,7 @@ class Signature:
         objectid: ObjectID,
         name: str,
         type: str,
+        classification: str,
         attributes: Optional[List[Attribute]] = None,
         attacks: Optional[List[Dict[str, Any]]] = None,
         actors: Optional[List[str]] = None,
