@@ -2654,6 +2654,7 @@ class TestOntologyResults:
 
     @staticmethod
     def test_set_signature():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         objectid = ObjectID(
             tag="blah",
@@ -2689,6 +2690,7 @@ class TestOntologyResults:
 
     @staticmethod
     def test_add_signature():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         assert default_or.signatures == []
 
@@ -2726,6 +2728,7 @@ class TestOntologyResults:
 
     @staticmethod
     def test_get_signatures():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         objectid = ObjectID(
             tag="blah",
@@ -2742,6 +2745,7 @@ class TestOntologyResults:
 
     @staticmethod
     def test_get_signatures_by_pid():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         p_objectid = ObjectID(
             ontology_id="blah",
@@ -4722,6 +4726,7 @@ class TestOntologyResults:
 
     @staticmethod
     def test_remove_signature():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         sig_objectid = ObjectID(tag="blah", ontology_id="blah")
         signature = default_or.create_signature(objectid=sig_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
@@ -7236,6 +7241,7 @@ class TestOntologyResults:
 
     @staticmethod
     def test_convert_event_tree_to_result_section():
+        Classification = forge.get_classification()
         from assemblyline_v4_service.common.result import ResultProcessTreeSection
 
         result_section = ResultProcessTreeSection("Spawned Process Tree")
@@ -8417,6 +8423,7 @@ class TestOntologyResults:
 
     @staticmethod
     def test_remove_safelisted_processes():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         p_objectid = ObjectID(tag="blah", ontology_id="blah", treeid="blah")
         p = default_or.create_process(objectid=p_objectid, image="blah", start_time="1-01-01 00:00:00.000000", pid=1)
