@@ -1270,6 +1270,7 @@ class TestSignature:
             "actors": [],
             "attacks": [],
             "attributes": [],
+            "classification": "TLP:C",
             "malware_families": [],
             "name": "blah",
             "objectid": {
@@ -1283,7 +1284,6 @@ class TestSignature:
                 "treeid": None,
             },
             "type": "CUCKOO",
-            "classification": "TLP:C",
         }
 
 
