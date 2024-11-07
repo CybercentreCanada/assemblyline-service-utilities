@@ -100,19 +100,23 @@ class TestHelper:
         submission_params = params.get("submission_params", {})
         tags = params.get("tags", [])
         filename = params.get("filename", os.path.basename(file_path))
+        depth = params.get("task_depth", ServiceTask.fields()["depth"].default)
 
         return ServiceTask(
             {
                 "sid": get_random_id(),
                 "metadata": metadata,
                 "deep_scan": False,
+                "depth": depth,
                 "service_name": self.service_class.__name__,
                 "service_config": {
                     param.name: submission_params.get(param.name, param.default) for param in self.submission_params
                 },
                 "fileinfo": {
                     k: v
-                    for k, v in self.identify.fileinfo(file_path, skip_fuzzy_hashes=True).items()
+                    for k, v in self.identify.fileinfo(
+                        file_path, skip_fuzzy_hashes=True, calculate_entropy=False
+                    ).items()
                     if k in fileinfo_keys
                 },
                 "filename": filename,
@@ -485,7 +489,10 @@ class TestHelper:
                     ih.add_issue(
                         data_type,
                         ih.ACTION_CHANGED,
-                        f"@{root} - Value of {data_type} with key '{k}' has changed from {truncate(v)} to {truncate(new[k])}.",
+                        (
+                            f"@{root} - Value of {data_type} with key '{k}' has changed "
+                            f"from {truncate(v)} to {truncate(new[k])}."
+                        ),
                     )
 
         # Only ignore new files in the "extra" data
@@ -574,12 +581,16 @@ class TestHelper:
             ih.add_issue(f_type, record[0], message)
 
     def regenerate_results(self, save_files=False, sample_sha256=""):
-        for f in self.result_list():
+        result_list = self.result_list()
+        for i, f in enumerate(result_list):
             if sample_sha256 and f != sample_sha256:
                 print(f"{sample_sha256} requested. Skipping {f}...")
                 continue
             try:
-                print(f"Executing {f}")
+                if not sample_sha256:
+                    print(f"Executing {f}  [{(i+1)*100//len(result_list)}%]")
+                else:
+                    print(f"Executing {f}")
                 self._execute_sample(f, save=True, save_files=save_files)
             except FileMissing:
                 print(f"[W] File {f} was not found in any of the following locations: {', '.join(self.locations)}")

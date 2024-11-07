@@ -3,10 +3,10 @@ from uuid import UUID
 
 import pytest
 
-SERVICE_CONFIG_NAME = "service_manifest.yml"
-TEMP_SERVICE_CONFIG_PATH = os.path.join("/tmp", SERVICE_CONFIG_NAME)
+from . import setup_module, teardown_module
 
-
+setup_module()
+from assemblyline.common import forge
 from assemblyline_service_utilities.common.dynamic_service_helper import (
     HOLLOWSHUNTER_TITLE,
     Artifact,
@@ -25,22 +25,6 @@ from assemblyline_service_utilities.common.dynamic_service_helper import (
     update_object_items,
 )
 from assemblyline_service_utilities.testing.helper import check_section_equality
-
-
-def setup_module():
-    if not os.path.exists(TEMP_SERVICE_CONFIG_PATH):
-        open_manifest = open(TEMP_SERVICE_CONFIG_PATH, "w")
-        open_manifest.write(
-            "name: Sample\nversion: sample\ndocker_config: \n  image: sample\nheuristics:\n  - heur_id: 17\n"
-            "    name: blah\n    description: blah\n    filetype: '*'\n    score: 250"
-        )
-        open_manifest.close()
-
-
-def teardown_module():
-    if os.path.exists(TEMP_SERVICE_CONFIG_PATH):
-        os.remove(TEMP_SERVICE_CONFIG_PATH)
-
 
 @pytest.fixture
 def dummy_object_class():
@@ -1153,12 +1137,13 @@ class TestAttribute:
 class TestSignature:
     @staticmethod
     def test_signature_init():
+        Classification = forge.get_classification()
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
 
         with pytest.raises(ValueError):
-            Signature(objectid=current_objectid, name="blah", type="blah")
+            Signature(objectid=current_objectid, name="blah", type="blah", classification= Classification.UNRESTRICTED)
 
-        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO")
+        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         assert sig.objectid == current_objectid
         assert sig.name == "blah"
         assert sig.type == "CUCKOO"
@@ -1172,6 +1157,7 @@ class TestSignature:
             objectid=current_objectid,
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
             attributes=["blah"],
             attacks=["blah"],
             actors=["blah"],
@@ -1181,6 +1167,7 @@ class TestSignature:
         assert sig.objectid == current_objectid
         assert sig.name == "blah"
         assert sig.type == "CUCKOO"
+        assert sig.classification == Classification.UNRESTRICTED
         assert sig.attributes == ["blah"]
         assert sig.attacks == ["blah"]
         assert sig.actors == ["blah"]
@@ -1189,15 +1176,17 @@ class TestSignature:
 
     @staticmethod
     def test_signature_update():
+        Classification = forge.get_classification()
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
-        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO")
+        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         sig.update(attributes=["blah"])
         assert sig.attributes == ["blah"]
 
     @staticmethod
     def test_add_attack_id():
+        Classification = forge.get_classification()
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
-        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO")
+        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         sig.add_attack_id("T1187")
         assert sig.attacks == [
             {
@@ -1237,8 +1226,9 @@ class TestSignature:
 
     @staticmethod
     def test_add_attribute():
+        Classification = forge.get_classification()
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
-        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO")
+        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         attr1 = sig.create_attribute(uri="http://blah.com", source=current_objectid)
         sig.add_attribute(attr1)
         assert sig.attributes[0].uri == "http://blah.com"
@@ -1248,34 +1238,39 @@ class TestSignature:
 
     @staticmethod
     def test_get_attributes():
+        Classification = forge.get_classification()
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
-        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO")
+        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         attr1 = sig.create_attribute(uri="http://blah.com", source=current_objectid)
         sig.add_attribute(attr1)
         assert sig.get_attributes()[0].uri == "http://blah.com"
 
     @staticmethod
     def test_set_score():
+        Classification = forge.get_classification()
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
-        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO")
+        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         sig.set_score(1)
         assert sig.score == 1
 
     @staticmethod
     def test_set_malware_families():
+        Classification = forge.get_classification()
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
-        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO")
+        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         sig.set_malware_families(["blah"])
         assert sig.malware_families == ["blah"]
 
     @staticmethod
     def test_signature_as_primitives():
+        Classification = forge.get_classification()
         current_objectid = ObjectID(tag="blah", ontology_id="blah", service_name="blah")
-        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO")
+        sig = Signature(objectid=current_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         assert sig.as_primitives() == {
             "actors": [],
             "attacks": [],
             "attributes": [],
+            "classification": "TLP:C",
             "malware_families": [],
             "name": "blah",
             "objectid": {
@@ -2670,6 +2665,7 @@ class TestOntologyResults:
 
     @staticmethod
     def test_set_signature():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         objectid = ObjectID(
             tag="blah",
@@ -2679,12 +2675,14 @@ class TestOntologyResults:
             objectid=objectid,
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
         )
         default_or.set_signatures([s])
         assert default_or.signatures == [s]
 
     @staticmethod
     def test_create_signature():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         objectid = ObjectID(
             tag="blah",
@@ -2694,13 +2692,16 @@ class TestOntologyResults:
             objectid=objectid,
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
         )
         assert s.name == "blah"
         assert s.type == "CUCKOO"
         assert s.objectid == objectid
+        assert s.classification == Classification.UNRESTRICTED 
 
     @staticmethod
     def test_add_signature():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         assert default_or.signatures == []
 
@@ -2712,6 +2713,7 @@ class TestOntologyResults:
             objectid=objectid,
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
         )
         default_or.add_signature(s)
         sig_as_prims = default_or.signatures[0].as_primitives()
@@ -2732,10 +2734,12 @@ class TestOntologyResults:
                 "treeid": None,
             },
             "type": "CUCKOO",
+            "classification": Classification.UNRESTRICTED,
         }
 
     @staticmethod
     def test_get_signatures():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         objectid = ObjectID(
             tag="blah",
@@ -2745,12 +2749,14 @@ class TestOntologyResults:
             objectid=objectid,
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
         )
         default_or.add_signature(sig)
         assert default_or.get_signatures()[0].name == "blah"
 
     @staticmethod
     def test_get_signatures_by_pid():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         p_objectid = ObjectID(
             ontology_id="blah",
@@ -2773,6 +2779,7 @@ class TestOntologyResults:
             objectid=sig_objectid,
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
             attributes=[Attribute(source=p_objectid)],
         )
         default_or.add_signature(sig)
@@ -3678,7 +3685,7 @@ class TestOntologyResults:
                         "process_pid": 1,
                         "process_name": "blah",
                         "command_line": "blah",
-                        "signatures": {"blah": 1},
+                        "signatures": {},
                         "children": [],
                         "file_count": 0,
                         "network_count": 0,
@@ -3878,10 +3885,6 @@ class TestOntologyResults:
             ),
         )
         default_or.add_network_connection(nc)
-        if signatures:
-            for signature in signatures:
-                s = default_or.create_signature(**signature)
-                default_or.add_signature(s)
         actual_result = default_or.get_process_tree_result_section(safelist=safelist)
         assert isinstance(actual_result, ResultProcessTreeSection)
         assert actual_result.section_body.__dict__["_data"] == correct_section_body
@@ -4730,13 +4733,14 @@ class TestOntologyResults:
 
     @staticmethod
     def test_remove_signature():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         sig_objectid = ObjectID(tag="blah", ontology_id="blah")
-        signature = default_or.create_signature(objectid=sig_objectid, name="blah", type="CUCKOO")
+        signature = default_or.create_signature(objectid=sig_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         default_or.add_signature(signature)
         assert default_or.get_signatures() == [signature]
         sig1_objectid = ObjectID(tag="blah", ontology_id="blah")
-        signature1 = default_or.create_signature(objectid=sig1_objectid, name="blah", type="CUCKOO")
+        signature1 = default_or.create_signature(objectid=sig1_objectid, name="blah", type="CUCKOO", classification= Classification.UNRESTRICTED)
         default_or._remove_signature(signature1)
         assert default_or.get_signatures() == [signature]
         default_or._remove_signature(signature)
@@ -7244,6 +7248,7 @@ class TestOntologyResults:
 
     @staticmethod
     def test_convert_event_tree_to_result_section():
+        Classification = forge.get_classification()
         from assemblyline_v4_service.common.result import ResultProcessTreeSection
 
         result_section = ResultProcessTreeSection("Spawned Process Tree")
@@ -7283,6 +7288,7 @@ class TestOntologyResults:
             name="bad",
             score=99,
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
         )
         so.add_signature(sig)
         nc_objectid = ObjectID(tag="blah", ontology_id="blah")
@@ -8424,6 +8430,7 @@ class TestOntologyResults:
 
     @staticmethod
     def test_remove_safelisted_processes():
+        Classification = forge.get_classification()
         default_or = OntologyResults(service_name="blah")
         p_objectid = ObjectID(tag="blah", ontology_id="blah", treeid="blah")
         p = default_or.create_process(objectid=p_objectid, image="blah", start_time="1-01-01 00:00:00.000000", pid=1)
@@ -8449,6 +8456,7 @@ class TestOntologyResults:
             attributes=[Attribute(source=p_objectid)],
             name="blah",
             type="CUCKOO",
+            classification= Classification.UNRESTRICTED,
         )
         default_or.add_signature(sig)
 
@@ -8646,12 +8654,13 @@ class TestOntologyResults:
 )
 def test_extract_iocs_from_text_blob(blob, enforce_min, enforce_max, correct_tags, expected_iocs):
     from assemblyline_v4_service.common.result import ResultTableSection
-
+    Classification = forge.get_classification()
     test_result_section = ResultTableSection("blah")
     so_sig = Signature(
         objectid=ObjectID(ontology_id="blah", tag="blah", service_name="blah"),
         name="blah",
         type="CUCKOO",
+        classification= Classification.UNRESTRICTED,
     )
     safelist = {"regex": {"network.dynamic.domain": [".+\.adobe\.com$"]}}
     default_iocs = []
@@ -8673,3 +8682,5 @@ def test_extract_iocs_from_text_blob(blob, enforce_min, enforce_max, correct_tag
                 default_ioc[key] = value
             default_iocs.append(default_ioc)
         assert so_sig.as_primitives()["attributes"] == default_iocs
+
+teardown_module()

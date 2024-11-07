@@ -60,12 +60,7 @@ class IcapClient(object):
                 return response
             except Exception:
                 self.successful_connection = False
-                try:
-                    if self.socket:
-                        self.socket.close()
-                except Exception:
-                    pass
-                self.socket = None
+                self.close(kill=False)
                 if i == (self.number_of_retries - 1):
                     raise
 
@@ -180,12 +175,7 @@ class IcapClient(object):
 
             except Exception:
                 self.successful_connection = False
-                try:
-                    if self.socket:
-                        self.socket.close()
-                except Exception:
-                    pass
-                self.socket = None
+                self.close(kill=False)
                 # Issue with the connection? Let's try reading file data again...
                 data.seek(0)
                 if i == (self.number_of_retries - 1):
@@ -260,10 +250,11 @@ class IcapClient(object):
 
         return status_code, status_message, headers
 
-    def close(self):
-        self.kill = True
+    def close(self, kill: bool = True):
+        self.kill = kill
         try:
             if self.socket:
                 self.socket.close()
         except Exception:
             pass
+        self.socket = None

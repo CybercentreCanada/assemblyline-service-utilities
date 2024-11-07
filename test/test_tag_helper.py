@@ -5,21 +5,9 @@ from assemblyline_service_utilities.common.tag_helper import _get_regex_for_tag,
 from assemblyline_v4_service.common.result import ResultSection
 
 from assemblyline.odm.base import DOMAIN_ONLY_REGEX, FULL_URI, IP_REGEX, URI_PATH
+from . import setup_module, teardown_module
 
-SERVICE_CONFIG_NAME = "service_manifest.yml"
-TEMP_SERVICE_CONFIG_PATH = os.path.join("/tmp", SERVICE_CONFIG_NAME)
-
-
-def setup_module():
-    if not os.path.exists(TEMP_SERVICE_CONFIG_PATH):
-        open_manifest = open(TEMP_SERVICE_CONFIG_PATH, "w")
-        open_manifest.write("name: Sample\nversion: sample\ndocker_config: \n  image: sample")
-
-
-def teardown_module():
-    if os.path.exists(TEMP_SERVICE_CONFIG_PATH):
-        os.remove(TEMP_SERVICE_CONFIG_PATH)
-
+setup_module()
 
 @pytest.mark.parametrize(
     "value, expected_tags, tags_were_added",
@@ -91,3 +79,5 @@ def test_validate_tag(tag, value, expected_tags, added_tag):
     safelist = {"match": {"network.static.domain": ["blah.ca"]}}
     assert _validate_tag(res_sec, tag, value, safelist) == added_tag
     assert res_sec.tags == expected_tags
+
+teardown_module()
