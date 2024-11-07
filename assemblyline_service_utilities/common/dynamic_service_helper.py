@@ -981,6 +981,7 @@ class Signature:
         objectid: ObjectID,
         name: str,
         type: str,
+        classification: str,
         attributes: Optional[List[Attribute]] = None,
         attacks: Optional[List[Dict[str, Any]]] = None,
         actors: Optional[List[str]] = None,
@@ -1002,6 +1003,7 @@ class Signature:
         set_required_argument(self, "objectid", objectid, ObjectID)
         set_required_argument(self, "name", name, str)
         set_required_argument(self, "type", type, str)
+        set_required_argument(self, "classification", classification, str)
         if self.type not in self.types:
             raise ValueError(f"The type {self.type} is not a valid type")
 
@@ -1137,6 +1139,7 @@ class Signature:
             "objectid": self.objectid.as_primitives(),
             "name": self.name,
             "type": self.type,
+            "classification": self.classification,
             "attributes": [attribute.as_primitives() for attribute in self.attributes],
             "attacks": self.attacks,
             "actors": self.actors,
@@ -1428,9 +1431,9 @@ class OntologyResults:
         :param kwargs: Key word arguments to be used for updating the Signature object's attributes
         :return: Signature object
         """
-        if not (kwargs.get("objectid") and kwargs.get("name") and kwargs.get("type")):
+        if not (kwargs.get("objectid") and kwargs.get("name") and kwargs.get("type") and kwargs.get("classification")):
             raise ValueError("The signature needs its required arguments")
-        signature = Signature(kwargs["objectid"], kwargs["name"], kwargs["type"])
+        signature = Signature(objectid=kwargs["objectid"], name=kwargs["name"], type=kwargs["type"], classification=kwargs["classification"])
         if "description" in kwargs:
             kwargs["description"] = kwargs["description"].lower()
         update_object_items(signature, kwargs)
