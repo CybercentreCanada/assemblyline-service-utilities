@@ -308,6 +308,9 @@ class TestHelper:
                 os.remove(file_path)
 
     def result_list(self):
+        if not os.path.exists(self.result_folder):
+            return []
+
         return [
             f
             for f in os.listdir(self.result_folder)
