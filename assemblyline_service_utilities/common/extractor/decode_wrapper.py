@@ -18,12 +18,14 @@ EXTRACT_FILETYPES = ["application", "document", "exec", "image", "Microsoft", "t
 STATIC_TAG_MAP = {
     "network.domain": "network.static.domain",
     "network.ip": "network.static.ip",
+    "windows.unc.path": "network.static.unc_path",
     "network.url": "network.static.uri",
 }
 
 DYNAMIC_TAG_MAP = {
     "network.domain": "network.dynamic.domain",
     "network.ip": "network.dynamic.ip",
+    "windows.unc.path": "network.dynamic.unc_path",
     "network.url": "network.dynamic.uri",
 }
 
