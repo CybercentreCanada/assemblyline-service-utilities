@@ -4,7 +4,7 @@ from json import dumps
 from logging import getLogger
 from re import compile, findall
 from re import match as re_match
-from re import sub
+from re import sub, search
 from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
@@ -44,6 +44,34 @@ from assemblyline.odm.models.ontology.results import Signature as SignatureModel
 
 al_log.init_logging("service.service_base.dynamic_service_helper")
 log = getLogger("assemblyline.service.service_base.dynamic_service_helper")
+
+EXE = r'\?usrtmp\\[a-z0123456789\-_ ]*\.exe'
+CMD = r'\?usrtmp\\[a-z0123456789\-_]*\.ps1|\?usrtmp\\[a-z0123456789\-_]*\.cmd|\?usrtmp\\[a-z0123456789\-_]*\.bat|\?usrtmp\\[a-z0123456789\-_]*\.bash'
+CHILD = r'\|'
+TREE_SUSPICIOUS_PATTERNS = [
+      r'\?sys32\\services\.exe\|\?sys32\\wbem\\wmiapsrv\.exe',
+      r'\?sys32\\svchost\.exe\|\?sys32\\wbem\\wmiprvse\.exe\|\?sys32\\schtasks\.exe', 
+      r'\?sys32\\rundll32\.exe\|\?sys32\\wermgr\.exe',
+      r'\?sys32\\rundll32\.exe\|\?sys32\\rundll32\.exe',
+      r'\?sys32\\rundll32\.exe\|\?sys32\\explorer\.exe', 
+      r'\?sys32\\rundll32\.exe\|\?sys32\\regsvr32\.exe',
+      r'\?usrtmp\\pkgmgr\.exe\|\?sys32\\msconfig\.exe', 
+      r'\?sys32\\svchost\.exe\|\?sys32\\mshta\.exe', 
+      r'\?sys32\\WorkFolders\.exe\|\?sys32\\control\.exe',
+      r'\?sys32\\wsreset\.exe\|\?sys32\\conhost\.exe'
+    ]
+SUSPICIOUS_PATTERN1 = r'\?sys32\\unregmp2\.exe' + CHILD + EXE 
+SUSPICIOUS_PATTERN2 = r'\?pf86\\Microsoft Office\\root\\client\\appvlp\.exe' + CHILD + EXE
+SUSPICIOUS_PATTERN3 = r'\?sys32\\winfile.exe' + CHILD + EXE 
+SUSPICIOUS_PATTERN4 = r'\?sys32\\unregmp2\.exe' + CHILD + CMD
+SUSPICIOUS_PATTERN5 = r'\?pf86\\Microsoft Office\\root\\client\\appvlp\.exe' + CHILD + CMD
+SUSPICIOUS_PATTERN6 = r'\?sys32\\winfile.exe' + CHILD + CMD 
+regex_suspicious_subprocesses = [r"\?sys32\\schtasks\.exe", r"\?sys32\\cmd\.exe", r"\?win\\\$sxr-powershell\.exe", r"\?sys32\\windowspowershell\\v1\.0\\powershell\.exe", r"\?sys32\\rundll32\.exe"]
+lolbas_process = ["addinutil.exe", "AppInstaller.exe", "CertOC.exe", "control.exe", "diskshadow.exe", "eventvwr.exe", "Extexport.exe", "hh.exe", "Ieexec.exe", "InstallUtil.exe", "mmc.exe", "pcalua.exe", "pcwrun.exe", "provlaunch.exe", "regsvr32.exe", "runexehelper.exe", "sc.exe", "wmic.exe", "wt.exe", "tttracer.exe", "wsl.exe"]
+officeprocs = ["winword", "excel.exe", "powerpnt.exe", "acrord32.exe", "wscript.exe", "onenote.exe", "outlook.exe", "hta.exe", "wordview"]
+fp_processes = [r"\?sys32\\werfault\.exe"] 
+suspiciousremotingprocs = ["rdpclip.exe", "tscon.exe", "mstsc.exe", "qwinsta.exe", "netsh.exe", "bitsadmin.exe", "cmdl32.exe", "DataSvcUtil.exe", "ftp.exe", "IMEWDBLD.exe", "Ldifde.exe", "MpCmdRun.exe", "ssh.exe", "winget.exe", "wmic.exe"]
+lolbas_subprocess = ["bash.exe", "CertOC.exe", "CertReq.exe", "CertUtil.exe", "cmd.exe", "cmstp.exe", "conhost.exe", "control.exe", "csc.exe", "cscript.exe", "MSBuild.exe", "msdt.exe", "mshta.exe", "Ngen.exe", "powershell.exe", "regsvr32.exe", "rundll32.exe", "wscript.exe"]
 
 HOLLOWSHUNTER_EXE_REGEX = compile(
     r"[0-9]{1,}_hollowshunter\/hh_process_[0-9]{3,}_[0-9a-z]{3,}(\.[a-zA-Z0-9]{2,})*\.exe$"
@@ -200,6 +228,15 @@ COMMON_SCHEMES = [
 # Regular expression that looks for byte string characters
 BYTE_STRING = r"\\x[a-z0-9]{2}"
 
+
+def convert_processtree_id_to_tree_id(processtree_id: str) -> str:
+    possible_sha256 = ""
+    for proc in processtree_id.split("|"):
+        value_to_create_hash_from = (possible_sha256 + proc).encode()
+        tree_id = sha256(value_to_create_hash_from).hexdigest()
+        possible_sha256 = tree_id
+
+    return tree_id
 
 def set_required_argument(self: object, name: str, value: Any, value_type: Any) -> None:
     """
@@ -2165,7 +2202,43 @@ class OntologyResults:
         self._create_treeids(tree)
         if safelist:
             tree = OntologyResults._filter_event_tree_against_safe_treeids(tree, safelist)
-        return tree
+        heuristic_list = self.flag_process_tree(tree)
+        return (tree, heuristic_list)
+
+    def flag_process_tree(self, processes_trees):
+        heuristic = []
+        for process_tree in processes_trees:
+            if 'image' not in process_tree.keys():
+                continue
+            tree_id = process_tree['objectid']['treeid']
+            processtree = process_tree['objectid']['processtree']
+            if tree_id in [convert_processtree_id_to_tree_id(malicious_ids) for malicious_ids in TREE_SUSPICIOUS_PATTERNS]:
+                heuristic.append(56)
+            if search("|".join(fp_processes), processtree):
+                continue
+            match = search("|".join([ SUSPICIOUS_PATTERN1, SUSPICIOUS_PATTERN2, SUSPICIOUS_PATTERN3, SUSPICIOUS_PATTERN4, SUSPICIOUS_PATTERN5, SUSPICIOUS_PATTERN6]), processtree)
+            if match:
+                heuristic.append(56)
+                continue
+            match_sub = search("|".join(regex_suspicious_subprocesses), processtree)
+            if match_sub:
+                heuristic.append(56)
+                continue
+            for lol in lolbas_process:
+                if lol in processtree:
+                    heuristic.append(57)
+                    break
+            for officeproc in officeprocs:
+                if officeproc in processtree:
+                    for suspiciousproc in lolbas_subprocess:
+                        if suspiciousproc in processtree:
+                            heuristic.append(56)
+                            break
+            for suspiciousremotingproc in suspiciousremotingprocs:
+                if suspiciousremotingproc in processtree:
+                    heuristic.append(58)
+                    break
+        return heuristic
 
     def get_process_tree_result_section(self, safelist: List[str] = None) -> ResultProcessTreeSection:
         """
@@ -2175,7 +2248,7 @@ class OntologyResults:
         """
         if safelist is None:
             safelist: List[str] = []
-        tree = self.get_process_tree(safelist)
+        tree, heuristic_list = self.get_process_tree(safelist)
         items: List[ProcessItem] = []
         process_tree_result_section = ResultProcessTreeSection("Spawned Process Tree")
         for event in tree:
@@ -2186,6 +2259,8 @@ class OntologyResults:
             self._convert_event_tree_to_result_section(items, event, safelist, process_tree_result_section)
         for item in items:
             process_tree_result_section.add_process(item)
+        for heuristic in heuristic_list:
+            process_tree_result_section.set_heuristic(heuristic)
         return process_tree_result_section
 
     def load_from_json(self, json: Dict[str, Any]) -> None:
