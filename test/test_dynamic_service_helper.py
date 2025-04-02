@@ -3442,7 +3442,7 @@ class TestOntologyResults:
                 else:
                     p = default_or.create_process(**event)
                     default_or.add_process(p)
-        actual_result = default_or.get_process_tree(safelist=safelist)
+        (actual_result, heuristics) = default_or.get_process_tree(safelist=safelist)
         assert actual_result == expected_result
 
     @staticmethod
