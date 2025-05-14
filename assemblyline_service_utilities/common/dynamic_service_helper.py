@@ -2239,7 +2239,7 @@ class OntologyResults:
                 if suspiciousremotingproc in processtree:
                     heuristic_signatures.append("Suspicious_Remote_Patterns")
                     break
-        return heuristic
+        return heuristic_signatures
 
     def get_process_tree_result_section(self, safelist: List[str] = None) -> ResultProcessTreeSection:
         """
