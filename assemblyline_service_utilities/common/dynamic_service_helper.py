@@ -8,6 +8,7 @@ from re import sub, search
 from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
+from collections import Counter
 
 from assemblyline_service_utilities.common.command_line_utils import normalize_path
 from assemblyline_service_utilities.common.tag_helper import add_tag
@@ -2206,39 +2207,39 @@ class OntologyResults:
         return (tree, heuristic_list)
 
     def flag_process_tree(self, processes_trees):
-        heuristic = []
+        heuristic_signatures = []
         for process_tree in processes_trees:
             if 'image' not in process_tree.keys():
                 continue
             tree_id = process_tree['objectid']['treeid']
             processtree = process_tree['objectid']['processtree']
             if tree_id in [convert_processtree_id_to_tree_id(malicious_ids) for malicious_ids in TREE_SUSPICIOUS_PATTERNS]:
-                heuristic.append(56)
+                heuristic_signatures.append("Suspicious_Patterns")
             if search("|".join(fp_processes), processtree):
                 continue
             match = search("|".join([ SUSPICIOUS_PATTERN1, SUSPICIOUS_PATTERN2, SUSPICIOUS_PATTERN3, SUSPICIOUS_PATTERN4, SUSPICIOUS_PATTERN5, SUSPICIOUS_PATTERN6]), processtree)
             if match:
-                heuristic.append(56)
+                heuristic_signatures.append("Suspicious_Patterns")
                 continue
             match_sub = search("|".join(regex_suspicious_subprocesses), processtree)
             if match_sub:
-                heuristic.append(56)
+                heuristic_signatures.append("Suspicious_Patterns")
                 continue
             for lol in lolbas_process:
                 if lol in processtree:
-                    heuristic.append(57)
+                    heuristic_signatures.append("Lolbas_Patterns")
                     break
             for officeproc in officeprocs:
                 if officeproc in processtree:
                     for suspiciousproc in lolbas_subprocess:
                         if suspiciousproc in processtree:
-                            heuristic.append(56)
+                            heuristic_signatures.append("Suspicious_Patterns")
                             break
             for suspiciousremotingproc in suspiciousremotingprocs:
                 if suspiciousremotingproc in processtree:
-                    heuristic.append(58)
+                    heuristic_signatures.append("Suspicious_Remote_Patterns")
                     break
-        return heuristic
+        return heuristic_signatures
 
     def get_process_tree_result_section(self, safelist: List[str] = None) -> ResultProcessTreeSection:
         """
@@ -2248,7 +2249,7 @@ class OntologyResults:
         """
         if safelist is None:
             safelist: List[str] = []
-        tree, heuristic_list = self.get_process_tree(safelist)
+        tree, signature_list = self.get_process_tree(safelist)
         items: List[ProcessItem] = []
         process_tree_result_section = ResultProcessTreeSection("Spawned Process Tree")
         for event in tree:
@@ -2259,8 +2260,11 @@ class OntologyResults:
             self._convert_event_tree_to_result_section(items, event, safelist, process_tree_result_section)
         for item in items:
             process_tree_result_section.add_process(item)
-        for heuristic in heuristic_list:
-            process_tree_result_section.set_heuristic(heuristic)
+        if len(signature_list) > 0:
+            process_tree_result_section.set_heuristic(56)
+        signature_dict = Counter(signature_list)
+        for signature,occurence in signature_dict.items():
+            process_tree_result_section.heuristic.add_signature_id(signature, 0, occurence)
         return process_tree_result_section
 
     def load_from_json(self, json: Dict[str, Any]) -> None:
