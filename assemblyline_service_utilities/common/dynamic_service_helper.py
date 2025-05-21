@@ -2241,7 +2241,7 @@ class OntologyResults:
                     break
         return heuristic_signatures
 
-    def get_process_tree_result_section(self, safelist: List[str] = None, heuristic: int = 56) -> ResultProcessTreeSection:
+    def get_process_tree_result_section(self, safelist: List[str] = None, heuristic: int = None) -> ResultProcessTreeSection:
         """
         This method creates the Typed ResultSection for Process (Event) Trees
         :param safelist: A safelist of tree IDs that is to be applied to the events
