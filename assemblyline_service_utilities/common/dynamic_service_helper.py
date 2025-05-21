@@ -2190,7 +2190,7 @@ class OntologyResults:
         sorted_filtered_processes = self._sort_things_by_time_observed(filtered_processes)
         return sorted_filtered_processes
 
-    def get_process_tree(self, safelist: List[str] = None) -> List[Dict[str, Any]]:
+    def get_process_tree(self, safelist: List[str] = None, use_process_tree_inspection: bool = False) -> List[Dict[str, Any]]:
         """
         This method generates the event tree
         :return: The event tree
@@ -2203,7 +2203,10 @@ class OntologyResults:
         self._create_treeids(tree)
         if safelist:
             tree = OntologyResults._filter_event_tree_against_safe_treeids(tree, safelist)
-        heuristic_list = self.flag_process_tree(tree)
+        if use_process_tree_inspection:
+            heuristic_list = self.flag_process_tree(tree)
+        else:
+            heuristic_list = []
         return (tree, heuristic_list)
 
     def flag_process_tree(self, processes_trees):
