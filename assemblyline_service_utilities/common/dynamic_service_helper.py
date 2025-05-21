@@ -2241,10 +2241,11 @@ class OntologyResults:
                     break
         return heuristic_signatures
 
-    def get_process_tree_result_section(self, safelist: List[str] = None) -> ResultProcessTreeSection:
+    def get_process_tree_result_section(self, safelist: List[str] = None, heuristic: int = 56) -> ResultProcessTreeSection:
         """
         This method creates the Typed ResultSection for Process (Event) Trees
         :param safelist: A safelist of tree IDs that is to be applied to the events
+        :param heuristic: The heuristic_id to be used in the section if signatures are to be applied
         :return: The Typed ResultSection for the Process (Event) Tree
         """
         if safelist is None:
@@ -2260,11 +2261,11 @@ class OntologyResults:
             self._convert_event_tree_to_result_section(items, event, safelist, process_tree_result_section)
         for item in items:
             process_tree_result_section.add_process(item)
-        if len(signature_list) > 0:
-            process_tree_result_section.set_heuristic(56)
-        signature_dict = Counter(signature_list)
-        for signature,occurence in signature_dict.items():
-            process_tree_result_section.heuristic.add_signature_id(signature, 0, occurence)
+        if heuristic and len(signature_list) > 0:
+            process_tree_result_section.set_heuristic(heuristic)
+            signature_dict = Counter(signature_list)
+            for signature,occurence in signature_dict.items():
+                process_tree_result_section.heuristic.add_signature_id(signature, 0, occurence)
         return process_tree_result_section
 
     def load_from_json(self, json: Dict[str, Any]) -> None:
