@@ -4,7 +4,7 @@ import re
 import shutil
 from pathlib import Path
 
-import assemblyline_v4_service.common.utils
+import assemblyline_v4_service.common.api
 import pytest
 from assemblyline.common import forge
 from assemblyline.common.dict_utils import flatten
@@ -17,7 +17,8 @@ from assemblyline_v4_service.common.task import Task
 from cart import unpack_file
 
 # Test in development mode
-assemblyline_v4_service.common.utils.DEVELOPMENT_MODE = True
+# Patching api instead of utils because at this point api is already imported with the original value
+assemblyline_v4_service.common.api.DEVELOPMENT_MODE = True
 
 class FileMissing(Exception):
     pass
