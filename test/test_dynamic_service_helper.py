@@ -2554,7 +2554,7 @@ class TestOntologyResults:
         assert nd.domain == "blah"
 
     @staticmethod
-    def ():
+    def test_add_network_dns():
         default_or = OntologyResults()
         assert default_or.dns_netflows == []
 
