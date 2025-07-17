@@ -991,7 +991,7 @@ class TestNetworkDNS:
 
         assert nd.domain == "blah"
         assert nd.resolved_ips == ["blah"]
-        assert nd.resolved_domains=None
+        assert nd.resolved_domains == None
         assert nd.lookup_type == "A"
 
     @staticmethod
