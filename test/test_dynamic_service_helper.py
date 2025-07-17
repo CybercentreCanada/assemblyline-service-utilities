@@ -2543,14 +2543,14 @@ class TestOntologyResults:
     @staticmethod
     def test_set_dns_netflows():
         default_or = OntologyResults()
-        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], None, lookup_type="A")
+        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], resolved_domains=None, lookup_type="A")
         default_or.set_dns_netflows([nd])
         assert default_or.dns_netflows == [nd]
 
     @staticmethod
     def test_create_network_dns():
         default_or = OntologyResults()
-        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], None, lookup_type="A")
+        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], resolved_domains=None, lookup_type="A")
         assert nd.domain == "blah"
 
     @staticmethod
@@ -2558,7 +2558,7 @@ class TestOntologyResults:
         default_or = OntologyResults()
         assert default_or.dns_netflows == []
 
-        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], None, lookup_type="A")
+        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], resolved_domains=None, lookup_type="A")
         default_or.add_network_dns(nd)
         nd_as_primitives = default_or.dns_netflows[0].as_primitives()
         assert nd_as_primitives == {
