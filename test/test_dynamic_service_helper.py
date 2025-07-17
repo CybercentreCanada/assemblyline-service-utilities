@@ -708,7 +708,7 @@ class TestNetworkConnection:
             request_method="GET",
         )
 
-        dns_details = NetworkDNS(domain="blah", resolved_ips=["blah"], resolved_domains=[], lookup_type="A")
+        dns_details = NetworkDNS(domain="blah", resolved_ips=["blah"], resolved_domains=None, lookup_type="A")
 
         # Both http and dns details
         with pytest.raises(ValueError):
