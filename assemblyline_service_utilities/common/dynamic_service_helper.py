@@ -1696,9 +1696,9 @@ class OntologyResults:
         if kwargs.get("resolved_ips") is not None and kwargs.get("resolved_domains")is not None:
             network_dns = NetworkDNS(kwargs["domain"], kwargs["resolved_ips"], kwargs["resolved_domains"], kwargs["lookup_type"])
         elif kwargs.get("resolved_ips") is not None:
-            network_dns = NetworkDNS(kwargs["domain"], kwargs["resolved_ips"], kwargs["lookup_type"])
+            network_dns = NetworkDNS(kwargs["domain"], kwargs["resolved_ips"], None, kwargs["lookup_type"])
         elif kwargs.get("resolved_domains")is not None:
-            network_dns = NetworkDNS(kwargs["domain"], kwargs["resolved_domains"], kwargs["lookup_type"])
+            network_dns = NetworkDNS(kwargs["domain"], None, kwargs["resolved_domains"], kwargs["lookup_type"])
         update_object_items(network_dns, kwargs)
         return network_dns
 
