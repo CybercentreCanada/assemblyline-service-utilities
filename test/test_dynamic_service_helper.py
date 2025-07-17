@@ -996,7 +996,7 @@ class TestNetworkDNS:
 
     @staticmethod
     def test_network_dns_as_primitives():
-        nd = NetworkDNS(domain="blah", resolved_ips=["blah"], resolved_domains=None lookup_type="A")
+        nd = NetworkDNS(domain="blah", resolved_ips=["blah"], resolved_domains=None, lookup_type="A")
         nd_as_primitives = nd.as_primitives()
         assert nd_as_primitives == {
             "domain": "blah",
