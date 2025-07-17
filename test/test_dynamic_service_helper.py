@@ -983,22 +983,25 @@ class TestNetworkDNS:
             NetworkDNS(
                 domain="blah.com",
                 resolved_ips=[],
+                resolved_domains=None,
                 lookup_type="A",
             )
 
-        nd = NetworkDNS(domain="blah", resolved_ips=["blah"], lookup_type="A")
+        nd = NetworkDNS(domain="blah", resolved_ips=["blah"], resolved_domains=None, lookup_type="A")
 
         assert nd.domain == "blah"
         assert nd.resolved_ips == ["blah"]
+        assert nd.resolved_domains=None
         assert nd.lookup_type == "A"
 
     @staticmethod
     def test_network_dns_as_primitives():
-        nd = NetworkDNS(domain="blah", resolved_ips=["blah"], lookup_type="A")
+        nd = NetworkDNS(domain="blah", resolved_ips=["blah"], resolved_domains=None lookup_type="A")
         nd_as_primitives = nd.as_primitives()
         assert nd_as_primitives == {
             "domain": "blah",
             "resolved_ips": ["blah"],
+            "resolved_domains": None,
             "lookup_type": "A",
         }
 
