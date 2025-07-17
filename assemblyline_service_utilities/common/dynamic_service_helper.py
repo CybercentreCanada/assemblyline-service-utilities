@@ -653,6 +653,7 @@ class NetworkDNS:
         self,
         domain: str,
         resolved_ips: List[str],
+        resolved_domains: List[str],
         lookup_type: str,
     ) -> None:
         """
@@ -663,7 +664,8 @@ class NetworkDNS:
         :return: None
         """
         set_required_argument(self, "domain", domain, str)
-        set_required_argument(self, "resolved_ips", resolved_ips, List)
+        set_optional_argument(self, "resolved_ips", resolved_ips, List)
+        set_optional_argument(self, "resolved_domains", resolved_domains, List)
         set_required_argument(self, "lookup_type", lookup_type, str)
 
     def as_primitives(self) -> Dict[str, Any]:
@@ -1689,9 +1691,14 @@ class OntologyResults:
         :param kwargs: Key word arguments to be used for updating the NetworkDNS object's attributes
         :return: NetworkDNS object
         """
-        if not (kwargs.get("domain") and kwargs.get("resolved_ips") is not None and kwargs.get("lookup_type")):
+        if not (kwargs.get("domain") and (kwargs.get("resolved_ips") is not None or kwargs.get("resolved_domains") is not None) and kwargs.get("lookup_type")):
             raise ValueError("The network dns connection needs its required arguments")
-        network_dns = NetworkDNS(kwargs["domain"], kwargs["resolved_ips"], kwargs["lookup_type"])
+        if kwargs.get("resolved_ips") is not None and kwargs.get("resolved_domains")is not None:
+            network_dns = NetworkDNS(kwargs["domain"], kwargs["resolved_ips"], kwargs["resolved_domains"], kwargs["lookup_type"])
+        elif kwargs.get("resolved_ips") is not None:
+            network_dns = NetworkDNS(kwargs["domain"], kwargs["resolved_ips"], kwargs["lookup_type"])
+        elif kwargs.get("resolved_domains")is not None:
+            network_dns = NetworkDNS(kwargs["domain"], kwargs["resolved_domains"], kwargs["lookup_type"])
         update_object_items(network_dns, kwargs)
         return network_dns
 
