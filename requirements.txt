@@ -1,7 +1,7 @@
 assemblyline
 assemblyline-v4-service
 cart
-fuzzywuzzy
+rapidfuzz
 pefile
 pillow
 regex
