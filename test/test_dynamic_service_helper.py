@@ -708,7 +708,7 @@ class TestNetworkConnection:
             request_method="GET",
         )
 
-        dns_details = NetworkDNS(domain="blah", resolved_ips=["blah"], lookup_type="A")
+        dns_details = NetworkDNS(domain="blah", resolved_ips=["blah"], resolved_domains=None, lookup_type="A")
 
         # Both http and dns details
         with pytest.raises(ValueError):
@@ -983,22 +983,25 @@ class TestNetworkDNS:
             NetworkDNS(
                 domain="blah.com",
                 resolved_ips=[],
+                resolved_domains=None,
                 lookup_type="A",
             )
 
-        nd = NetworkDNS(domain="blah", resolved_ips=["blah"], lookup_type="A")
+        nd = NetworkDNS(domain="blah", resolved_ips=["blah"], resolved_domains=None, lookup_type="A")
 
         assert nd.domain == "blah"
         assert nd.resolved_ips == ["blah"]
+        assert nd.resolved_domains == None
         assert nd.lookup_type == "A"
 
     @staticmethod
     def test_network_dns_as_primitives():
-        nd = NetworkDNS(domain="blah", resolved_ips=["blah"], lookup_type="A")
+        nd = NetworkDNS(domain="blah", resolved_ips=["blah"], resolved_domains=None, lookup_type="A")
         nd_as_primitives = nd.as_primitives()
         assert nd_as_primitives == {
             "domain": "blah",
             "resolved_ips": ["blah"],
+            "resolved_domains": None,
             "lookup_type": "A",
         }
 
@@ -2540,14 +2543,14 @@ class TestOntologyResults:
     @staticmethod
     def test_set_dns_netflows():
         default_or = OntologyResults()
-        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], lookup_type="A")
+        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], resolved_domains=None, lookup_type="A")
         default_or.set_dns_netflows([nd])
         assert default_or.dns_netflows == [nd]
 
     @staticmethod
     def test_create_network_dns():
         default_or = OntologyResults()
-        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], lookup_type="A")
+        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], resolved_domains=None, lookup_type="A")
         assert nd.domain == "blah"
 
     @staticmethod
@@ -2555,19 +2558,20 @@ class TestOntologyResults:
         default_or = OntologyResults()
         assert default_or.dns_netflows == []
 
-        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], lookup_type="A")
+        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], resolved_domains=None, lookup_type="A")
         default_or.add_network_dns(nd)
         nd_as_primitives = default_or.dns_netflows[0].as_primitives()
         assert nd_as_primitives == {
             "domain": "blah",
             "resolved_ips": ["1.1.1.1"],
+            "resolved_domains": None,
             "lookup_type": "A",
         }
 
     @staticmethod
     def test_get_network_dns():
         default_or = OntologyResults()
-        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], lookup_type="A")
+        nd = default_or.create_network_dns(domain="blah", resolved_ips=["1.1.1.1"], resolved_domains=None, lookup_type="A")
         default_or.add_network_dns(nd)
         assert default_or.get_network_dns() == [nd]
 
@@ -2576,11 +2580,11 @@ class TestOntologyResults:
         default_or = OntologyResults()
         assert default_or.get_domain_by_destination_ip("1.1.1.1") is None
 
-        nd1 = default_or.create_network_dns(domain="blah.com", resolved_ips=["1.1.1.1"], lookup_type="A")
+        nd1 = default_or.create_network_dns(domain="blah.com", resolved_ips=["1.1.1.1"], resolved_domains=None, lookup_type="A")
         default_or.add_network_dns(nd1)
         assert default_or.get_domain_by_destination_ip("1.1.1.1") == "blah.com"
 
-        nd2 = default_or.create_network_dns(domain="blah.ca", resolved_ips=["1.1.1.1"], lookup_type="A")
+        nd2 = default_or.create_network_dns(domain="blah.ca", resolved_ips=["1.1.1.1"], resolved_domains=None, lookup_type="A")
         default_or.add_network_dns(nd2)
         assert default_or.get_domain_by_destination_ip("1.1.1.1") == "blah.com"
 
@@ -2589,11 +2593,11 @@ class TestOntologyResults:
         default_or = OntologyResults()
         assert default_or.get_destination_ip_by_domain("blah.com") is None
 
-        nd1 = default_or.create_network_dns(domain="blah.com", resolved_ips=["1.1.1.1"], lookup_type="A")
+        nd1 = default_or.create_network_dns(domain="blah.com", resolved_ips=["1.1.1.1"], resolved_domains=None, lookup_type="A")
         default_or.add_network_dns(nd1)
         assert default_or.get_destination_ip_by_domain("blah.com") == "1.1.1.1"
 
-        nd2 = default_or.create_network_dns(domain="blah.com", resolved_ips=["2.2.2.2"], lookup_type="A")
+        nd2 = default_or.create_network_dns(domain="blah.com", resolved_ips=["2.2.2.2"], resolved_domains=None, lookup_type="A")
         default_or.add_network_dns(nd2)
         assert default_or.get_destination_ip_by_domain("blah.com") == "1.1.1.1"
 
