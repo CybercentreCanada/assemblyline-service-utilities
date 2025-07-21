@@ -292,7 +292,7 @@ class PatternMatch(object):
                     if not_filtered:
                         value_extract.setdefault("network.static.ip", set()).add(val)
             else:
-                like_ls = process.extract(str(longeststring), find_ip, limit=50)
+                like_ls = process.extract(longeststring, find_ip, limit=50)
                 final_values = list(filter(lambda ls: ls[1] < 99, like_ls))
                 final_values.append((longeststring, 100))
                 for val in final_values:
@@ -312,7 +312,7 @@ class PatternMatch(object):
             elif len(find_url) == 1:
                 final_values = [(find_url[0], 100)]
             else:
-                like_ls = process.extract(str(longeststring), find_url, limit=50)
+                like_ls = process.extract(longeststring, find_url, limit=50)
                 final_values = list(filter(lambda ls: ls[1] < 95, like_ls))
                 final_values.append((longeststring, 100))
 
@@ -348,7 +348,7 @@ class PatternMatch(object):
                     if not_filtered:
                         value_extract.setdefault("network.email.address", set()).add(val)
             else:
-                like_ls = process.extract(str(longeststring), find_email, limit=50)
+                like_ls = process.extract(longeststring, find_email, limit=50)
                 final_values = list(filter(lambda ls: ls[1] < 95, like_ls))
                 final_values.append((longeststring, 100))
                 for val in final_values:
@@ -374,7 +374,7 @@ class PatternMatch(object):
                     if not_filtered:
                         value_extract.setdefault("network.static.domain", set()).add(val)
             else:
-                like_ls = process.extract(str(longeststring), find_domain, limit=50)
+                like_ls = process.extract(longeststring, find_domain, limit=50)
                 final_values = list(filter(lambda ls: ls[1] < 95, like_ls))
                 final_values.append((longeststring, 100))
                 for val in final_values:
@@ -401,7 +401,7 @@ class PatternMatch(object):
                     for val in filefind_pdb:
                         value_extract.setdefault("file.pe.pdb_filename", set()).add(val)
                 else:
-                    like_ls = process.extract(str(longeststring), filefind_pdb, limit=50)
+                    like_ls = process.extract(longeststring, filefind_pdb, limit=50)
                     final_values = list(filter(lambda ls: ls[1] < 95, like_ls))
                     final_values.append((longeststring, 100))
                     for val in final_values:
@@ -417,7 +417,7 @@ class PatternMatch(object):
                     for val in filefind_ext:
                         value_extract.setdefault("file.name.extracted", set()).add(val)
                 else:
-                    like_ls = process.extract(str(longeststring), filefind_ext, limit=50)
+                    like_ls = process.extract(longeststring, filefind_ext, limit=50)
                     final_values = list(filter(lambda ls: ls[1] < 95, like_ls))
                     final_values.append((longeststring, 100))
                     for val in final_values:
@@ -432,7 +432,7 @@ class PatternMatch(object):
                 for val in filefind_com:
                     value_extract.setdefault("file.name.extracted", set()).add(val)
             else:
-                like_ls = process.extract(str(longeststring), filefind_com, limit=50)
+                like_ls = process.extract(longeststring, filefind_com, limit=50)
                 final_values = list(filter(lambda ls: ls[1] < 95, like_ls))
                 final_values.append((longeststring, 100))
                 for val in final_values:
@@ -451,7 +451,7 @@ class PatternMatch(object):
                 for val in regfind:
                     value_extract.setdefault("dynamic.registry_key", set()).add(val)
             else:
-                like_ls = process.extract(str(longeststring), regfind, limit=50)
+                like_ls = process.extract(longeststring, regfind, limit=50)
                 final_values = list(filter(lambda ls: ls[1] < 90, like_ls))
                 final_values.append((longeststring, 100))
                 for val in final_values:
