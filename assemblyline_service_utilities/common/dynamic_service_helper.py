@@ -1723,7 +1723,7 @@ class OntologyResults:
         :param ip: The IP for which an associated domain is requested
         :return: The domain associated with the given destination IP
         """
-        if not ip:
+        if not (ip or hasattr(dns.resolved_ips, '__iter__')):
             return None
         return next(
             (dns.domain for dns in self.dns_netflows if ip in dns.resolved_ips),
@@ -1736,7 +1736,7 @@ class OntologyResults:
         :param domain: The domain for which an associated IP is requested
         :return: The IP associated with the given domain
         """
-        if not domain:
+        if not (domain or hasattr(self.dns_netflows, '__iter__')):
             return None
         return next(
             (dns.resolved_ips[0] for dns in self.dns_netflows if domain == dns.domain),
