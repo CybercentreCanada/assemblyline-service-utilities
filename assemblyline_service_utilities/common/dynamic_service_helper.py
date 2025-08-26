@@ -1740,8 +1740,6 @@ class OntologyResults:
         """
         if not (domain or hasattr(self.dns_netflows, '__iter__')):
             return None
-        if not isinstance(dns.resolved_ips, list):
-            return None
         return next(
             (dns.resolved_ips[0] for dns in self.dns_netflows if domain == dns.domain),
             None,
