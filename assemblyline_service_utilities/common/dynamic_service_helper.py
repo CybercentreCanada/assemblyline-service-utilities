@@ -1725,10 +1725,11 @@ class OntologyResults:
         """
         if not (ip and hasattr(self.dns_netflows, '__iter__')):
             return None
-        return next(
-            (dns.domain for dns in self.dns_netflows if ip in dns.resolved_ips),
-            None,
-        )
+        for dns in self.dns_netflows:
+            if "resolved_ips" in dns.keys() and "domain" in dns.keys() and dns.resolved_ips is not None:
+                if ip in dns.resolved_ips:
+                    return dns.domain
+        return None
 
     def get_destination_ip_by_domain(self, domain: str) -> Optional[str]:
         """
@@ -1738,10 +1739,11 @@ class OntologyResults:
         """
         if not (domain and hasattr(self.dns_netflows, '__iter__')):
             return None
-        return next(
-            (dns.resolved_ips[0] for dns in self.dns_netflows if domain == dns.domain),
-            None,
-        )
+        for dns in self.dns_netflows:
+            if "resolved_ips" in dns.keys() and "domain" in dns.keys() and dns.resolved_ips is not None and isinstance(dns.resolved_ips, list):
+                if domain == dns.domain:
+                    return dns.resolved_ips[0]
+        return None
 
     # NetworkHTTP manipulation methods
     def set_http_netflows(self, network_http: List[NetworkHTTP]) -> None:
