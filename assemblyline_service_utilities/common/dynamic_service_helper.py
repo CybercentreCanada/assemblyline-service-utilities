@@ -1725,6 +1725,8 @@ class OntologyResults:
         """
         if not (ip or hasattr(dns.resolved_ips, '__iter__')):
             return None
+        if not hasattr(self.dns_netflows, '__iter__'):
+            return None
         return next(
             (dns.domain for dns in self.dns_netflows if ip in dns.resolved_ips),
             None,
