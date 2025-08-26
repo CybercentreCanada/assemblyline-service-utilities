@@ -1726,7 +1726,7 @@ class OntologyResults:
         if not (ip and hasattr(self.dns_netflows, '__iter__')):
             return None
         for dns in self.dns_netflows:
-            if "resolved_ips" in dns.keys() and "domain" in dns.keys() and dns.resolved_ips is not None:
+            if hasattr(dns,"resolved_ips") and hasattr(dns,"domain") and dns.resolved_ips is not None:
                 if ip in dns.resolved_ips:
                     return dns.domain
         return None
@@ -1740,7 +1740,7 @@ class OntologyResults:
         if not (domain and hasattr(self.dns_netflows, '__iter__')):
             return None
         for dns in self.dns_netflows:
-            if "resolved_ips" in dns.keys() and "domain" in dns.keys() and dns.resolved_ips is not None and isinstance(dns.resolved_ips, list):
+            if hasattr(dns,"resolved_ips")  and hasattr(dns,"domain") and dns.resolved_ips is not None and isinstance(dns.resolved_ips, list):
                 if domain == dns.domain:
                     return dns.resolved_ips[0]
         return None
