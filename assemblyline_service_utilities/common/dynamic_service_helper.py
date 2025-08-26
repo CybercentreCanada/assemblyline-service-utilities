@@ -1725,6 +1725,8 @@ class OntologyResults:
         """
         if not (ip or hasattr(dns.resolved_ips, '__iter__')):
             return None
+        if not hasattr(self.dns_netflows, '__iter__'):
+            return None
         return next(
             (dns.domain for dns in self.dns_netflows if ip in dns.resolved_ips),
             None,
@@ -1737,6 +1739,8 @@ class OntologyResults:
         :return: The IP associated with the given domain
         """
         if not (domain or hasattr(self.dns_netflows, '__iter__')):
+            return None
+        if not isinstance(dns.resolved_ips, list):
             return None
         return next(
             (dns.resolved_ips[0] for dns in self.dns_netflows if domain == dns.domain),
