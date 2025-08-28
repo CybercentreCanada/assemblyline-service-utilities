@@ -26,6 +26,8 @@ def convert_sysmon_processes(
     :param ontres: The Ontology Results object instance
     :return: None
     """
+    if len(ontres.sandboxes) == 0:
+        return
     session = ontres.sandboxes[-1].objectid.session
     for event in sysmon:
         event_id = int(event["System"]["EventID"])
