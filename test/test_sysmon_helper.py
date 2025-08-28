@@ -98,7 +98,11 @@ class TestModule:
            'integrity_level': None, 'image_hash': None, 'original_file_name': None, 'services_involved': None, 'loaded_modules': None}), ])
     def test_convert_sysmon_processes(sysmon, expected_process, mocker):
         so = OntologyResults(service_name="CAPE")
-        mocker.patch.object(so, "sandboxes", return_value="blah")
+        sandbox = so.create_sandbox(
+            objectid=OntologyResults.create_objectid(tag="blah", ontology_id="blah", service_name="CAPE"),
+            sandbox_name="CAPE",
+        )
+        so.add_sandbox(sandbox)
         safelist = {}
         convert_sysmon_processes(sysmon, safelist, so)
         if expected_process:
