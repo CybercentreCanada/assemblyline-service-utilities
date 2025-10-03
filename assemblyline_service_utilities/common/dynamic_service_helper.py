@@ -3251,22 +3251,23 @@ def extract_iocs_from_text_blob(
     for domain in sorted(domains):
         # If a domain matches one of the following criteria, ensure that it is the hostname of a URI, otherwise
         # we don't want it
+        domain_lower = domain.lower()
         if (
-            any(domain.lower().endswith(tld) for tld in COMMON_FP_TLDS)
+            any(domain_lower.endswith(tld) for tld in COMMON_FP_TLDS)
             or (enforce_char_min and len(domain) < MIN_DOMAIN_CHARS)
             or (enforce_domain_char_max and len(domain) > MAX_DOMAIN_CHARS)
         ):
             is_domain_present_in_uri = False
             for uri in uris:
                 parsed_uri = urlparse(uri.lower())
-                if domain == parsed_uri.hostname:
+                if domain_lower == parsed_uri.hostname:
                     is_domain_present_in_uri = True
                     break
 
             # If it does, then double check that the domain is not the domain of any URI
             if not is_domain_present_in_uri:
                 continue
-        elif domain.lower() in COMMON_FP_DOMAINS:
+        elif domain_lower in COMMON_FP_DOMAINS:
             continue
 
         # File names match the domain and URI regexes, so we need to avoid tagging them

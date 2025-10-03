@@ -1,6 +1,6 @@
 from re import match, search
 from typing import Any, Dict, List, Optional, Tuple, Union
-from urllib.parse import quote_plus, urlparse, urlunparse
+from urllib.parse import quote_plus, urlsplit, urlunsplit
 
 from assemblyline_service_utilities.common.safelist_helper import is_tag_safelisted
 from assemblyline_v4_service.common.result import ResultSection
@@ -101,9 +101,18 @@ def _validate_tag(
 
     # if "uri" is in the tag, let's try to extract its domain/ip and tag it.
     if tag.endswith(".uri"):
+        split = urlsplit(value)
+        hostname = split.hostname
+        if hostname:
+            # urlsplit gives the hostname in lowercase, we want the original case
+            index = value.lower().find(hostname)
+            hostname = value[index:index+len(hostname)]
+        else:
+            hostname = value
+
         # First try to get the domain
         valid_domain = False
-        domain = search(DOMAIN_REGEX, value)
+        domain = match(DOMAIN_REGEX, hostname)
         tag_is_safelisted = False
         if domain:
             domain = domain.group()
@@ -112,7 +121,7 @@ def _validate_tag(
             )
         # Then try to get the IP
         valid_ip = False
-        ip = search(IP_REGEX, value)
+        ip = match(IP_REGEX, hostname)
         if ip:
             ip = ip.group()
             valid_ip, tag_is_safelisted = _validate_tag(result_section, f"network.{network_tag_type}.ip", ip, safelist)
@@ -122,6 +131,8 @@ def _validate_tag(
             return _tag_uri(value, result_section, network_tag_type, safelist)
         elif value in [domain, ip]:
             return (True, False)
+        elif match(URI_PATH, value):
+            return _validate_tag(result_section, f"network.{network_tag_type}.uri_path", value, safelist)
         else:
             # Might as well tag this while we're here
             result_section.add_tag("file.string.extracted", safe_str(value))
@@ -151,13 +162,12 @@ def _tag_uri(
 
     # Let's try to UrlEncode it, sometimes the queries are not UrlEncoded by default
     if not uri_match:
-        parsed_url = urlparse(url)
-        url_encoded = urlunparse(
+        parsed_url = urlsplit(url)
+        url_encoded = urlunsplit(
             [
                 parsed_url.scheme,
                 parsed_url.netloc,
                 parsed_url.path,
-                parsed_url.params,
                 quote_plus(parsed_url.query),
                 parsed_url.fragment,
             ]
