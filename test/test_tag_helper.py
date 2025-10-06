@@ -72,6 +72,10 @@ def test_get_regex_for_tag():
         ("network.static.uri", "http://blah.ca/blah", {"network.static.uri": ["http://blah.ca/blah"], "network.static.uri_path": ["/blah"]}, (True, False)),
         # Domain value tagged as URI
         ("network.static.uri", "www.blah.ca", {"network.static.domain": ["www.blah.ca"]}, (True, False)),
+        # URL with filename that can be misintrepreted as a domain
+        ("network.dynamic.uri", "https://127.0.0.1/c9k5y4.zip", {"network.dynamic.ip": ["127.0.0.1"], "network.dynamic.uri": ["https://127.0.0.1/c9k5y4.zip"], "network.dynamic.uri_path": ["/c9k5y4.zip"]}, (True, False)),
+        # URI path tagged as URI
+        ("network.dynamic.uri", "/c9k5y4.zip", {"network.dynamic.uri_path": ["/c9k5y4.zip"]}, (True, False)),
     ]
 )
 def test_validate_tag(tag, value, expected_tags, added_tag):
