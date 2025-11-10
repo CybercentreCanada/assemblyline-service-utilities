@@ -170,6 +170,8 @@ def convert_sysmon_network(
                     network_conn["dport"] = int(text)
             if any(network_conn[key] is None for key in network_conn.keys()) or not protocol:
                 continue
+            elif protocol not in network.keys():
+                continue
             elif any(
                 req["dst"] == network_conn["dst"]
                 and req["dport"] == network_conn["dport"]
