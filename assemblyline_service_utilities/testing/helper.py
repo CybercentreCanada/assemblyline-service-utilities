@@ -689,8 +689,8 @@ def check_section_equality(this, that) -> bool:
             print(f"{that.classifications}")
         if this.depth != that.depth:
             print("The depths are different:")
-            print(f"{this.depths}")
-            print(f"{that.depths}")
+            print(f"{this.depth}")
+            print(f"{that.depth}")
         if len(this.subsections) != len(that.subsections):
             print("The number of subsections are different:")
             print(f"{len(this.subsections)}")
