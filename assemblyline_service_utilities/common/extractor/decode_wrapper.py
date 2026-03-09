@@ -65,7 +65,7 @@ def map_tag_type(tag_type: str, *, dynamic: object = False) -> str | None:
         return "file.string.blacklisted"
     if tag_type.startswith("api"):
         return "file.string.api"
-    if tag_type.startswith("filename"):
+    if tag_type.endswith("filename"):
         return "file.name.extracted"
     return None
 
