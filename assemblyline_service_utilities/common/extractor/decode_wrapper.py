@@ -45,6 +45,7 @@ BLACKLIST = {
     "event",
     "guid",
     "key",
+    "network.http_header",
     "network.string",
     "oid",
     "os_name",
