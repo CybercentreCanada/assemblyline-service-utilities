@@ -32,6 +32,7 @@ DYNAMIC_TAG_MAP = {
 TAG_MAP = {
     "network.email": "network.email.address",
     "powershell.cmdlet": "file.powershell.cmdlet",
+    "network.protocol": "network.protocol",
 }
 
 BLACKLIST = {
@@ -44,7 +45,6 @@ BLACKLIST = {
     "event",
     "guid",
     "key",
-    "network.protocol",
     "network.string",
     "oid",
     "os_name",
