@@ -8,8 +8,11 @@ def convert_url_to_https(method: str, url: str) -> str:
     due to TLS decryption + forwarding, so we want to convert these URIs to the
     original format when tagging them / reporting them in a service.
     """
-    parsed_url = urlparse(url)
-
+    try:
+        parsed_url = urlparse(url)
+    except:
+        return ""
+        
     # We can only do this if the scheme is http
     if parsed_url.scheme.lower() != "http":
         return url
