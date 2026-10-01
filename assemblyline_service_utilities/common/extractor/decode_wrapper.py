@@ -32,6 +32,7 @@ DYNAMIC_TAG_MAP = {
 TAG_MAP = {
     "network.email": "network.email.address",
     "powershell.cmdlet": "file.powershell.cmdlet",
+    "network.protocol": "network.protocol",
 }
 
 BLACKLIST = {
@@ -43,13 +44,17 @@ BLACKLIST = {
     "environment.windows",
     "event",
     "guid",
-    "network.protocol",
+    "key",
+    "network.http_header",
     "network.string",
     "oid",
+    "os_name",
+    "powershell.cmdlet",
     "privilege",
     "ransomware.string",
     "sandbox.id",
     "security_identifier",
+    "user_agent",
     "vba.name",
     "windows.registry",
 }
@@ -65,7 +70,7 @@ def map_tag_type(tag_type: str, *, dynamic: object = False) -> str | None:
         return "file.string.blacklisted"
     if tag_type.startswith("api"):
         return "file.string.api"
-    if tag_type.startswith("filename"):
+    if tag_type.endswith("filename"):
         return "file.name.extracted"
     return None
 
